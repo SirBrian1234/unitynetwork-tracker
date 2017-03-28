@@ -5,11 +5,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import kostiskag.unitynetwork.tracker.App;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author kostis

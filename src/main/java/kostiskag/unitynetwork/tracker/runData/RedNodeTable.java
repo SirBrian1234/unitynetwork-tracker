@@ -1,10 +1,10 @@
 package kostiskag.unitynetwork.tracker.runData;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 import java.sql.Time;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 
 /**
  *

@@ -1,11 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker.GUI;
 
 import javax.swing.table.DefaultTableModel;
-
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.runData.*;
 

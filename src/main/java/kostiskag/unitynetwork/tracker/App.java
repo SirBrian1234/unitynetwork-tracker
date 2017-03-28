@@ -1,16 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker;
-
-import kostiskag.unitynetwork.tracker.GUI.MainWindow;
-import kostiskag.unitynetwork.tracker.database.DBConnection;
-import kostiskag.unitynetwork.tracker.functions.*;
-import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
-import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
-import kostiskag.unitynetwork.tracker.sonarService.Sonar;
-import kostiskag.unitynetwork.tracker.trackService.TrackServer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,10 +10,17 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
+import kostiskag.unitynetwork.tracker.GUI.MainWindow;
+import kostiskag.unitynetwork.tracker.database.DBConnection;
+import kostiskag.unitynetwork.tracker.functions.*;
+import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
+import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
+import kostiskag.unitynetwork.tracker.sonarService.Sonar;
+import kostiskag.unitynetwork.tracker.trackService.TrackServer;
 
 /**
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class App {
 

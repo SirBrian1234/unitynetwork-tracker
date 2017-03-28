@@ -1,17 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker.trackService;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.DBConnection;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.MD5Functions;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
-
-import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -21,6 +9,12 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.DBConnection;
+import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.MD5Functions;
+import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
 
 /**
  *

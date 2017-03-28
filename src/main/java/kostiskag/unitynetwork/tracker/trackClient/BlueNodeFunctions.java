@@ -1,17 +1,12 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker.trackClient;
-
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.sql.Time;
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 /**
  *

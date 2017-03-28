@@ -1,12 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker.trackService;
-
-import kostiskag.unitynetwork.tracker.database.DBConnection;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.trackService.BlueNodeFunctions.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import kostiskag.unitynetwork.tracker.database.DBConnection;
+import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 /**
  *

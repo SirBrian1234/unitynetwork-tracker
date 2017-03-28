@@ -7,7 +7,6 @@ package kostiskag.unitynetwork.tracker.trackService;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 /**
