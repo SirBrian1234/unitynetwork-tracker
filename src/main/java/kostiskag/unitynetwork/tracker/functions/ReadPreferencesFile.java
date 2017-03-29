@@ -1,7 +1,11 @@
 package kostiskag.unitynetwork.tracker.functions;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -14,15 +18,11 @@ import kostiskag.unitynetwork.tracker.App;
  */
 public class ReadPreferencesFile {       
 
-    public static void ParseFile(InputStream file) {
+    public static void ParseFile(InputStream file) throws IOException {
         
         Properties cfg = new java.util.Properties();
-        try {        
-            cfg.load(file);
-        } catch (IOException ex) {
-            Logger.getLogger(ReadPreferencesFile.class.getName()).log(Level.SEVERE, null, ex);
-        }
-                
+        cfg.load(file);
+       
         String NetworkName = cfg.getProperty("NetworkName");
         String AuthPort = cfg.getProperty("AuthPort");
         
@@ -63,5 +63,56 @@ public class ReadPreferencesFile {
         System.out.println("logging is "+App.log);        
         System.out.println("ping time is "+App.pingTime+" sec");        
         System.out.println("");                
-    }   
+    }
+
+	public static void GenerateFile(File file) throws FileNotFoundException, UnsupportedEncodingException {
+		PrintWriter writer = new PrintWriter(file, "UTF-8");
+	    writer.print(""
+	    		+ "#############################################\n"
+	    		+ "#         Unity Tracker Config File         #\n"
+	    		+ "#############################################\n"
+	    		+ "\n"
+	    		+ "# please do not comment any variable nor remove any. this will result in error\n"
+	    		+ "# instead only change the value to an appropriate input as described\n"
+	    		+ "# WARNING DO NOT MAKE SPACES AFTER A NUMBER\n"
+	    		+ "\n"
+	    		+ "# first of all what shall be the name of the netwrok?\n"
+	    		+ "# and the authport! default 8000\n"
+	    		+ "\n"
+	    		+ "NetworkName = UnityNetwork\n"
+	    		+ "AuthPort = 8000\n"
+	    		+ "\n"
+	    		+ "#\n"
+	    		+ "# database settings\n"
+	    		+ "#\n"
+	    		+ "# the url should be in this type of form for mysql\n"
+	    		+ "# DatabaseUrl = jdbc:mysql://IPaddress:port/database\n"
+	    		+ "# DatabaseUser = username\n"
+	    		+ "# DatabsePassword = password\n"
+	    		+ "#\n"
+	    		+ "# the url should be in this type of form for sqlite\n"
+	    		+ "# DatabaseUrl = jdbc:sqlite:local_database_file.db\n"
+	    		+ "#\n"
+	    		+ "\n"
+	    		+ "DatabaseUrl = jdbc:sqlite:unity.db\n"
+	    		+ "\n"
+	    		+ "# enable GUI\n"
+	    		+ "enableGUI = true\n"
+	    		+ "\n"
+	    		+ "# network capacity\n"
+	    		+ "RedNodeCapacity = 1000\n"
+	    		+ "BlueNodeCapacity = 20\n"
+	    		+ "\n"
+	    		+ "# logging... in tracker.log\n"
+	    		+ "# true ~ false\n"
+	    		+ "log = true\n"
+	    		+ "\n"
+	    		+ "# ping time in sec\n"
+	    		+ "# ping is the function where the tracker searches for all active BNs ion order\n"
+	    		+ "# to find if someone does not respond\n"
+	    		+ "# because a BN is ought to be connectionless with tracker\n"
+	    		+ "ping = 20\n"
+	    		+ "");    	    
+	    writer.close();		
+	}   
 }

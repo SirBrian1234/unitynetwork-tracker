@@ -2,7 +2,6 @@ package kostiskag.unitynetwork.tracker;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +11,7 @@ import java.util.logging.Logger;
 import javax.swing.UIManager;
 import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 import kostiskag.unitynetwork.tracker.database.DBConnection;
-import kostiskag.unitynetwork.tracker.functions.*;
+import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
 import kostiskag.unitynetwork.tracker.sonarService.Sonar;
@@ -147,18 +146,38 @@ public class App {
     }
 
     /*
-     * THIS IS THE "MAIN" EVERYTHING STARTS FROM HERE    
+     * main class here
      */
     public static void main(String[] args) {
         System.out.println("@Started main at " + Thread.currentThread().getName());
-        System.out.println("Reading Configuration File... ");
-        try {
-            InputStream file = new FileInputStream("tracker.conf");
-            ReadPreferencesFile.ParseFile(file);
-        } catch (FileNotFoundException ex) {
-            System.err.println("File not found make sure there is tracker.conf file in your dir");
-            die();
-        }
+        
+        String filename = "tracker.conf";
+		InputStream filein = null;
+		System.out.println("Opening configuration file " + filename + "...");
+		File file = new File(filename);
+		if (file.exists()) {
+			try {
+				filein = new FileInputStream(file);
+				ReadPreferencesFile.ParseFile(filein);
+				filein.close();
+			} catch (Exception e) {
+				System.err.println("File "+filename+" could not be loaded");
+				e.printStackTrace();
+				die();
+			}
+		} else {
+			System.out.println(filename+" file not found in the dir. Generating new file with the default settings");			
+     		try {
+     			ReadPreferencesFile.GenerateFile(file);
+				filein = new FileInputStream(file);
+				ReadPreferencesFile.ParseFile(filein);
+				filein.close();
+			} catch (Exception e) {
+				System.err.println("File "+filename+" could not be loaded");
+				e.printStackTrace();
+				die();
+			}
+		}
 
         if (gui) {
             System.out.println("checking gui libraries...");
