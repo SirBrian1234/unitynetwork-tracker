@@ -7,9 +7,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import kostiskag.unitynetwork.tracker.App;
 
 /**
@@ -23,96 +20,103 @@ public class ReadPreferencesFile {
         Properties cfg = new java.util.Properties();
         cfg.load(file);
        
-        String NetworkName = cfg.getProperty("NetworkName");
-        String AuthPort = cfg.getProperty("AuthPort");
+        String networkName = cfg.getProperty("NetworkName").replaceAll("\\s+","");
+        String authPort = cfg.getProperty("AuthPort").replaceAll("\\s+","");        
+        String databaseUrl = cfg.getProperty("DatabaseUrl").replaceAll("\\s+","");
+        String databaseUser = cfg.getProperty("DatabaseUser").replaceAll("\\s+","");
+        String databsePassword = cfg.getProperty("DatabsePassword").replaceAll("\\s+","");
+        String redNodeCapacity = cfg.getProperty("RedNodeCapacity").replaceAll("\\s+","");
+        String blueNodeCapacity = cfg.getProperty("BlueNodeCapacity").replaceAll("\\s+","");     
+        String ping = cfg.getProperty("Ping").replaceAll("\\s+","");        
+        String useGUI = cfg.getProperty("UseGUI").replaceAll("\\s+","");
+        String log = cfg.getProperty("Log").replaceAll("\\s+","");  
         
-        String DatabaseUrl = cfg.getProperty("DatabaseUrl");
-        String DatabaseUser = cfg.getProperty("DatabaseUser");
-        String DatabsePassword = cfg.getProperty("DatabsePassword");
-        
-        String enableGUI = cfg.getProperty("enableGUI");
-        
-        String RedNodeCapacity = cfg.getProperty("RedNodeCapacity");
-        String BlueNodeCapacity = cfg.getProperty("BlueNodeCapacity");      
-        
-        String Log = cfg.getProperty("log");  
-        String ping = cfg.getProperty("ping");  
-        
-        App.NetwName = NetworkName; 
-        App.auth = Integer.parseInt(AuthPort);
-        
-        App.url = DatabaseUrl;
-        App.user = DatabaseUser;
-        App.password = DatabsePassword;
-        
-        App.gui = Boolean.parseBoolean(enableGUI);        
-        App.log = Boolean.parseBoolean(Log);
-        
-        App.rncap = Integer.parseInt(RedNodeCapacity);
-        App.bncap = Integer.parseInt(BlueNodeCapacity);
-        
+        App.netName = networkName; 
+        App.auth = Integer.parseInt(authPort);        
+        App.databaseUrl = databaseUrl;
+        App.user = databaseUser;
+        App.password = databsePassword;        
+        App.rncap = Integer.parseInt(redNodeCapacity);
+        App.bncap = Integer.parseInt(blueNodeCapacity);
         App.pingTime = Integer.parseInt(ping);
-                
+        App.gui = Boolean.parseBoolean(useGUI);        
+        App.log = Boolean.parseBoolean(log);        
         
         System.out.println("");
-        System.out.println("NetworkName is "+App.NetwName);        
+        System.out.println("NetworkName is "+App.netName);        
         System.out.println("AuthPort is "+App.auth);                
-        System.out.println("gui is "+App.gui);
+        System.out.println("Database URL is "+App.databaseUrl);
         System.out.println("RedNodeLimit is "+App.rncap);
         System.out.println("BlueNodeLimit is "+App.bncap);        
-        System.out.println("logging is "+App.log);        
-        System.out.println("ping time is "+App.pingTime+" sec");        
+        System.out.println("ping time is "+App.pingTime+" sec");
+        System.out.println("gui is "+App.gui);
+        System.out.println("logging is "+App.log);                        
         System.out.println("");                
     }
 
 	public static void GenerateFile(File file) throws FileNotFoundException, UnsupportedEncodingException {
 		PrintWriter writer = new PrintWriter(file, "UTF-8");
 	    writer.print(""
-	    		+ "#############################################\n"
-	    		+ "#         Unity Tracker Config File         #\n"
-	    		+ "#############################################\n"
-	    		+ "\n"
-	    		+ "# please do not comment any variable nor remove any. this will result in error\n"
-	    		+ "# instead only change the value to an appropriate input as described\n"
-	    		+ "# WARNING DO NOT MAKE SPACES AFTER A NUMBER\n"
-	    		+ "\n"
-	    		+ "# first of all what shall be the name of the netwrok?\n"
-	    		+ "# and the authport! default 8000\n"
-	    		+ "\n"
-	    		+ "NetworkName = UnityNetwork\n"
-	    		+ "AuthPort = 8000\n"
-	    		+ "\n"
-	    		+ "#\n"
-	    		+ "# database settings\n"
-	    		+ "#\n"
-	    		+ "# the url should be in this type of form for mysql\n"
-	    		+ "# DatabaseUrl = jdbc:mysql://IPaddress:port/database\n"
-	    		+ "# DatabaseUser = username\n"
-	    		+ "# DatabsePassword = password\n"
-	    		+ "#\n"
-	    		+ "# the url should be in this type of form for sqlite\n"
-	    		+ "# DatabaseUrl = jdbc:sqlite:local_database_file.db\n"
-	    		+ "#\n"
-	    		+ "\n"
-	    		+ "DatabaseUrl = jdbc:sqlite:unity.db\n"
-	    		+ "\n"
-	    		+ "# enable GUI\n"
-	    		+ "enableGUI = true\n"
-	    		+ "\n"
-	    		+ "# network capacity\n"
-	    		+ "RedNodeCapacity = 1000\n"
-	    		+ "BlueNodeCapacity = 20\n"
-	    		+ "\n"
-	    		+ "# logging... in tracker.log\n"
-	    		+ "# true ~ false\n"
-	    		+ "log = true\n"
-	    		+ "\n"
-	    		+ "# ping time in sec\n"
-	    		+ "# ping is the function where the tracker searches for all active BNs ion order\n"
-	    		+ "# to find if someone does not respond\n"
-	    		+ "# because a BN is ought to be connectionless with tracker\n"
-	    		+ "ping = 20\n"
-	    		+ "");    	    
+		+ "#############################################\n"
+		+ "#         Unity Tracker Config File         #\n"
+		+ "#############################################\n"
+		+ "\n"
+		+ "#\n"
+		+ "# Insructions for setting up the config file\n"
+		+ "#\n"
+		+ "# Do not comment any variable nor remove any from this file as this will result\n"
+		+ "# in an application error. Change the value to an appropriate input as described\n"
+		+ "# instead. If this file gets messed up, you may delete it and it will be\n"
+		+ "# auto-generated from the app in its next run.\n"
+		+ "#\n"
+		+ "\n"
+		+ "#\n"
+		+ "# Network and Tracker Settings\n"
+		+ "#\n"
+		+ "# First of all what shall be the name of the netwrok?\n"
+		+ "# Provide a TCP auth port as well. The default is 8000.\n"
+		+ "NetworkName = UnityNetwork\n"
+		+ "AuthPort = 8000\n"
+		+ "\n"
+		+ "#\n"
+		+ "# Database Settings\n"
+		+ "#\n"
+		+ "# the url should be in this type of form for mysql\n"
+		+ "# DatabaseUrl = jdbc:mysql://IPaddress:port/database\n"
+		+ "# DatabaseUser = username\n"
+		+ "# DatabsePassword = password\n"
+		+ "#\n"
+		+ "# the url should be in this type of form for sqlite\n"
+		+ "# DatabaseUrl = jdbc:sqlite:local_database_file.db\n"
+		+ "#\n"
+		+ "DatabaseUrl = jdbc:sqlite:unity.db\n"
+		+ "DatabaseUser = username\n"
+		+ "DatabsePassword = password\n"
+		+ "\n"
+		+ "#\n"
+		+ "# Load and Capacity\n"
+		+ "#\n"
+		+ "\n"
+		+ "RedNodeCapacity = 1000\n"
+		+ "BlueNodeCapacity = 20\n"
+		+ "\n"
+		+ "# ping time in sec\n"
+		+ "# ping is the time gap where the tracker may search for all active BlueNodes\n"
+		+ "# in order to detect whether someone is not responding\n"
+		+ "Ping = 20\n"
+		+ "\n"
+		+ "#\n"
+		+ "# Application behaviour\n"
+		+ "#\n"
+		+ "\n"
+		+ "# set GUI or command line\n"
+		+ "# use true or false\n"
+		+ "UseGUI = true\n"
+		+ "\n"
+		+ "# Logging in tracker.log\n"
+		+ "# use true or false\n"
+		+ "Log = true\n"
+	    + "");
 	    writer.close();		
 	}   
 }

@@ -28,10 +28,10 @@ public class App {
     public static BlueNodeTable BNtable;
     public static RedNodeTable RNtable;
     public static boolean gui = true;
-    public static String NetwName;
+    public static String netName;
     public static int auth;
     //database
-    public static String url;
+    public static String databaseUrl;
     public static String user;
     public static String password;
     //capacity
@@ -74,7 +74,7 @@ public class App {
         RNtable = new RedNodeTable(rncap);
 
         //3. db
-        ConsolePrint("Testing Database Connection on " + url + " ... ");
+        ConsolePrint("Testing Database Connection on " + databaseUrl + " ... ");
         DBConnection con = new DBConnection();
         if (con != null) {
             ConsolePrint("Database OK");

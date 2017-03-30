@@ -16,7 +16,7 @@ public class DBConnection {
     public DBConnection() {
         con = null;        
 
-        String url = App.url;
+        String url = App.databaseUrl;
         String user = App.user;
         String password = App.password;
 
