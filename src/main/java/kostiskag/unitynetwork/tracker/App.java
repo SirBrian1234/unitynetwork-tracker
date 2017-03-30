@@ -23,7 +23,10 @@ import kostiskag.unitynetwork.tracker.trackService.TrackServer;
  */
 public class App {
 
-    public static TrackServer track;
+    //file names
+	public static String configFileName = "tracker.conf"; 
+	//data		
+	public static TrackServer track;
     private static MainWindow window;
     public static BlueNodeTable BNtable;
     public static RedNodeTable RNtable;
@@ -151,29 +154,28 @@ public class App {
     public static void main(String[] args) {
         System.out.println("@Started main at " + Thread.currentThread().getName());
         
-        String filename = "tracker.conf";
-		InputStream filein = null;
-		System.out.println("Opening configuration file " + filename + "...");
-		File file = new File(filename);
+        InputStream filein = null;
+		System.out.println("Opening configuration file " + configFileName + "...");
+		File file = new File(configFileName);
 		if (file.exists()) {
 			try {
 				filein = new FileInputStream(file);
 				ReadPreferencesFile.ParseFile(filein);
 				filein.close();
 			} catch (Exception e) {
-				System.err.println("File "+filename+" could not be loaded");
+				System.err.println("File "+configFileName+" could not be loaded");
 				e.printStackTrace();
 				die();
 			}
 		} else {
-			System.out.println(filename+" file not found in the dir. Generating new file with the default settings");			
+			System.out.println(configFileName+" file not found in the dir. Generating new file with the default settings");			
      		try {
      			ReadPreferencesFile.GenerateFile(file);
 				filein = new FileInputStream(file);
 				ReadPreferencesFile.ParseFile(filein);
 				filein.close();
 			} catch (Exception e) {
-				System.err.println("File "+filename+" could not be loaded");
+				System.err.println("File "+configFileName+" could not be loaded");
 				e.printStackTrace();
 				die();
 			}
