@@ -32,6 +32,29 @@ UnityNetwork is composed by three software applications which may be found on th
 * unitynetwork-bluenode [https://github.com/kostiskag/unitynetwork-bluenode] : Bluenode hosts are responsible to forward the network traffic from rednode to bluenode and from bluenode to bluenode. All the bluenodes use a tracker to authenticate.
 * unitynetwork-rednode  [https://github.com/kostiskag/unitynetwork-rednode] : The rednode is the host-client application which is able to transfer a host to the network and exchange traffic towards the closest bluenode.
 
-# unitynetwork-...
+# unitynetwork-tracker
+The tracker is responsible to keep the network authentication and identification data but does not forward any network traffic.
 
+## Requirements
+In order to build this project, Java JDK 1.7 or greater and Apache Maven have to already be installed on your system.
 
+## Build
+```
+git clone https://github.com/kostiskag/unitynetwork-tracker.git
+cd unitynetwork-tracker
+mvn package
+```
+
+## Run
+```
+cd target
+```
+Edit **tracker.conf** file with a text editor to define the virtual network's behaviour
+```
+java -jar UnityNetwork_Tracker-1.0.jar 
+```
+
+## License
+The project's article and source code are licensed under Creative Commons Atribution 4.0 International: https://creativecommons.org/licenses/by/4.0/
+
+You may use the source code commercially. You should provide the appropriate attribution for all the authors involved in this project.
