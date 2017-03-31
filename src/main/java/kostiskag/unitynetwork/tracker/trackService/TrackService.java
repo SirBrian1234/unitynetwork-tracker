@@ -17,8 +17,6 @@ import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
  *
  * WARNING MYSQL ON LINUX IS CASE SENSITIVE
  *
- *
- *
  */
 public class TrackService extends Thread {
 
@@ -130,7 +128,7 @@ public class TrackService extends Thread {
     private void RedNodeService(String hostname) {
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         if (args.length == 1 && args[0].equals("GETBNS")) {
-             RedNodeFunctions.getAllBlueNodes(reader, writer, socket);
+             RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);
         } else if (args.length == 1 && args[0].equals("GETRBN")) {
             RedNodeFunctions.getRecomendedBlueNode(reader, writer, socket);
         } else {
@@ -138,27 +136,5 @@ public class TrackService extends Thread {
             SocketFunctions.sendFinalData(data, writer);
         }  
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
 }

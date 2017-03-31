@@ -1,5 +1,9 @@
 package kostiskag.unitynetwork.tracker.GUI;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.runData.*;
@@ -20,7 +24,7 @@ public class MainWindow extends javax.swing.JFrame {
         bluenodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Physical Address", "Auth Port",  "RedNode Load", "Timestamp"});
         rednodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp"});        
         initComponents();
-        setTitle("lvl4 UnityTracker");
+        setTitle("UnityNetwork Tracker");
     }
 
     /**
@@ -54,6 +58,18 @@ public class MainWindow extends javax.swing.JFrame {
         jCheckBox1 = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent we)
+            { 
+                String ObjButtons[] = {"Yes","No"};
+                int PromptResult = JOptionPane.showOptionDialog(null,"Are you sure you wish to terminate the Tracker?\nThis may result in the overall network termination.\nIf you decide to close the Tracker, it will send the appropriate kill signals to the connected BlueNodes.","",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
+                if(PromptResult==JOptionPane.YES_OPTION)
+                {
+                    System.exit(0);
+                }
+            }
+        });
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("BlueNodes"));
 

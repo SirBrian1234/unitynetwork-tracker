@@ -7,6 +7,8 @@ package kostiskag.unitynetwork.tracker.trackService;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 /**
@@ -14,20 +16,6 @@ import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
  * @author kostis
  */
 public class RedNodeFunctions {
-
-	// kanonika auth einai mia poluplokh sunarthsh opou upologizei kodinoterh
-	// apostash
-	// kai meiomeno forto ergasias alla edw apla petame ton prwto BN
-	/*
-	 * 
-	 * 
-	 * TO DO STUFF
-	 * 
-	 * 
-	 * mexri twra upologizetai mono to load alla tha prepei na upologizetai kai
-	 * to distance
-	 * 
-	 */
 
 	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) {
 		String data;
@@ -44,14 +32,14 @@ public class RedNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	static void getAllBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) {
-		int size = kostiskag.unitynetwork.tracker.App.BNtable.getSize();
+	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) {
+		int size = App.BNtable.getSize();
 		SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
 		for (int i = 0; i < size; i++) {
-			String hostname = kostiskag.unitynetwork.tracker.App.BNtable.getBlueNodeEntry(i).getHostname();
-			String phaddress = kostiskag.unitynetwork.tracker.App.BNtable.getBlueNodeEntry(i).getPhaddress();
-			int port = kostiskag.unitynetwork.tracker.App.BNtable.getBlueNodeEntry(i).getPort();
-			int load = kostiskag.unitynetwork.tracker.App.BNtable.getBlueNodeEntry(i).getLoad();
+			String hostname = App.BNtable.getBlueNodeEntry(i).getHostname();
+			String phaddress = App.BNtable.getBlueNodeEntry(i).getPhaddress();
+			int port = App.BNtable.getBlueNodeEntry(i).getPort();
+			int load = App.BNtable.getBlueNodeEntry(i).getLoad();
 			SocketFunctions.sendFinalData(hostname + " " + phaddress + " " + port + " " + load, writer);
 		}
 		SocketFunctions.sendFinalData("", writer);
