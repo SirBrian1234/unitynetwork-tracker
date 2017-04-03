@@ -6,13 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
 import kostiskag.unitynetwork.tracker.GUI.MainWindow;
-import kostiskag.unitynetwork.tracker.database.DBConnection;
+import kostiskag.unitynetwork.tracker.database.Database;
+import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
@@ -27,6 +26,7 @@ public class App {
 
 	// file names
 	public static String configFileName = "tracker.conf";
+	public static String logFileName = "tracker.log";
 	// data
 	public static TrackServer track;
 	private static MainWindow window;
@@ -59,8 +59,8 @@ public class App {
 
 		// 1. log
 		if (log) {
-			ConsolePrint("initializing log file");
-			logFile = new File("tracker.log");
+			ConsolePrint("initializing log file "+logFileName);
+			File logFile = new File(logFileName);
 			FileWriter fw;
 			try {
 				fw = new FileWriter(logFile, false);
@@ -68,7 +68,7 @@ public class App {
 				fw.close();
 			} catch (IOException ex) {
 				Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-				ConsolePrint("file error! check for permissions.. if the error continues disable log from settings");
+				ConsolePrint("Log file error! If the error continues disable logging from the "+configFileName+" file.");
 				die();
 			}
 		}
@@ -78,31 +78,18 @@ public class App {
 		BNtable = new BlueNodeTable(bncap);
 		RNtable = new RedNodeTable(rncap);
 
-		// 3. db
+		// 3. database
 		ConsolePrint("Testing Database Connection on " + databaseUrl + " ... ");
-		DBConnection con = new DBConnection();
-		if (con != null) {
-
-			try {
-				ConsolePrint("Testing Database tables ...");
-				validateDatabase(con);
-			} catch (SQLException e) {
-				e.printStackTrace();
-				die();
-			}
-
-			try {
-				con.getCon().close();
-			} catch (SQLException ex) {
-				Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-				die();
-			}
-
-		} else {
-			ConsolePrint("Database error! Check for valid address or valid credentials.");
+		testDbConnection();
+		try {
+			Queries.validateDatabase();
+		} catch (SQLException e) {
+			ConsolePrint("Database validation failed.");
+			e.printStackTrace();
 			die();
-		} 		
+		}
 		ConsolePrint("Database validation complete.");
+		
 
 		// 4. socket
 		ConsolePrint("initializing AuthService on port " + auth + " ...");
@@ -110,7 +97,7 @@ public class App {
 			track = new TrackServer(auth);
 			track.start();
 		} else {
-			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the .conf");
+			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the "+configFileName);
 		}
 
 		// 5. sonar
@@ -118,7 +105,7 @@ public class App {
 			Sonar sonar = new Sonar(pingTime);
 			sonar.start();
 		} else {
-			ConsolePrint("Non valid ping time detected. correct the .conf");
+			ConsolePrint("Non valid ping time detected. Please correct the "+configFileName+" file");
 			die();
 		}
 	}
@@ -161,49 +148,28 @@ public class App {
 		System.exit(1);
 	}
 
-	public static void validateDatabase(DBConnection con) throws SQLException {
-		 Connection conn = con.getCon();
-		 String sql = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
-	                + "	id INT(10) PRIMARY KEY,\n"
-	                + "	name CHAR(128) NOT NULL\n"	                
-	                + ");";
-		 
-	        try {
-	        	Statement stmt = conn.createStatement();
-	            stmt.execute(sql);
-	        } catch (SQLException e) {
-	        	ConsolePrint(e.getMessage());
-	            die();
-	        }
-	    
-	        sql = "CREATE TABLE IF NOT EXISTS hostnames (\n"
-	                + "	id INT(10) PRIMARY KEY,\n"
-	                + "	name CHAR(128) NOT NULL,\n"
-	                + " userid INT(11) NOT NULL\n"
-	                + ");";
-	        
-	        try {
-	        	Statement stmt = conn.createStatement();
-	            stmt.execute(sql);
-	        } catch (SQLException e) {
-	        	ConsolePrint(e.getMessage());
-	            die();
-	        }
-	        
-	        sql = "CREATE TABLE IF NOT EXISTS users (\n"
-	                + "	id INT(10) PRIMARY KEY,\n"
-	                + "	username CHAR(128) DEFAULT NULL,\n"
-	                + "	password CHAR(256) DEFAULT NULL,\n"
-	                + "	fullname CHAR(128) NOT NULL\n"
-	                + ");";
-	        
-	        try {
-	        	Statement stmt = conn.createStatement();
-	            stmt.execute(sql);
-	        } catch (SQLException e) {
-	        	ConsolePrint(e.getMessage());
-	            die();
-	        }   	        
+	public static void testDbConnection() {		
+		Database db = null;
+		try {
+			db = new Database();
+		} catch (SQLException e) {
+			ConsolePrint("Database error! Check for valid address or valid credentials.");
+			e.printStackTrace();
+			try {
+				db.close();
+			} catch (SQLException ex) {
+				e.printStackTrace();
+				die();
+			}			
+			die();
+		}		
+		
+		try {
+			db.close();
+		} catch (SQLException e) {			
+			e.printStackTrace();
+			die();
+		}
 	}
 
 	/*
@@ -226,22 +192,22 @@ public class App {
 				die();
 			}
 		} else {
-			System.out.println(
-					configFileName + " file not found in the dir. Generating new file with the default settings");
+			System.out.println("The "+configFileName 
+					+ " file was not found in the dir. Generating new file with the default settings");
 			try {
 				ReadPreferencesFile.GenerateFile(file);
 				filein = new FileInputStream(file);
 				ReadPreferencesFile.ParseFile(filein);
 				filein.close();
 			} catch (Exception e) {
-				System.err.println("File " + configFileName + " could not be loaded");
+				System.err.println("File " + configFileName + " could not be loaded.");
 				e.printStackTrace();
 				die();
 			}
 		}
 
 		if (gui) {
-			System.out.println("checking gui libraries...");
+			System.out.println("Checking GUI libraries...");
 			try {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
 			} catch (Exception e) {
@@ -252,7 +218,7 @@ public class App {
 						UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
 					} catch (Exception ex1) {
 						System.err.println(
-								"Although requested for gui there are no gui libs on the machiene. please fix it or disable gui from .conf");
+								"Although requested for GUI there are no Java GUI libs on the system. If you are unable to solve this error you may disable the GUI from the "+configFileName+" config file.");
 						die();
 					}
 				}

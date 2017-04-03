@@ -10,7 +10,7 @@ import java.sql.Time;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.DBConnection;
+import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.MD5Functions;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
@@ -18,24 +18,39 @@ import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
 
 /**
  *
- * @author kostis These are all the queries a bluenode may do
+ * @author kostis 
+ * 
+ * These are all the queries a BlueNode may do:
  *
- * LEASE BN LEASE RN [NAME] RELEASE BN RELEASE RN [NAME] GETPH CHECKRN
+ * LEASE BN 
+ * LEASE RN [NAME] 
+ * RELEASE BN 
+ * RELEASE RN [NAME] 
+ * GETPH CHECKRN
+ * 
  */
 public class BlueNodeFunctions {
     
 
-    public static void BlueLease(String BlueNodeHostname, String givenPort, DBConnection con, ResultSet GetResults, PrintWriter writer, Socket socket) {
+    public static void BlueLease(String BlueNodeHostname, String givenPort, PrintWriter writer, Socket socket) {
 
         String data = null;
-        GetResults = Queries.GetResults("SELECT name from bluenodes", con);
-        if (GetResults == null) {
-            return;
-        }
+        Queries q;
+        ResultSet getResults = null;
+        
+        try {
+        	q = new Queries();
+			getResults = q.selectNameBluenodes();
+			q.closeQueries();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return;
+		}
+        
         boolean found = false;
         try {
-            while (GetResults.next() && !found) {
-                if (GetResults.getString("name").equals(BlueNodeHostname)) {
+            while (getResults.next() && !found) {
+                if (getResults.getString("name").equals(BlueNodeHostname)) {
                     found = true;
                     String address = socket.getInetAddress().getHostAddress();
                     int port = Integer.parseInt(givenPort);
@@ -60,41 +75,56 @@ public class BlueNodeFunctions {
         SocketFunctions.sendFinalData(data, writer);
     }
 
-    public static void RedLease(String BlueNodeHostname, String givenHostname, String username, String password, DBConnection con, ResultSet GetResults, PrintWriter writer) {
-        int userauth = checkUser(password, con, GetResults);
+    public static void RedLease(String BlueNodeHostname, String givenHostname, String username, String password, PrintWriter writer) {
+        int userauth = checkUser(password);
         String data = null;
+        
+        Queries q;
+        ResultSet getResults = null;
+        
         if (userauth > 0) {
             boolean found = false;
             try {
-                GetResults = Queries.GetResults("SELECT id, hostname FROM hostnames where userid='" + userauth + "'", con);
-                if (GetResults == null) {
-                    return;
-                }
-                while (GetResults.next() && !found) {
-                    String hostname = GetResults.getString("hostname");                    
-                    if (hostname.equals(givenHostname)) {
-                        found = true;
-                        if (!App.RNtable.checkOnlineByHn(hostname)) {
-                            int id = GetResults.getInt("id");
-                            int inuserid = checkUser(password, con, GetResults);
-                            if (userauth == inuserid) {
-                                App.RNtable.lease(hostname, VAddressFunctions.numberTo10ipAddr(""+id), BlueNodeHostname, new Time(System.currentTimeMillis()));
-                                data = "LEASED " + id;
-                                App.BNtable.getBlueNodeEntryByHn(BlueNodeHostname).increaseLoad();
-                            } else {
-                                data = "USER_HOSTNAME_MISSMATCH";
-                            }
-                        } else {
-                            data = "ALLREADY_LEASED";
-                        }
-                    }
-                }
-                if (found == false) {
-                    data = "LEASE_FAILED";
-                }
+            	q = new Queries();            	
+                getResults = q.selectIdHostnamesFromHostnamesWithUserid(userauth);
+                q.closeQueries();
             } catch (SQLException ex) {
                 Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
                 data = "SYSTEM_ERROR";
+            }
+            
+            if (getResults == null) {
+            	data = "SYSTEM_ERROR";
+            } else {            
+	            try {
+					while (getResults.next() && !found) {
+					    String hostname = getResults.getString("hostname");                    
+					    if (hostname.equals(givenHostname)) {
+					        found = true;
+					        if (!App.RNtable.checkOnlineByHn(hostname)) {
+					            int id = getResults.getInt("id");
+					            int inuserid = checkUser(password);
+					            if (userauth == inuserid) {
+					                App.RNtable.lease(hostname, VAddressFunctions.numberTo10ipAddr(""+id), BlueNodeHostname, new Time(System.currentTimeMillis()));
+					                data = "LEASED " + id;
+					                App.BNtable.getBlueNodeEntryByHn(BlueNodeHostname).increaseLoad();
+					            } else {
+					                data = "USER_HOSTNAME_MISSMATCH";
+					            }
+					        } else {
+					            data = "ALLREADY_LEASED";
+					        }
+					    }
+					}
+					
+					if (found == false) {
+		                data = "LEASE_FAILED";
+		            }
+					
+				} catch (SQLException e) {
+					e.printStackTrace();
+					data = "SYSTEM_ERROR";
+				}
             }
             SocketFunctions.sendFinalData(data, writer);
         } else {
@@ -171,14 +201,31 @@ public class BlueNodeFunctions {
         SocketFunctions.sendFinalData(data, writer);
     }
 
-    public static int authBN(String BlueNodeHostname, DBConnection con, ResultSet GetResults) {
-        GetResults = Queries.GetResults("SELECT id, name FROM bluenodes", con);
-        if (GetResults == null) {
+    public static int authBN(String BlueNodeHostname) {
+    	Queries q = null;
+    	ResultSet getResults;
+		try {
+			q = new Queries();
+			getResults = q.selectIdNameFromBluenodes();
+			q.closeQueries();
+		} catch (SQLException e) {		
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+				return -2;
+			}
+			return -2;
+		}
+        
+        if (getResults == null) {
             return -2;
         }
+        
         try {
-            while (GetResults.next()) {
-                if (GetResults.getString("name").equals(BlueNodeHostname)) {
+            while (getResults.next()) {
+                if (getResults.getString("name").equals(BlueNodeHostname)) {
                     if (App.BNtable.checkOnlineByHn(BlueNodeHostname)) {
                         return 1;
                     } else {
@@ -193,16 +240,34 @@ public class BlueNodeFunctions {
         }
     }
 
-    public static int checkUser(String outhash, DBConnection con, ResultSet GetResults) {
+    public static int checkUser(String outhash) {
         String data;
-        GetResults = Queries.GetResults("SELECT id, username, password FROM users", con);
-        if (GetResults == null) {
+        Queries q = null;
+    	ResultSet getResults;
+    	
+    	try {
+			q = new Queries();
+			getResults = q.selectIdUsernamePasswordFromUsers();
+			q.closeQueries();
+		} catch (SQLException e) {		
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+				return -1;
+			}
+			return -1;
+		}
+    	        
+        if (getResults == null) {
             return -1;
         }
+        
         try {
             int i = 0;
-            while (GetResults.next()) {
-                data = GetResults.getString("username") + "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage" + GetResults.getString("password");
+            while (getResults.next()) {
+                data = getResults.getString("username") + "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage" + getResults.getString("password");
                 try {
                     data = MD5Functions.MD5(data);
                 } catch (NoSuchAlgorithmException ex) {
@@ -213,7 +278,7 @@ public class BlueNodeFunctions {
                     data = "SYSTEM_ERROR";
                 }
                 if (outhash.equals(data)) {
-                    return GetResults.getInt("id");
+                    return getResults.getInt("id");
                 }
             }
             return 0;
