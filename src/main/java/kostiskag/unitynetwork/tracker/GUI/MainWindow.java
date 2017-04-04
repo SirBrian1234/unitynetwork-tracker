@@ -2,10 +2,13 @@ package kostiskag.unitynetwork.tracker.GUI;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.runData.*;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
@@ -33,11 +36,27 @@ public class MainWindow extends javax.swing.JFrame {
     public static DefaultTableModel bluenodes;
     public static DefaultTableModel rednodes;
     
+    private DefaultTableModel modelBluenodesDb;
+    private DefaultTableModel modelUsersDb;
+    private DefaultTableModel modelHostnamesDb;
+    private String[] blunodesDbHead = new String[] {"id", "name", "userid"};
+    private String[] usersDbHead = new String[] {"id", "username", "password", "type", "fullname"};
+    private String[] hostnamesDbHead = new String[] {"id", "hostname", "userid"};
+    
     public MainWindow() {
         bluenodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Physical Address", "Auth Port",  "RedNode Load", "Timestamp"});
-        rednodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp"});        
+        rednodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp"});
+        
+        modelBluenodesDb = new DefaultTableModel(new String[][] {}, blunodesDbHead );
+        modelUsersDb = new DefaultTableModel(new String[][] {}, usersDbHead );
+        modelHostnamesDb = new DefaultTableModel(new String[][] {}, hostnamesDbHead );
+        
         initComponents();
         setTitle("UnityNetwork Tracker");
+        
+        table.setModel(modelUsersDb);
+        table_1.setModel(modelHostnamesDb);
+        table_2.setModel(modelBluenodesDb);        
     }
 
     /**
@@ -307,71 +326,36 @@ public class MainWindow extends javax.swing.JFrame {
         
         table = new JTable();
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setModel(new DefaultTableModel(
-        	new Object[][] {
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        		{null, null, null, null, null},
-        	},
-        	new String[] {
-        		"id", "username", "password", "type", "fullname"
-        	}
-        ));
+        
         scrollPane.setViewportView(table);
         
         btnNewButton_3 = new JButton("Reload DB");
         btnNewButton_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
         		//reload db
+        		String[][] blunodesDbData = null;
+        	    String[][] usersDbData = null;
+        	    String[][] hostnamesDbData = null;
+        		ResultSet bns, hnms, usrs;
+        		try {
+        			Queries q = new Queries();
+					bns = q.selectAllFromBluenodes();
+					hnms = q.selectAllFromHostnames();
+	        		usrs = q.selectAllFromUsers();
+	        		q.closeQueries();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+        		
+        		//bns.getFetchSize()
+        		
+        		modelBluenodesDb = new DefaultTableModel(blunodesDbData, blunodesDbHead );
+        	    modelUsersDb = new DefaultTableModel(usersDbData, usersDbHead );
+        	    modelHostnamesDb = new DefaultTableModel(hostnamesDbData, hostnamesDbHead );  
+        	    
+        	    table.setModel(modelUsersDb);
+                table_1.setModel(modelHostnamesDb);
+                table_2.setModel(modelBluenodesDb);        
         	}
         });
         btnNewButton_3.setBounds(1690, 24, 105, 89);
@@ -432,9 +416,7 @@ public class MainWindow extends javax.swing.JFrame {
             		{null, null, null},
             		{null, null, null},
             	},
-            	new String[] {
-            		"id", "hostname", "userid"
-            	}
+            	new String[] {"id", "hostname", "userid"}
         ));
         scrollPane_1.setViewportView(table_1);
         
@@ -477,26 +459,7 @@ public class MainWindow extends javax.swing.JFrame {
         
         table_2 = new JTable();
         table_2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table_2.setModel(new DefaultTableModel(
-            	new Object[][] {
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            	},
-            	new String[] {
-            		"id", "name", "userid"
-            	}
-        ));
+        
         scrollPane_2.setViewportView(table_2);
         getContentPane().setLayout(layout);
 
