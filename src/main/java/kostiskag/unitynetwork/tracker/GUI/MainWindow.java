@@ -34,6 +34,7 @@ public class MainWindow extends javax.swing.JFrame {
     /**
      * Creates new form MainWindow
      */
+	public static boolean lockDbEdit = false;	
     public static DefaultTableModel bluenodes;
     public static DefaultTableModel rednodes;
     
@@ -303,7 +304,9 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton = new JButton("Add new entry");
         btnNewButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editUser(0,0);
+        		if (!lockDbEdit) {
+        			new editUser(0,0);
+        		}
         	}
         });
         btnNewButton.setBounds(10, 11, 116, 23);
@@ -312,7 +315,9 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_1 = new JButton("Edit selected entry");
         btnNewButton_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
-        		new editUser(1,0);        		
+        		if (!lockDbEdit) {
+        			new editUser(1,0);
+        		}
         	}
         });
         btnNewButton_1.setBounds(136, 11, 133, 23);
@@ -321,7 +326,9 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_2 = new JButton("Delete selected entry");
         btnNewButton_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		//delete user
+        		if (!lockDbEdit) {
+        			//delete user
+        		}
         	}
         });
         btnNewButton_2.setBounds(279, 11, 152, 23);
@@ -359,7 +366,9 @@ public class MainWindow extends javax.swing.JFrame {
         button = new JButton("Add new entry");
         button.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editHostname(0, 0);
+        		if (!lockDbEdit) {
+        			new editHostname(0, 0);
+        		}
         	}
         });
         button.setBounds(10, 11, 116, 23);
@@ -368,7 +377,9 @@ public class MainWindow extends javax.swing.JFrame {
         button_1 = new JButton("Edit selected entry");
         button_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editHostname(1, 0);
+        		if (!lockDbEdit) {
+        			new editHostname(1, 0);
+        		}
         	}
         });
         button_1.setBounds(136, 11, 133, 23);
@@ -377,7 +388,9 @@ public class MainWindow extends javax.swing.JFrame {
         button_2 = new JButton("Delete selected entry");
         button_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		//delete hostname
+        		if (!lockDbEdit) {
+        			//delete hostname
+        		}
         	}
         });
         button_2.setBounds(279, 11, 152, 23);
@@ -411,7 +424,9 @@ public class MainWindow extends javax.swing.JFrame {
         button_3 = new JButton("Add new entry");
         button_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editBluenode(0, 0);
+        		if (!lockDbEdit) {
+        			new editBluenode(0, 0);
+        		}
         	}
         });
         button_3.setBounds(10, 11, 116, 23);
@@ -420,7 +435,9 @@ public class MainWindow extends javax.swing.JFrame {
         button_4 = new JButton("Edit selected entry");
         button_4.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editBluenode(1, 0);
+        		if (!lockDbEdit) {
+        			new editBluenode(1, 0);
+        		}
         	}
         });
         button_4.setBounds(136, 11, 133, 23);
@@ -429,7 +446,9 @@ public class MainWindow extends javax.swing.JFrame {
         button_5 = new JButton("Delete selected entry");
         button_5.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		//delete bluenode
+        		if (!lockDbEdit) {
+        			//delete bluenode
+        		}
         	}
         });
         button_5.setBounds(279, 11, 152, 23);
