@@ -4,6 +4,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
@@ -39,17 +40,18 @@ public class MainWindow extends javax.swing.JFrame {
     private DefaultTableModel modelBluenodesDb;
     private DefaultTableModel modelUsersDb;
     private DefaultTableModel modelHostnamesDb;
-    private String[] blunodesDbHead = new String[] {"id", "name", "userid"};
+    
     private String[] usersDbHead = new String[] {"id", "username", "password", "type", "fullname"};
     private String[] hostnamesDbHead = new String[] {"id", "hostname", "userid"};
+    private String[] blunodesDbHead = new String[] {"id", "name", "userid"};
     
     public MainWindow() {
         bluenodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Physical Address", "Auth Port",  "RedNode Load", "Timestamp"});
         rednodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp"});
-        
-        modelBluenodesDb = new DefaultTableModel(new String[][] {}, blunodesDbHead );
+                
         modelUsersDb = new DefaultTableModel(new String[][] {}, usersDbHead );
         modelHostnamesDb = new DefaultTableModel(new String[][] {}, hostnamesDbHead );
+        modelBluenodesDb = new DefaultTableModel(new String[][] {}, blunodesDbHead );
         
         initComponents();
         setTitle("UnityNetwork Tracker");
@@ -301,7 +303,7 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton = new JButton("Add new entry");
         btnNewButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editUser(1,0);
+        		new editUser(0,0);
         	}
         });
         btnNewButton.setBounds(10, 11, 116, 23);
@@ -310,13 +312,18 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_1 = new JButton("Edit selected entry");
         btnNewButton_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
-        		new editUser(0,0);        		
+        		new editUser(1,0);        		
         	}
         });
         btnNewButton_1.setBounds(136, 11, 133, 23);
         panel_3.add(btnNewButton_1);
         
         JButton btnNewButton_2 = new JButton("Delete selected entry");
+        btnNewButton_2.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		//delete user
+        	}
+        });
         btnNewButton_2.setBounds(279, 11, 152, 23);
         panel_3.add(btnNewButton_2);
         
@@ -332,30 +339,7 @@ public class MainWindow extends javax.swing.JFrame {
         btnNewButton_3 = new JButton("Reload DB");
         btnNewButton_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
-        		//reload db
-        		String[][] blunodesDbData = null;
-        	    String[][] usersDbData = null;
-        	    String[][] hostnamesDbData = null;
-        		ResultSet bns, hnms, usrs;
-        		try {
-        			Queries q = new Queries();
-					bns = q.selectAllFromBluenodes();
-					hnms = q.selectAllFromHostnames();
-	        		usrs = q.selectAllFromUsers();
-	        		q.closeQueries();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-        		
-        		//bns.getFetchSize()
-        		
-        		modelBluenodesDb = new DefaultTableModel(blunodesDbData, blunodesDbHead );
-        	    modelUsersDb = new DefaultTableModel(usersDbData, usersDbHead );
-        	    modelHostnamesDb = new DefaultTableModel(hostnamesDbData, hostnamesDbHead );  
-        	    
-        	    table.setModel(modelUsersDb);
-                table_1.setModel(modelHostnamesDb);
-                table_2.setModel(modelBluenodesDb);        
+        		updateDatabaseGUI();
         	}
         });
         btnNewButton_3.setBounds(1690, 24, 105, 89);
@@ -375,7 +359,7 @@ public class MainWindow extends javax.swing.JFrame {
         button = new JButton("Add new entry");
         button.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editHostname(1, 0);
+        		new editHostname(0, 0);
         	}
         });
         button.setBounds(10, 11, 116, 23);
@@ -384,13 +368,18 @@ public class MainWindow extends javax.swing.JFrame {
         button_1 = new JButton("Edit selected entry");
         button_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editHostname(0, 0);
+        		new editHostname(1, 0);
         	}
         });
         button_1.setBounds(136, 11, 133, 23);
         panel_5.add(button_1);
         
         button_2 = new JButton("Delete selected entry");
+        button_2.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		//delete hostname
+        	}
+        });
         button_2.setBounds(279, 11, 152, 23);
         panel_5.add(button_2);
         
@@ -402,19 +391,7 @@ public class MainWindow extends javax.swing.JFrame {
         table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table_1.setModel(new DefaultTableModel(
             	new Object[][] {
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
-            		{null, null, null},
+            		{null, null, null},            		
             	},
             	new String[] {"id", "hostname", "userid"}
         ));
@@ -434,7 +411,7 @@ public class MainWindow extends javax.swing.JFrame {
         button_3 = new JButton("Add new entry");
         button_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editBluenode(1, 0);
+        		new editBluenode(0, 0);
         	}
         });
         button_3.setBounds(10, 11, 116, 23);
@@ -443,13 +420,18 @@ public class MainWindow extends javax.swing.JFrame {
         button_4 = new JButton("Edit selected entry");
         button_4.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		new editBluenode(0, 0);
+        		new editBluenode(1, 0);
         	}
         });
         button_4.setBounds(136, 11, 133, 23);
         panel_7.add(button_4);
         
         button_5 = new JButton("Delete selected entry");
+        button_5.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		//delete bluenode
+        	}
+        });
         button_5.setBounds(279, 11, 152, 23);
         panel_7.add(button_5);
         
@@ -491,6 +473,103 @@ public class MainWindow extends javax.swing.JFrame {
         App.autoScrollDown = jCheckBox1.isSelected();
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
+    public void updateDatabaseGUI() {
+    	App.ConsolePrint("Received request to reload DB on GUI");
+		//reload database on gui        		
+	    String[][] usersDbData = null;
+	    String[][] hostnamesDbData = null;
+	    String[][] blunodesDbData = null;
+		ResultSet bns = null, hnms = null, usrs = null;
+		
+		try {
+			Queries q = new Queries();					
+			usrs = q.selectAllFromUsers();
+			hnms = q.selectAllFromHostnames();	        		
+    		bns = q.selectAllFromBluenodes();
+    		
+    		ArrayList<String[]> usrsList = new ArrayList<String[]>();
+    		ArrayList<String[]> hnmsList = new ArrayList<String[]>();
+    		ArrayList<String[]> bnsList = new ArrayList<String[]>();
+
+    		int i = 0;
+    		while(usrs.next()) {
+    			String entry[] = new String[5];
+    			entry[0] = new String(""+usrs.getInt("id"));
+    			entry[1] = new String(usrs.getString("username"));
+    			entry[2] = new String(usrs.getString("password"));
+    			int scope = usrs.getInt("scope");
+    			if (scope == 0) {
+    				entry[3] =  "system";
+    			} else if (scope == 1) {
+    				entry[3] =  "user";
+    			} else if (scope == 2) {
+    				entry[3] =  "robot";
+    			} else if (scope == 3) {
+    				entry[3] =  "gov/org/comp";
+    			}	        			
+    			entry[4] = new String(usrs.getString("fullname"));
+    			usrsList.add(entry);
+				i++;
+			}
+    		
+    		usersDbData = new String[usrsList.size()][5];
+    		i = 0;
+    		while (i < usrsList.size()) {
+    			usersDbData[i] = usrsList.get(i);
+    			i++;
+    		}
+			
+    		i = 0;
+    		while(hnms.next()) {
+    			String entry[] = new String[3];
+    			entry[0] = ""+hnms.getInt("id");
+    			entry[1] = hnms.getString("hostname");
+    			entry[2] = ""+hnms.getInt("userid");
+    			hnmsList.add(entry);
+				i++;
+			}
+			
+    		hostnamesDbData = new String[hnmsList.size()][3];
+    		i = 0;
+    		while (i < hnmsList.size()) {
+    			hostnamesDbData[i] = hnmsList.get(i);
+    			i++;
+    		}
+    		
+    		i = 0;
+    		while(bns.next()) {
+    			String entry[] = new String[3];
+    			entry[0] = ""+bns.getInt("id");
+    			entry[1] = bns.getString("name");
+    			entry[2] = ""+bns.getInt("userid");
+    			bnsList.add(entry);
+				i++;
+			}
+			
+    		blunodesDbData = new String[bnsList.size()][3];
+    		i = 0;
+    		while (i < bnsList.size()) {
+    			blunodesDbData[i] = bnsList.get(i);
+    			i++;
+    		}
+    		
+    		q.closeQueries();
+			
+		} catch (SQLException e) {					
+			e.printStackTrace();
+			return;
+		}
+		
+		modelBluenodesDb = new DefaultTableModel(blunodesDbData, blunodesDbHead );
+	    modelUsersDb = new DefaultTableModel(usersDbData, usersDbHead );
+	    modelHostnamesDb = new DefaultTableModel(hostnamesDbData, hostnamesDbHead );  
+	    
+	    table.setModel(modelUsersDb);
+        table_1.setModel(modelHostnamesDb);
+        table_2.setModel(modelBluenodesDb);
+        
+        repaint();
+    }
     /**
      * @param args the command line arguments
      */

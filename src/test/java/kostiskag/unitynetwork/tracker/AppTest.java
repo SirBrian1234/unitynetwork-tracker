@@ -94,9 +94,9 @@ public class AppTest extends TestCase {
     
    */
     
-    /* 
+    
     public void test5bluenodeQuery() {
-    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";
+    	App.databaseUrl = "jdbc:sqlite:unity.db";
     	try {
     		Queries.validateDatabase();
 			Queries q = new Queries();
@@ -116,7 +116,7 @@ public class AppTest extends TestCase {
 		}
     	assertTrue( true );
     }
-    */
+    
     
     /*
     public void test6hostnameQuery() {
@@ -144,7 +144,7 @@ public class AppTest extends TestCase {
     
     /*
     public void test7userQuery() {
-    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";
+    	App.databaseUrl = "jdbc:sqlite:unity.db";
     	try {
     		Queries.validateDatabase();
 			Queries q = new Queries();
@@ -169,7 +169,7 @@ public class AppTest extends TestCase {
     */
     /*
     public void test8hostnameUseridQuery() {
-    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";
+    	App.databaseUrl = "jdbc:sqlite:unity.db";
     	try {
     		Queries.validateDatabase();
 			Queries q = new Queries();
@@ -190,5 +190,6 @@ public class AppTest extends TestCase {
 			assertTrue(false);
 		}
     	assertTrue( true );
-    }*/
+    }
+    */
 }

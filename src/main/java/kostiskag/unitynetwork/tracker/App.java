@@ -24,12 +24,16 @@ import kostiskag.unitynetwork.tracker.trackService.TrackServer;
  */
 public class App {
 
+	//user input max sizes
+	public static int max_int_str_len = 32;
+	public static int max_str_len_small_size = 128;
+	public static int max_str_len_large_size = 256;
 	// file names
 	public static String configFileName = "tracker.conf";
 	public static String logFileName = "tracker.log";
 	// data
 	public static TrackServer track;
-	private static MainWindow window;
+	public static MainWindow window;
 	public static BlueNodeTable BNtable;
 	public static RedNodeTable RNtable;
 	public static boolean gui = true;

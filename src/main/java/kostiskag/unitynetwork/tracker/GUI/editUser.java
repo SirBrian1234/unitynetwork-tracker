@@ -5,9 +5,19 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Queries;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JPasswordField;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.awt.event.ActionEvent;
+import java.awt.Font;
+import java.awt.Color;
 
 public class editUser {
 
@@ -16,11 +26,14 @@ public class editUser {
 	private JLabel lblUsername;
 	private JTextField textField_1;
 	private JLabel lblPassword;
-	private JTextField textField_2;
 	private JLabel lblType;
 	private JTextField textField_3;
 	private int type;
 	private int userId;
+	private JPasswordField passwordField;
+	private JButton btnNewButton;
+	private JLabel label;
+	private JComboBox<String> comboBox;
 
 	/**
 	 * Launch the application.
@@ -43,11 +56,16 @@ public class editUser {
 	 */
 	public editUser(int type, int userId) {
 		//type is 
-		//0 for update
-		//1 for new entry
+		//0 for new entry
+		//1 for update
 		this.type = type;
 		this.userId = userId;
 		initialize();
+		if (type == 0) {
+			btnNewButton.setText("Add new entry");
+		} else {
+			btnNewButton.setText("Update entry");
+		}
 		frmEditUserEntry.setVisible(true);
 	}
 
@@ -86,18 +104,13 @@ public class editUser {
 		lblPassword.setBounds(10, 99, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblPassword);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(76, 96, 257, 20);
-		frmEditUserEntry.getContentPane().add(textField_2);
-		textField_2.setColumns(10);
-		
 		lblType = new JLabel("type");
 		lblType.setBounds(10, 141, 46, 14);
 		frmEditUserEntry.getContentPane().add(lblType);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"user", "robot", "organisation/company ", "system"}));
-		comboBox.setBounds(76, 138, 134, 20);
+		comboBox = new JComboBox<String>();
+		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"system", "user", "robot", "goverment service/organisation/company "}));
+		comboBox.setBounds(76, 138, 257, 20);
 		frmEditUserEntry.getContentPane().add(comboBox);
 		
 		JLabel lblFullName = new JLabel("full name");
@@ -109,8 +122,52 @@ public class editUser {
 		textField_3.setBounds(76, 180, 257, 20);
 		frmEditUserEntry.getContentPane().add(textField_3);
 		
-		JButton btnNewButton = new JButton("Update entry");
-		btnNewButton.setBounds(327, 228, 97, 23);
+		btnNewButton = new JButton("Add new entry");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				String password = new String(passwordField.getPassword());
+				if (!textField_1.getText().isEmpty() && !password.isEmpty() && !textField_3.getText().isEmpty()){
+					if (textField_1.getText().length() <= App.max_str_len_small_size && password.length() <= App.max_str_len_large_size && textField_3.getText().length() <= App.max_str_len_large_size) {
+						Queries q;
+						try {
+							q = new Queries();
+							if (type == 0) {			
+								q.insertEntryUsers(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
+							} else {
+								q.updateEntryUsersWithId(userId, textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
+							}
+							q.closeQueries();
+						} catch (SQLException ex) {
+							if (ex.getErrorCode() == 19) { 
+								label.setText("The given username is already taken.");
+								return;
+						    } else { 
+						    	ex.printStackTrace();
+						    }	
+						}										
+						
+						App.window.updateDatabaseGUI();
+						frmEditUserEntry.dispose();
+					
+					} else {
+						label.setText("Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.");
+					}
+				} else {
+					label.setText("Please fill in all the fields.");
+				}			
+			}
+		});
+		btnNewButton.setBounds(296, 233, 128, 23);
 		frmEditUserEntry.getContentPane().add(btnNewButton);
+		
+		passwordField = new JPasswordField();
+		passwordField.setBounds(76, 96, 257, 20);
+		frmEditUserEntry.getContentPane().add(passwordField);
+		
+		label = new JLabel("");
+		label.setForeground(new Color(204, 0, 0));
+		label.setFont(new Font("Tahoma", Font.BOLD, 14));
+		label.setBounds(10, 208, 414, 14);
+		frmEditUserEntry.getContentPane().add(label);
 	}
 }

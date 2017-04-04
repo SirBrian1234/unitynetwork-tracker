@@ -31,6 +31,15 @@ public class Queries {
 		db.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", name, password, scope, fullname);
 	}
 	
+	//to do these
+	public void updateEntryUsersWithId(int id, String username, String password, int scope, String fullName) {
+		// TODO Auto-generated method stub	
+	}
+	
+	public void deletEntryUsersWithIdUsername(int id, String username) {
+		// TODO Auto-generated method stub	
+	}
+	
 	//hostname queries
 	public ResultSet selectAllFromHostnames() throws SQLException {				
 		return db.getResultSet("SELECT * FROM hostnames"); 
@@ -40,16 +49,21 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE id = ?", id);		
 	}
 	
-	public void insertEntryBluenodes(String name, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO bluenodes VALUES (NULL, ?, ?)", name, userid);
-	}
-	
 	public ResultSet selectIdHostnamesFromHostnamesWithUserid(int userid) throws SQLException {		
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT id, hostname FROM hostnames WHERE userid= ?", userid);
 	}
 	
 	public void insertEntryHostnames(String hostname, int userid) throws SQLException {		
 		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (NULL, ?, ?)", hostname, userid);
+	}
+	
+	//to do these
+	public void updateEntryHostnamesWithId(int id, String hostname, int userid) {
+		// TODO Auto-generated method stub	
+	}
+	
+	public void deletEntryHostnamesWithIdHostname(int id, String hostname) {
+		// TODO Auto-generated method stub	
 	}
 	
 	//bluenode queries
@@ -67,6 +81,19 @@ public class Queries {
 	
 	public ResultSet selectIdNameFromBluenodes() throws SQLException {		
 		return db.getResultSet("SELECT id, name FROM bluenodes");		
+	}
+	
+	public void insertEntryBluenodes(String name, int userid) throws SQLException {		
+		db.executePreparedStatement2ArgsStringInt("INSERT INTO bluenodes VALUES (NULL, ?, ?)", name, userid);
+	}
+	
+	//to do these
+	public void updateEntryBluenodesWithId(int id, String name, int userid) {
+		// TODO Auto-generated method stub		
+	}
+	
+	public void deleteEntryBluenodesWithIdName(int id, String name) {
+		// TODO Auto-generated method stub		
 	}
 	
 	public void closeQueries() throws SQLException {
@@ -102,5 +129,5 @@ public class Queries {
        
 	    db.executeStatement(query); 	    
 	    db.close();
-	}	
+	}		
 }
