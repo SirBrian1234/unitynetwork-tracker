@@ -31,6 +31,10 @@ public class AppTest extends TestCase {
     {
         return new TestSuite( AppTest.class );
     }
+    
+    public void testInit() {
+    	assertTrue(true);
+    }
 
     /*
     public void test1DB() {
@@ -94,7 +98,7 @@ public class AppTest extends TestCase {
     
    */
     
-    
+    /*
     public void test5bluenodeQuery() {
     	App.databaseUrl = "jdbc:sqlite:unity.db";
     	try {
@@ -116,7 +120,7 @@ public class AppTest extends TestCase {
 		}
     	assertTrue( true );
     }
-    
+    */
     
     /*
     public void test6hostnameQuery() {
