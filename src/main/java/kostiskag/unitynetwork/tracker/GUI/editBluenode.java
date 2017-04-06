@@ -20,7 +20,6 @@ import java.awt.Color;
 public class editBluenode {
 
 	private JFrame frmEditBluenodeEntry;
-	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private int type;
@@ -79,16 +78,6 @@ public class editBluenode {
 		frmEditBluenodeEntry.setBounds(100, 100, 450, 300);
 		frmEditBluenodeEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditBluenodeEntry.getContentPane().setLayout(null);
-		
-		JLabel label = new JLabel("id");
-		label.setBounds(10, 14, 17, 14);
-		frmEditBluenodeEntry.getContentPane().add(label);
-		
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setColumns(10);
-		textField.setBounds(76, 11, 75, 20);
-		frmEditBluenodeEntry.getContentPane().add(textField);
 		
 		JLabel lblName = new JLabel("name");
 		lblName.setBounds(10, 65, 56, 14);

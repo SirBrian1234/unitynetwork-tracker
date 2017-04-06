@@ -23,7 +23,6 @@ import java.awt.event.ActionEvent;
 public class editHostname {
 
 	private JFrame frmEditHostnameEntry;
-	private JTextField textField;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	int type;
@@ -74,16 +73,6 @@ public class editHostname {
 		frmEditHostnameEntry.setBounds(100, 100, 450, 300);
 		frmEditHostnameEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditHostnameEntry.getContentPane().setLayout(null);
-		
-		JLabel label = new JLabel("id");
-		label.setBounds(10, 14, 17, 14);
-		frmEditHostnameEntry.getContentPane().add(label);
-		
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setColumns(10);
-		textField.setBounds(76, 11, 75, 20);
-		frmEditHostnameEntry.getContentPane().add(textField);
 		
 		JLabel lblHostname = new JLabel("hostname");
 		lblHostname.setBounds(10, 65, 56, 14);

@@ -313,6 +313,7 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton = new JButton("Add new entry");
         btnNewButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//add new user
         		if (!lockDbEdit) {
         			//lockDbEdit = true;
         			new editUser(0,"");
@@ -325,6 +326,7 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_1 = new JButton("Edit selected entry");
         btnNewButton_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
+        		//edit user
         		if (!lockDbEdit) {
         			//lockDbEdit = true;
         			int row = table.getSelectedRow();
@@ -339,8 +341,8 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_2 = new JButton("Delete selected entry");
         btnNewButton_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//delete user
         		if (!lockDbEdit) {
-        			//delete user
         			if (!lockDbEdit) {
         				//lockDbEdit = true;
             			//delete username
@@ -401,8 +403,8 @@ public class MainWindow extends javax.swing.JFrame {
         button = new JButton("Add new entry");
         button.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//new hostname
         		if (!lockDbEdit) {
-        			//new hostname
         			//lockDbEdit = true;
         			new editHostname(0, "");
         		}
@@ -414,8 +416,8 @@ public class MainWindow extends javax.swing.JFrame {
         button_1 = new JButton("Edit selected entry");
         button_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//update hostname
         		if (!lockDbEdit) {
-        			//update hostname
         			//lockDbEdit = true;        			
         			int row = table_1.getSelectedRow();
         			String hostname = (String) table_1.getValueAt(row, 0);
@@ -429,8 +431,8 @@ public class MainWindow extends javax.swing.JFrame {
         button_2 = new JButton("Delete selected entry");
         button_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//delete hostname
         		if (!lockDbEdit) {
-        			//delete hostname
         			//lockDbEdit = true;
         			Queries q = null;
         			int row = table_1.getSelectedRow();
@@ -483,8 +485,8 @@ public class MainWindow extends javax.swing.JFrame {
         button_3 = new JButton("Add new entry");
         button_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//new bluenode
         		if (!lockDbEdit) {
-        			//new bluenode
         			//lockDbEdit = true;
         			new editBluenode(0, "");
         		}
@@ -496,8 +498,8 @@ public class MainWindow extends javax.swing.JFrame {
         button_4 = new JButton("Edit selected entry");
         button_4.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
+        		//edit bluenode
         		if (!lockDbEdit) {
-        			//edit bluenode
         			//lockDbEdit = true;
         			int row = table_2.getSelectedRow();
                     new editBluenode(1, (String) table_2.getValueAt(row, 0));
@@ -510,8 +512,8 @@ public class MainWindow extends javax.swing.JFrame {
         button_5 = new JButton("Delete selected entry");
         button_5.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
-        		if (!lockDbEdit) {
-        			//delete bluenode
+        		//delete bluenode
+    			if (!lockDbEdit) {
         			//lockDbEdit = true;
         			int row = table_2.getSelectedRow();
         			String name = (String) table_2.getValueAt(row, 0);
