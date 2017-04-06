@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
 import javax.swing.JCheckBox;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class editUser {
 
@@ -224,6 +226,15 @@ public class editUser {
 		frmEditUserEntry.getContentPane().add(label);
 		
 		chckbxSetANew = new JCheckBox("set a new password");
+		chckbxSetANew.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
+				if (chckbxSetANew.isSelected()) {
+					passwordField.setEnabled(true);
+				} else {
+					passwordField.setEnabled(false);
+				}
+			}
+		});
 		chckbxSetANew.setSelected(true);
 		chckbxSetANew.setBounds(10, 95, 167, 23);
 		frmEditUserEntry.getContentPane().add(chckbxSetANew);
