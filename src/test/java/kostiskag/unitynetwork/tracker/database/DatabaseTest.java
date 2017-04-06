@@ -118,11 +118,12 @@ public class DatabaseTest {
     public void test4HostnameQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryHostnames("Pakis", 0);
-			q.insertEntryHostnames("Makis", 0);
-			q.insertEntryHostnames("Lakis", 1);
+			q.insertEntryHostnamesNoAddr("Pakis", 0);
+			q.insertEntryHostnamesNoAddr("Makis", 0);
+			q.insertEntryHostnamesNoAddr("Lakis", 1);
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
+				System.out.println(s.getString("address"));
 			    System.out.println(s.getString("hostname"));
 			    System.out.println(s.getInt("userid"));
 			}
@@ -158,12 +159,12 @@ public class DatabaseTest {
     public void test6HostnameUseridQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryHostnames("Pakis", 0);
-			q.insertEntryHostnames("Makis", 0);
-			q.insertEntryHostnames("Lakis", 1);
-			q.insertEntryHostnames("Lakis2", 2);
-			q.insertEntryHostnames("Lakis3", 4);
-			q.insertEntryHostnames("Bamias", 2);
+			q.insertEntryHostnamesNoAddr("Pakis", 0);
+			q.insertEntryHostnamesNoAddr("Makis", 0);
+			q.insertEntryHostnamesNoAddr("Lakis", 1);
+			q.insertEntryHostnamesNoAddr("Lakis2", 2);
+			q.insertEntryHostnamesNoAddr("Lakis3", 4);
+			q.insertEntryHostnamesNoAddr("Bamias", 2);
 			ResultSet s = q.selectAllFromHostnamesWhereUserid(2);			
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
@@ -181,8 +182,8 @@ public class DatabaseTest {
     	Queries q;
 		try {
 			q = new Queries();
-			q.insertEntryHostnames("Bamias", 22);
-			q.insertEntryHostnames("Pakis", 23);
+			q.insertEntryHostnamesNoAddr("Bamias", 22);
+			q.insertEntryHostnamesNoAddr("Pakis", 23);
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
@@ -223,6 +224,34 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("scope"));
 			    System.out.println(s.getString("fullname"));
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+    	assertTrue(true);
+    }
+    
+    @Test
+    public void test8burned() {
+    	Queries q = null;
+    	try {
+			q = new Queries();
+			q.insertEntryBurned(15);
+			q.insertEntryBurned(22);
+			q.insertEntryBurned(125);
+			q.insertEntryBurned(34);
+			q.insertEntryBurned(40);
+			ResultSet r = q.selectAddressFromBurned();
+			while(r.next()) {
+				System.out.println(""+r.getInt("address"));
+			}
+			q.deleteEntryAddressFromBurned(34);
+			q.deleteEntryAddressFromBurned(15);
+			r = q.selectAddressFromBurned();
+			while(r.next()) {
+				System.out.println(""+r.getInt("address"));
+			}
+			q.closeQueries();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);

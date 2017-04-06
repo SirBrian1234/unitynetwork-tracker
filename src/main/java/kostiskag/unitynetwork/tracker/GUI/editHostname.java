@@ -9,6 +9,7 @@ import javax.swing.JTextField;
 import org.omg.PortableServer.ServantRetentionPolicyValue;
 
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Logic;
 import kostiskag.unitynetwork.tracker.database.Queries;
 
 import javax.swing.JComboBox;
@@ -114,33 +115,24 @@ public class editHostname {
 							return;
 						}
 						
-						Queries q = null;
 						try {
-							q = new Queries();
-							if (q.checkIfUserWithIdExists(userid)) {
-								if (type == 0) {			
-									q.insertEntryHostnames(textField_1.getText(), userid);
-								} else {
-									q.updateEntryHostnamesWithHostname(hostname, userid);
-								}
+							if (type == 0) {
+								Logic.addNewHostname(textField_1.getText(), userid);
 							} else {
-								label_1.setText("The given userid does not exist.");
-								return;
+								Logic.updateHostname(hostname, userid);
 							}
-							q.closeQueries();
 						} catch (SQLException e) {
 							if (e.getErrorCode() == 19) { 
 								label_1.setText("The given hostname is already taken.");
 								return;
 						    } else { 
 						    	e.printStackTrace();
+						    	System.out.println(e.getErrorCode());
 						    }	
-							try {
-								q.closeQueries();
-							} catch (SQLException e1) {
-								e1.printStackTrace();
-							}
-						}										
+						} catch (Exception e) {
+							label_1.setText("The given userid does not exist.");
+							return;
+						}
 						
 						App.window.updateDatabaseGUI();
 						frmEditHostnameEntry.dispose();

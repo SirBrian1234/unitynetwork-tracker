@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Logic;
 import kostiskag.unitynetwork.tracker.database.Queries;
 
 import javax.swing.JComboBox;
@@ -160,46 +161,37 @@ public class editUser {
 				String password = new String(passwordField.getPassword());
 				if (!textField_1.getText().isEmpty() && !textField_3.getText().isEmpty()){
 					if (textField_1.getText().length() <= App.max_str_len_small_size && textField_3.getText().length() <= App.max_str_len_large_size) {
-						Queries q = null;
+						
 						try {
-							q = new Queries();
-							if (type == 0) {			
-								q.insertEntryUsers(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
+							if (type == 0) {
+								Logic.addNewUser(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
 							} else {
 								if (chckbxSetANew.isSelected()) {
 									//we have to provide all the other fields along with a new password
 									if (!password.isEmpty()) {
 										if ( password.length() <= App.max_str_len_large_size ) {
-											//we have to provide a salted and hashed password in the db along with the rest of the updates
-											//to do in the hash branch
-											//pass = hash(salt+pass)
-											q.updateEntryUsersWithUsername(username, password, comboBox.getSelectedIndex(), textField_3.getText());
+											Logic.updateUserAndPassword(username, password, comboBox.getSelectedIndex(), textField_3.getText());
 										} else {
 											label.setText("Please provide a password up to "+App.max_str_len_large_size+" characters.");
-											q.closeQueries();
 											return;
 										}
 									} else {
 										label.setText("Please fill in all the fields.");
-										q.closeQueries();
 										return;
 									}
 								} else {
 									//we have to provide just the other fields without the password
+									Queries q = null;
+									q = new Queries();
 									q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(), textField_3.getText());
+									q.closeQueries();
 								}
-							}
-							q.closeQueries();
+							}							
 						} catch (SQLException ex) {
 							if (ex.getErrorCode() == 19) { 
 								label.setText("The given username is already taken.");
 						    } else { 
 						    	ex.printStackTrace();
-						    	try {
-									q.closeQueries();
-								} catch (SQLException e1) {
-									e1.printStackTrace();
-								}
 						    }	
 						}										
 						

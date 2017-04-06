@@ -81,7 +81,15 @@ public class Database {
 	    pst.execute();
 	}
 	
-	public void executePreparedStatement3ArgsIntStringInt(String query, String arg1, int arg2, int arg3) throws SQLException {
+	public void executePreparedStatement3ArgsIntStringInt(String query, int arg1, String arg2, int arg3) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setInt(1, arg1);
+	    pst.setString(2, arg2);
+	    pst.setInt(3, arg3);
+	    pst.execute();
+	}
+	
+	public void executePreparedStatement3ArgsStringIntInt(String query, String arg1, int arg2, int arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);

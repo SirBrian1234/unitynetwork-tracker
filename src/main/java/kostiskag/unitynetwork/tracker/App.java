@@ -54,13 +54,6 @@ public class App {
 
 	public App() {
 
-		// 0. gui
-		if (gui) {
-			System.out.println("initializing gui...");
-			window = new MainWindow();
-			window.setVisible(true);
-		}
-
 		// 1. log
 		if (log) {
 			ConsolePrint("initializing log file "+logFileName);
@@ -77,12 +70,7 @@ public class App {
 			}
 		}
 
-		// 2. tables
-		ConsolePrint("initializing tables...");
-		BNtable = new BlueNodeTable(bncap);
-		RNtable = new RedNodeTable(rncap);
-
-		// 3. database
+		// 2. database
 		ConsolePrint("Testing Database Connection on " + databaseUrl + " ... ");
 		testDbConnection();
 		try {
@@ -94,8 +82,19 @@ public class App {
 		}
 		ConsolePrint("Database validation complete.");
 		
-
-		// 4. socket
+		// 3. tables
+		ConsolePrint("initializing tables...");
+		BNtable = new BlueNodeTable(bncap);
+		RNtable = new RedNodeTable(rncap);
+			
+		// 4. gui
+		if (gui) {
+			System.out.println("initializing gui...");
+			window = new MainWindow();
+			window.setVisible(true);
+		}
+		
+		// 5. service
 		ConsolePrint("initializing AuthService on port " + auth + " ...");
 		if (auth > 0 && auth <= 65535) {
 			track = new TrackServer(auth);
@@ -104,7 +103,7 @@ public class App {
 			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the "+configFileName);
 		}
 
-		// 5. sonar
+		// 6. sonar
 		if (pingTime > 0) {
 			Sonar sonar = new Sonar(pingTime);
 			sonar.start();

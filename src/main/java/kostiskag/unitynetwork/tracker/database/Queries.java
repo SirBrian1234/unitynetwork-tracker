@@ -31,6 +31,10 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);		
 	}
 	
+	public ResultSet selectIdFromUsersWhereUsername(String username) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT * FROM users WHERE username = ?", username);		
+	}
+	
 	public boolean checkIfUserWithIdExists(int id) throws SQLException {		
 		ResultSet r = db.getResultSetFromPreparedStatement1ArgInt("SELECT username FROM users WHERE id = ?", id);	
 		if (r.next()){
@@ -65,12 +69,20 @@ public class Queries {
 		return db.getResultSet("SELECT * FROM hostnames"); 
 	}
 	
+	public ResultSet selectAddressFromHostnames() throws SQLException {				
+		return db.getResultSet("SELECT address FROM hostnames"); 
+	}
+	
 	public ResultSet selectHostnameFromHostnames() throws SQLException {				
 		return db.getResultSet("SELECT hostname FROM hostnames"); 
 	}
 	
 	public ResultSet selectUseridFromHostnames() throws SQLException {				
 		return db.getResultSet("SELECT userid FROM hostnames"); 
+	}
+	
+	public ResultSet selectAllFromHostnamesWhereAddress(int address) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE address = ?", address);		
 	}
 	
 	public ResultSet selectAllFromHostnamesWhereHostname(String hostname) throws SQLException {		
@@ -81,6 +93,10 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE userid = ?", userid);		
 	}
 	
+	public ResultSet selectAddressFromHostnamesWithHostname(String hostname) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT address FROM hostnames WHERE hostname = ?", hostname);
+	}
+	
 	public ResultSet selectUseridFromHostnamesWithHostname(String hostname) throws SQLException {		
 		return db.getResultSetFromPreparedStatement1ArgString("SELECT userid FROM hostnames WHERE hostname = ?", hostname);
 	}
@@ -89,8 +105,12 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT hostname FROM hostnames WHERE userid = ?", userid);
 	}
 	
-	public void insertEntryHostnames(String hostname, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (?, ?)", hostname, userid);
+	public void insertEntryHostnamesWithAddr(int address, String hostname, int userid) throws SQLException {		
+		db.executePreparedStatement3ArgsIntStringInt("INSERT INTO hostnames VALUES (?, ?, ?)", address, hostname, userid);
+	}
+	
+	public void insertEntryHostnamesNoAddr(String hostname, int userid) throws SQLException {		
+		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (NULL, ?, ?)", hostname, userid);
 	}
 	
 	public void updateEntryHostnamesWithHostname(String hostname, int userid) throws SQLException {		
@@ -100,6 +120,28 @@ public class Queries {
 	public void deleteEntryHostnamesWithHostname(String hostname) throws SQLException {
 		db.executePreparedStatement1ArgString("DELETE FROM hostnames where hostname = ?", hostname);
 	}
+	
+	public void deleteAllHostnamesWithUserid(int userid) throws SQLException {
+		db.executePreparedStatement1ArgInt("DELETE FROM hostnames where userid = ?", userid);
+	}
+	
+	//burned
+	//retrieve address
+	public ResultSet selectAddressFromBurned() throws SQLException {				
+		return db.getResultSet("SELECT * FROM burned"); 
+	}
+	
+	//store address
+	public void insertEntryBurned(int address) throws SQLException {	
+		if (address > 0) {
+			db.executePreparedStatement1ArgInt("INSERT INTO burned VALUES (?)", address);
+		}
+	}
+	
+	//delete address
+	public void deleteEntryAddressFromBurned(int address) throws SQLException {
+		db.executePreparedStatement1ArgInt("DELETE FROM burned where address = ?", address);
+	}	
 	
 	//bluenode queries
 	public ResultSet selectAllFromBluenodes() throws SQLException {				
@@ -142,6 +184,10 @@ public class Queries {
 		db.executePreparedStatement1ArgString("DELETE FROM bluenodes where name = ?", name);
 	}
 	
+	public void deleteAllBluenodesWithUserid(int userid) throws SQLException {
+		db.executePreparedStatement1ArgInt("DELETE FROM bluenodes where userid = ?", userid);
+	}
+	
 	public void closeQueries() throws SQLException {
 		db.close();
 	}
@@ -160,8 +206,18 @@ public class Queries {
 	    db.executeStatement(query); 	    
 	
 	    query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
-                + "	hostname CHAR(128) PRIMARY KEY, \n"
+	    		+ "	address INTEGER PRIMARY KEY AUTOINCREMENT, \n"
+                + "	hostname CHAR(128) UNIQUE, \n"
                 + " userid INTEGER \n"
+                + ");";
+        
+	    db.executeStatement(query);
+	    
+	    //when a hostname is deleted the address has to bee stored
+	    //in order to be used again. this table keeps
+	    //all the burned addresses in order to appoin them to new hostnames
+	    query = "CREATE TABLE IF NOT EXISTS burned (\n"
+	    		+ "	address INTEGER PRIMARY KEY \n"
                 + ");";
         
 	    db.executeStatement(query);
