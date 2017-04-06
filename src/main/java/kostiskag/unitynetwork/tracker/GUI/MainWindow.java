@@ -326,12 +326,13 @@ public class MainWindow extends javax.swing.JFrame {
         JButton btnNewButton_1 = new JButton("Edit selected entry");
         btnNewButton_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
-        		//edit user
+        		//update user
         		if (!lockDbEdit) {
         			//lockDbEdit = true;
         			int row = table.getSelectedRow();
-        			String username = (String) table.getValueAt(row, 1);
-        			new editUser(1,username);
+        			if (row != -1) {
+        				new editUser(1,(String) table.getValueAt(row, 1));
+        			}
         		}
         	}
         });
@@ -343,14 +344,12 @@ public class MainWindow extends javax.swing.JFrame {
         	public void actionPerformed(ActionEvent e) {
         		//delete user
         		if (!lockDbEdit) {
-        			if (!lockDbEdit) {
+        			int row = table.getSelectedRow();
+        			if (row != -1) {
         				//lockDbEdit = true;
-            			//delete username
             			Queries q = null;
-            			int row = table.getSelectedRow();
             			String username = (String) table.getValueAt(row, 1);
-            			
-    					try {
+            			try {
     						q = new Queries();
     						q.deleteEntryUsersWithUsername(username);
     	        			q.closeQueries();
@@ -420,8 +419,9 @@ public class MainWindow extends javax.swing.JFrame {
         		if (!lockDbEdit) {
         			//lockDbEdit = true;        			
         			int row = table_1.getSelectedRow();
-        			String hostname = (String) table_1.getValueAt(row, 0);
-        			new editHostname(1, hostname);
+        			if (row != -1) {
+        				new editHostname(1, (String) table_1.getValueAt(row, 0));
+        			}
         		}
         	}
         });
@@ -434,23 +434,24 @@ public class MainWindow extends javax.swing.JFrame {
         		//delete hostname
         		if (!lockDbEdit) {
         			//lockDbEdit = true;
-        			Queries q = null;
         			int row = table_1.getSelectedRow();
-        			String hostname = (String) table_1.getValueAt(row, 0);        			
-					try {
-						q = new Queries();
-						q.deleteEntryHostnamesWithHostname(hostname);
-	        			q.closeQueries();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-						try {
-							q.closeQueries();
-						} catch (SQLException e2) {
-							e2.printStackTrace();
+        			if (row != -1) {
+	        			Queries q = null;
+	        			try {
+							q = new Queries();
+							q.deleteEntryHostnamesWithHostname((String) table_1.getValueAt(row, 0));
+		        			q.closeQueries();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+							try {
+								q.closeQueries();
+							} catch (SQLException e2) {
+								e2.printStackTrace();
+							}
 						}
-					}
-					updateDatabaseGUI();
-					//lockDbEdit = false;
+						updateDatabaseGUI();
+						//lockDbEdit = false;
+        			}
         		}
         	}
         });
@@ -502,7 +503,9 @@ public class MainWindow extends javax.swing.JFrame {
         		if (!lockDbEdit) {
         			//lockDbEdit = true;
         			int row = table_2.getSelectedRow();
-                    new editBluenode(1, (String) table_2.getValueAt(row, 0));
+        			if (row != -1) {
+        				new editBluenode(1, (String) table_2.getValueAt(row, 0));
+        			}
         		}
         	}
         });
@@ -516,23 +519,23 @@ public class MainWindow extends javax.swing.JFrame {
     			if (!lockDbEdit) {
         			//lockDbEdit = true;
         			int row = table_2.getSelectedRow();
-        			String name = (String) table_2.getValueAt(row, 0);
-        			
-        			Queries q = null;
-					try {
-						q = new Queries();
-						q.deleteEntryBluenodesWitName(name);
-	        			q.closeQueries();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
+        			if (row != -1) {
+	        			Queries q = null;
 						try {
-							q.closeQueries();
-						} catch (SQLException e2) {
-							e2.printStackTrace();
+							q = new Queries();
+							q.deleteEntryBluenodesWitName((String) table_2.getValueAt(row, 0));
+		        			q.closeQueries();
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+							try {
+								q.closeQueries();
+							} catch (SQLException e2) {
+								e2.printStackTrace();
+							}
 						}
-					}
-					updateDatabaseGUI();
-					//lockDbEdit = false;
+						updateDatabaseGUI();
+						//lockDbEdit = false;
+        			}
         		}
         	}        	
         });
@@ -578,8 +581,7 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_jCheckBox1ActionPerformed
 
     public void updateDatabaseGUI() {
-    	App.ConsolePrint("Received request to reload DB on GUI");
-		//reload database on gui        		
+    	//reload database on gui        		
 	    String[][] usersDbData = null;
 	    String[][] hostnamesDbData = null;
 	    String[][] blunodesDbData = null;

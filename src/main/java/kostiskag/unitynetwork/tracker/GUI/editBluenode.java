@@ -11,6 +11,7 @@ import kostiskag.unitynetwork.tracker.database.Queries;
 
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.awt.event.ActionEvent;
@@ -60,10 +61,22 @@ public class editBluenode {
 			textField_1.setText(name);
 			textField_1.setEditable(false);
 			
-			//Queries  q = new Queries();
-			
-			//textField_2.setText();
-			textField_1.setEditable(false);
+			Queries q = null;
+			try {
+				q = new Queries();
+				ResultSet r = q.selectAllFromBluenodesWhereName(name);
+				while(r.next()) {
+					textField_2.setText(""+r.getInt("userid"));
+				}
+				q.closeQueries();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				try {
+					q.closeQueries();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}						
 		}
 		frmEditBluenodeEntry.setVisible(true);
 	}

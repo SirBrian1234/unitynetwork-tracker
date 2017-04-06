@@ -17,6 +17,7 @@ import java.awt.Font;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 
@@ -59,6 +60,23 @@ public class editHostname {
 			btnAddNewEntry.setText("Update entry");
 			textField_1.setText(hostname);
 			textField_1.setEditable(false);
+			
+			Queries q = null;
+			try {
+				q = new Queries();
+				ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
+				while(r.next()) {
+					textField_2.setText(""+r.getInt("userid"));
+				}
+				q.closeQueries();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				try {
+					q.closeQueries();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 		frmEditHostnameEntry.setVisible(true);
 	}
