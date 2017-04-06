@@ -27,6 +27,15 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);		
 	}
 	
+	public boolean checkIfUserWithIdExists(int id) throws SQLException {		
+		ResultSet r = db.getResultSetFromPreparedStatement1ArgInt("SELECT username FROM users WHERE id = ?", id);	
+		if (r.next()){
+			if (r.getString("username") != null)
+				return true;
+		}
+		return false;
+	}
+	
 	public ResultSet selectAllFromUsersWhereUsername(String username) throws SQLException {		
 		return db.getResultSetFromPreparedStatement1ArgString("SELECT * FROM users WHERE username = ?", username);		
 	}

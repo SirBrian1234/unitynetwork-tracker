@@ -24,11 +24,15 @@ public class TrackService extends Thread {
 
     /*
      * CENTRAL TRACK SERVICE 
-     * first it determines if it is an unregistered rednode or a bluenode
-     * for an unregistered rednode it indicates the closest bluenode to connect
-     * for a bluenode it can do various stuff
+     * first it determines if it is a rednode or a bluenode
+     * 
+     * for an (unregistered) rednode 
+     * a. it indicates the closest bluenode to connect
+     * b. or a list of the available bluenodes and their respective load
+     * 
+     * for a bluenode it can
      * a. lease the BN itself
-     * b. lease an RN connected to him
+     * b. auth/lease an RN connected to him
      * c. resolve some queries
      */
     

@@ -60,6 +60,11 @@ public class editBluenode {
 			this.button.setText("Update entry");
 			textField_1.setText(name);
 			textField_1.setEditable(false);
+			
+			//Queries  q = new Queries();
+			
+			//textField_2.setText();
+			textField_1.setEditable(false);
 		}
 		frmEditBluenodeEntry.setVisible(true);
 	}
@@ -119,11 +124,16 @@ public class editBluenode {
 						Queries q = null;
 						try {
 							q = new Queries();
-							if (type == 0) {			
-								q.insertEntryBluenodes(textField_1.getText(), userid);
+							if (q.checkIfUserWithIdExists(userid)) {
+								if (type == 0) {			
+									q.insertEntryBluenodes(textField_1.getText(), userid);
+								} else {
+									q.updateEntryBluenodesWithName(name, userid);
+								}
 							} else {
-								q.updateEntryBluenodesWithName(name, userid);
-							}
+								lblNewLabel.setText("The given userid does not exist.");
+								return;
+							}	
 							q.closeQueries();
 						} catch (SQLException e) {							
 							if (e.getErrorCode() == 19) { 

@@ -33,7 +33,6 @@ public class Database {
 	public ResultSet getResultSet(String Query) throws SQLException {
 	    Statement st = null;
 	    ResultSet rs  = null;        
-	              
 	    st = con.createStatement();
 	    return rs = st.executeQuery(Query);        
 	}

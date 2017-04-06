@@ -239,9 +239,9 @@ public class BlueNodeFunctions {
 			q = new Queries();
 			getResults = q.selectIdUsernamePasswordFromUsers();
 		
-		if (getResults == null) {
-			return -1;
-		}
+			if (getResults == null) {
+				return -1;
+			}
 
 			int i = 0;
 			while (getResults.next()) {
@@ -274,7 +274,7 @@ public class BlueNodeFunctions {
 		}
 	}
 
-	// updates known address, works like dyndns
+	// updates known address, works like dynamic domain
 	public static void UpdatePh(String BNhostname, PrintWriter writer, Socket socket) {
 		if (App.BNtable.checkOnlineByHn(BNhostname)) {
 			String data = "OK";

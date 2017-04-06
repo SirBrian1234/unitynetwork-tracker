@@ -110,10 +110,15 @@ public class editHostname {
 						Queries q = null;
 						try {
 							q = new Queries();
-							if (type == 0) {			
-								q.insertEntryHostnames(textField_1.getText(), userid);
+							if (q.checkIfUserWithIdExists(userid)) {
+								if (type == 0) {			
+									q.insertEntryHostnames(textField_1.getText(), userid);
+								} else {
+									q.updateEntryHostnamesWithHostname(hostname, userid);
+								}
 							} else {
-								q.updateEntryHostnamesWithHostname(hostname, userid);
+								label_1.setText("The given userid does not exist.");
+								return;
 							}
 							q.closeQueries();
 						} catch (SQLException e) {
