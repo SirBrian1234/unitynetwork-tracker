@@ -14,6 +14,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
@@ -35,6 +36,7 @@ public class editUser {
 	private JButton btnNewButton;
 	private JLabel label;
 	private JComboBox<String> comboBox;
+	JCheckBox chckbxSetANew;
 
 	/**
 	 * Launch the application.
@@ -64,10 +66,33 @@ public class editUser {
 		initialize();
 		if (type == 0) {
 			btnNewButton.setText("Add new entry");
+			chckbxSetANew.setSelected(true);
+			chckbxSetANew.setEnabled(false);
 		} else {
 			btnNewButton.setText("Update entry");
 			textField_1.setText(username);
 			textField_1.setEditable(false);
+			chckbxSetANew.setSelected(false);
+			passwordField.setEditable(false);
+			
+			Queries q = null;
+			try {
+				q = new Queries();
+				ResultSet r = q.selectIdScopeFullnameFromUsersWhereUsername(username);
+				while(r.next()) {
+					textField.setText(""+r.getInt("id"));
+					comboBox.setSelectedIndex(r.getInt("scope"));
+					textField_3.setText(r.getString("fullname"));
+				}
+				q.closeQueries();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				try {
+					q.closeQueries();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
 		}
 		frmEditUserEntry.setVisible(true);
 	}
@@ -129,23 +154,48 @@ public class editUser {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String password = new String(passwordField.getPassword());
-				if (!textField_1.getText().isEmpty() && !password.isEmpty() && !textField_3.getText().isEmpty()){
-					if (textField_1.getText().length() <= App.max_str_len_small_size && password.length() <= App.max_str_len_large_size && textField_3.getText().length() <= App.max_str_len_large_size) {
-						Queries q;
+				if (!textField_1.getText().isEmpty() && !textField_3.getText().isEmpty()){
+					if (textField_1.getText().length() <= App.max_str_len_small_size && textField_3.getText().length() <= App.max_str_len_large_size) {
+						Queries q = null;
 						try {
 							q = new Queries();
 							if (type == 0) {			
 								q.insertEntryUsers(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
 							} else {
-								q.updateEntryUsersWithUsername(username, password, comboBox.getSelectedIndex(), textField_3.getText());
+								if (chckbxSetANew.isSelected()) {
+									//we have to provide all the other fields along with a new password
+									if (!password.isEmpty()) {
+										if ( password.length() <= App.max_str_len_large_size ) {
+											//we have to provide a salted and hashed password in the db along with the rest of the updates
+											//to do in the hash branch
+											//pass = hash(salt+pass)
+											q.updateEntryUsersWithUsername(username, password, comboBox.getSelectedIndex(), textField_3.getText());
+										} else {
+											label.setText("Please provide a password up to "+App.max_str_len_large_size+" characters.");
+											q.closeQueries();
+											return;
+										}
+									} else {
+										label.setText("Please fill in all the fields.");
+										q.closeQueries();
+										return;
+									}
+								} else {
+									//we have to provide just the other fields without the password
+									q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(), textField_3.getText());
+								}
 							}
 							q.closeQueries();
 						} catch (SQLException ex) {
 							if (ex.getErrorCode() == 19) { 
 								label.setText("The given username is already taken.");
-								return;
 						    } else { 
 						    	ex.printStackTrace();
+						    	try {
+									q.closeQueries();
+								} catch (SQLException e1) {
+									e1.printStackTrace();
+								}
 						    }	
 						}										
 						
@@ -153,7 +203,7 @@ public class editUser {
 						frmEditUserEntry.dispose();
 					
 					} else {
-						label.setText("Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.");
+						label.setText("Please provide a username and a fullname up to "+App.max_str_len_large_size+" characters.");
 					}
 				} else {
 					label.setText("Please fill in all the fields.");
@@ -173,7 +223,7 @@ public class editUser {
 		label.setBounds(10, 238, 414, 14);
 		frmEditUserEntry.getContentPane().add(label);
 		
-		JCheckBox chckbxSetANew = new JCheckBox("set a new password");
+		chckbxSetANew = new JCheckBox("set a new password");
 		chckbxSetANew.setSelected(true);
 		chckbxSetANew.setBounds(10, 95, 167, 23);
 		frmEditUserEntry.getContentPane().add(chckbxSetANew);

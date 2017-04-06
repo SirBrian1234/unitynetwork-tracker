@@ -23,6 +23,10 @@ public class Queries {
 		return db.getResultSet("SELECT id, username, password FROM users");		
 	}
 	
+	public ResultSet selectIdScopeFullnameFromUsersWhereUsername(String username) throws SQLException {
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT id, scope, fullname FROM users WHERE username = ?", username);
+	}	
+	
 	public ResultSet selectAllFromUsersWhereId(int id) throws SQLException {		
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);		
 	}
@@ -47,6 +51,10 @@ public class Queries {
 	public void updateEntryUsersWithUsername(String username, String password, int scope, String fullname) throws SQLException {
 		db.executePreparedStatement4ArgsStrIntStrStr("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
 	}
+	
+	public void updateEntryUsersWhitoutPasswordWithUsername(String username, int scope, String fullname) throws SQLException {
+		db.executePreparedStatement3ArgsIntStringString("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
+	}	
 	
 	public void deleteEntryUsersWithUsername(String username) throws SQLException {
 		db.executePreparedStatement1ArgString("DELETE FROM users where username = ?", username);
@@ -142,28 +150,28 @@ public class Queries {
 		 Database db = new Database();
 		 
 		String query = "CREATE TABLE IF NOT EXISTS users (\n"
-			   + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-			   + "	username CHAR(128) UNIQUE,\n"
-               + "	password CHAR(256) DEFAULT NULL,\n"
-               + "	scope INT(4) DEFAULT NULL,\n"
-               + "	fullname CHAR(256) DEFAULT NULL\n"
+			   + "	id INTEGER PRIMARY KEY AUTOINCREMENT, \n"
+			   + "	username CHAR(128) UNIQUE, \n"
+               + "	password CHAR(256), \n"
+               + "	scope INT(4), \n"
+               + "	fullname CHAR(256) \n"
                + ");";
        
 	    db.executeStatement(query); 	    
 	
 	    query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
-                + "	hostname CHAR(128) PRIMARY KEY,\n"
-                + " userid INT(10) \n"
+                + "	hostname CHAR(128) PRIMARY KEY, \n"
+                + " userid INTEGER \n"
                 + ");";
         
 	    db.executeStatement(query);
     
 	   query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
                 + "	name CHAR(128) PRIMARY KEY, \n"
-                + " userid INT(10) \n"
+                + " userid INTEGER \n"
                 + ");";
 	 
 	   db.executeStatement(query);
 	   db.close();
-	}		
+	}
 }
