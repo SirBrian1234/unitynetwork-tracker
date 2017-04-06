@@ -24,7 +24,7 @@ public class editBluenode {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private int type;
-	private int bluenodeId;
+	private String name;
 	private JButton button;
 	private JLabel lblNewLabel;
 
@@ -35,7 +35,7 @@ public class editBluenode {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					editBluenode window = new editBluenode(0,0);
+					editBluenode window = new editBluenode(0, "none");
 					window.frmEditBluenodeEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -47,9 +47,9 @@ public class editBluenode {
 	/**
 	 * Create the application.
 	 */
-	public editBluenode(int type, int bluenodeId) {
+	public editBluenode(int type, String name) {
 		this.type = type;
-		this.bluenodeId = bluenodeId;
+		this.name = name;
 		initialize();
 		lblNewLabel.setText("");
 		
@@ -58,6 +58,8 @@ public class editBluenode {
 			this.button.setText("Add new entry");
 		} else {
 			this.button.setText("Update entry");
+			textField_1.setText(name);
+			textField_1.setEditable(false);
 		}
 		frmEditBluenodeEntry.setVisible(true);
 	}
@@ -114,13 +116,13 @@ public class editBluenode {
 							return;
 						}
 						
-						Queries q;
+						Queries q = null;
 						try {
 							q = new Queries();
 							if (type == 0) {			
 								q.insertEntryBluenodes(textField_1.getText(), userid);
 							} else {
-								q.updateEntryBluenodesWithId(bluenodeId, textField_1.getText(), userid);
+								q.updateEntryBluenodesWithName(name, userid);
 							}
 							q.closeQueries();
 						} catch (SQLException e) {							
@@ -129,7 +131,12 @@ public class editBluenode {
 								return;
 						    } else { 
 						    	e.printStackTrace();
-						    }							
+						    }
+							try {
+								q.closeQueries();
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
 						}										
 						
 						App.window.updateDatabaseGUI();

@@ -9,6 +9,9 @@ import kostiskag.unitynetwork.tracker.trackClient.BlueNodeFunctions;
  */
 public class TableFunctions {
 
+	//not good as the table might be needed in its fill time gap
+	//you need to clone the table and then fill it
+	//and switch it with the old
     public static void updateTablesViaAuthClient() {
         App.RNtable.flushTable();
         int count = App.BNtable.getSize();

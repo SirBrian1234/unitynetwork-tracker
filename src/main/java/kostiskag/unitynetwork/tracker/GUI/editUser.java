@@ -29,7 +29,7 @@ public class editUser {
 	private JLabel lblType;
 	private JTextField textField_3;
 	private int type;
-	private int userId;
+	private String username;
 	private JPasswordField passwordField;
 	private JButton btnNewButton;
 	private JLabel label;
@@ -42,7 +42,7 @@ public class editUser {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					editUser window = new editUser(0,0);
+					editUser window = new editUser(0,"none");
 					window.frmEditUserEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -54,17 +54,19 @@ public class editUser {
 	/**
 	 * Create the application.
 	 */
-	public editUser(int type, int userId) {
+	public editUser(int type, String username) {
 		//type is 
 		//0 for new entry
 		//1 for update
 		this.type = type;
-		this.userId = userId;
+		this.username = username;
 		initialize();
 		if (type == 0) {
 			btnNewButton.setText("Add new entry");
 		} else {
 			btnNewButton.setText("Update entry");
+			textField_1.setText(username);
+			textField_1.setEditable(false);
 		}
 		frmEditUserEntry.setVisible(true);
 	}
@@ -134,7 +136,7 @@ public class editUser {
 							if (type == 0) {			
 								q.insertEntryUsers(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
 							} else {
-								q.updateEntryUsersWithId(userId, textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());
+								q.updateEntryUsersWithUsername(username, password, comboBox.getSelectedIndex(), textField_3.getText());
 							}
 							q.closeQueries();
 						} catch (SQLException ex) {

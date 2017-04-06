@@ -43,8 +43,8 @@ public class MainWindow extends javax.swing.JFrame {
     private DefaultTableModel modelHostnamesDb;
     
     private String[] usersDbHead = new String[] {"id", "username", "password", "type", "fullname"};
-    private String[] hostnamesDbHead = new String[] {"id", "hostname", "userid"};
-    private String[] blunodesDbHead = new String[] {"id", "name", "userid"};
+    private String[] hostnamesDbHead = new String[] {"hostname", "userid"};
+    private String[] blunodesDbHead = new String[] {"name", "userid"};
     
     public MainWindow() {
         bluenodes = new DefaultTableModel(new String[][]{}, new String[]{"Hostname", "Physical Address", "Auth Port",  "RedNode Load", "Timestamp"});
@@ -305,7 +305,7 @@ public class MainWindow extends javax.swing.JFrame {
         btnNewButton.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			new editUser(0,0);
+        			new editUser(0,"");
         		}
         	}
         });
@@ -316,7 +316,7 @@ public class MainWindow extends javax.swing.JFrame {
         btnNewButton_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
         		if (!lockDbEdit) {
-        			new editUser(1,0);
+        			new editUser(1,"get selected");
         		}
         	}
         });
@@ -367,7 +367,7 @@ public class MainWindow extends javax.swing.JFrame {
         button.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			new editHostname(0, 0);
+        			new editHostname(0, "");
         		}
         	}
         });
@@ -378,7 +378,7 @@ public class MainWindow extends javax.swing.JFrame {
         button_1.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			new editHostname(1, 0);
+        			new editHostname(1, "get selected");
         		}
         	}
         });
@@ -389,7 +389,19 @@ public class MainWindow extends javax.swing.JFrame {
         button_2.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			//delete hostname
+        			Queries q = null;
+					try {
+						q = new Queries();
+						q.deleteEntryHostnamesWithHostname("get selected");
+	        			q.closeQueries();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+						try {
+							q.closeQueries();
+						} catch (SQLException e2) {
+							e2.printStackTrace();
+						}
+					}
         		}
         	}
         });
@@ -406,7 +418,7 @@ public class MainWindow extends javax.swing.JFrame {
             	new Object[][] {
             		{null, null, null},            		
             	},
-            	new String[] {"id", "hostname", "userid"}
+            	new String[] {"hostname", "userid"}
         ));
         scrollPane_1.setViewportView(table_1);
         
@@ -425,7 +437,7 @@ public class MainWindow extends javax.swing.JFrame {
         button_3.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			new editBluenode(0, 0);
+        			new editBluenode(0, "");
         		}
         	}
         });
@@ -436,7 +448,7 @@ public class MainWindow extends javax.swing.JFrame {
         button_4.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
-        			new editBluenode(1, 0);
+        			new editBluenode(1, "get selected");
         		}
         	}
         });
@@ -448,6 +460,19 @@ public class MainWindow extends javax.swing.JFrame {
         	public void actionPerformed(ActionEvent e) {
         		if (!lockDbEdit) {
         			//delete bluenode
+        			Queries q = null;
+					try {
+						q = new Queries();
+						q.deleteEntryBluenodesWitName("get selected");
+	        			q.closeQueries();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+						try {
+							q.closeQueries();
+						} catch (SQLException e2) {
+							e2.printStackTrace();
+						}
+					}
         		}
         	}
         });
@@ -499,9 +524,10 @@ public class MainWindow extends javax.swing.JFrame {
 	    String[][] hostnamesDbData = null;
 	    String[][] blunodesDbData = null;
 		ResultSet bns = null, hnms = null, usrs = null;
+		Queries q = null;
 		
 		try {
-			Queries q = new Queries();					
+			q = new Queries();					
 			usrs = q.selectAllFromUsers();
 			hnms = q.selectAllFromHostnames();	        		
     		bns = q.selectAllFromBluenodes();
@@ -540,15 +566,14 @@ public class MainWindow extends javax.swing.JFrame {
 			
     		i = 0;
     		while(hnms.next()) {
-    			String entry[] = new String[3];
-    			entry[0] = ""+hnms.getInt("id");
-    			entry[1] = hnms.getString("hostname");
-    			entry[2] = ""+hnms.getInt("userid");
+    			String entry[] = new String[2];
+    			entry[0] = hnms.getString("hostname");
+    			entry[1] = ""+hnms.getInt("userid");
     			hnmsList.add(entry);
 				i++;
 			}
 			
-    		hostnamesDbData = new String[hnmsList.size()][3];
+    		hostnamesDbData = new String[hnmsList.size()][2];
     		i = 0;
     		while (i < hnmsList.size()) {
     			hostnamesDbData[i] = hnmsList.get(i);
@@ -557,25 +582,28 @@ public class MainWindow extends javax.swing.JFrame {
     		
     		i = 0;
     		while(bns.next()) {
-    			String entry[] = new String[3];
-    			entry[0] = ""+bns.getInt("id");
-    			entry[1] = bns.getString("name");
-    			entry[2] = ""+bns.getInt("userid");
+    			String entry[] = new String[2];
+    			entry[0] = bns.getString("name");
+    			entry[1] = ""+bns.getInt("userid");
     			bnsList.add(entry);
 				i++;
 			}
 			
-    		blunodesDbData = new String[bnsList.size()][3];
+    		blunodesDbData = new String[bnsList.size()][2];
     		i = 0;
     		while (i < bnsList.size()) {
     			blunodesDbData[i] = bnsList.get(i);
     			i++;
-    		}
+    		} 
     		
-    		q.closeQueries();
-			
+    		q.closeQueries();			
 		} catch (SQLException e) {					
 			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			return;
 		}
 		
@@ -589,41 +617,7 @@ public class MainWindow extends javax.swing.JFrame {
         
         repaint();
     }
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MainWindow().setVisible(true);
-            }
-        });
-    }
-    // Variables declaration - do not modify//GEN-BEGIN:variables
+    
     private javax.swing.JPanel BlueNodes;
     private javax.swing.JPanel Console;
     private javax.swing.JPanel RedNodes;

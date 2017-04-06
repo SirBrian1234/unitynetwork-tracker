@@ -48,7 +48,25 @@ public class Database {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg);
 	    return pst.executeQuery();	    
-	}	
+	}
+	
+	public ResultSet getResultSetFromPreparedStatement1ArgString(String query, String arg) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setString(1, arg);
+	    return pst.executeQuery();	   
+	}
+	
+	public void executePreparedStatement1ArgString(String query, String arg1) throws SQLException{
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setString(1, arg1);
+	    pst.execute();
+	}
+	
+	public void executePreparedStatement1ArgInt(String query, int arg1) throws SQLException{
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setInt(1, arg1);
+	    pst.execute();
+	}
 	
 	public void executePreparedStatement2ArgsStringInt(String query, String arg1, int arg2) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);	           	              
@@ -57,6 +75,21 @@ public class Database {
 	    pst.execute();
 	}
 	
+	public void executePreparedStatement2ArgsIntString(String query, int arg1, String arg2) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setInt(1, arg1);
+	    pst.setString(2, arg2);
+	    pst.execute();
+	}
+	
+	public void executePreparedStatement3ArgsIntStringInt(String query, String arg1, int arg2, int arg3) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setString(1, arg1);
+	    pst.setInt(2, arg2);
+	    pst.setInt(3, arg3);
+	    pst.execute();
+	}
+
 	public void executePreparedStatement4ArgsStrStrIntStr(String query, String arg1, String arg2, int arg3, String arg4) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
@@ -64,5 +97,15 @@ public class Database {
 	    pst.setInt(3, arg3);
 	    pst.setString(4, arg4);
 	    pst.execute();
+	}
+
+	public void executePreparedStatement4ArgsStrIntStrStr(String query, String arg1, int arg2, String arg3,
+			String arg4) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);	           	              
+	    pst.setString(1, arg1);
+	    pst.setInt(2, arg2);
+	    pst.setString(3, arg3);
+	    pst.setString(4, arg4);
+	    pst.execute();		
 	}
 }

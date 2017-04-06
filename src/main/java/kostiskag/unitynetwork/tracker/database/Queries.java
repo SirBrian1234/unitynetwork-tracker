@@ -19,25 +19,28 @@ public class Queries {
 		return db.getResultSet("SELECT * FROM users");		
 	}
 	
-	public ResultSet selectAllFromUsersWhereId(int id) throws SQLException {		
-		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);		
-	}
-	
 	public ResultSet selectIdUsernamePasswordFromUsers() throws SQLException {		
 		return db.getResultSet("SELECT id, username, password FROM users");		
 	}
 	
-	public void insertEntryUsers(String name, String password, int scope, String fullname) throws SQLException {		
-		db.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", name, password, scope, fullname);
+	public ResultSet selectAllFromUsersWhereId(int id) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);		
 	}
 	
-	//to do these
-	public void updateEntryUsersWithId(int id, String username, String password, int scope, String fullName) {
-		// TODO Auto-generated method stub	
+	public ResultSet selectAllFromUsersWhereUsername(String username) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT * FROM users WHERE username = ?", username);		
 	}
 	
-	public void deletEntryUsersWithIdUsername(int id, String username) {
-		// TODO Auto-generated method stub	
+	public void insertEntryUsers(String username, String password, int scope, String fullname) throws SQLException {		
+		db.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
+	}
+	
+	public void updateEntryUsersWithUsername(String username, String password, int scope, String fullname) throws SQLException {
+		db.executePreparedStatement4ArgsStrIntStrStr("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
+	}
+	
+	public void deleteEntryUsersWithUsername(String username) throws SQLException {
+		db.executePreparedStatement1ArgString("DELETE FROM users where username = ?", username);
 	}
 	
 	//hostname queries
@@ -45,25 +48,40 @@ public class Queries {
 		return db.getResultSet("SELECT * FROM hostnames"); 
 	}
 	
-	public ResultSet selectAllFromHostnamesWhereId(int id) throws SQLException {		
-		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE id = ?", id);		
+	public ResultSet selectHostnameFromHostnames() throws SQLException {				
+		return db.getResultSet("SELECT hostname FROM hostnames"); 
 	}
 	
-	public ResultSet selectIdHostnamesFromHostnamesWithUserid(int userid) throws SQLException {		
-		return db.getResultSetFromPreparedStatement1ArgInt("SELECT id, hostname FROM hostnames WHERE userid= ?", userid);
+	public ResultSet selectUseridFromHostnames() throws SQLException {				
+		return db.getResultSet("SELECT userid FROM hostnames"); 
+	}
+	
+	public ResultSet selectAllFromHostnamesWhereHostname(String hostname) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT * FROM hostnames WHERE hostname = ?", hostname);		
+	}
+	
+	public ResultSet selectAllFromHostnamesWhereUserid(int userid) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE userid = ?", userid);		
+	}
+	
+	public ResultSet selectUseridFromHostnamesWithHostname(String hostname) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT userid FROM hostnames WHERE hostname = ?", hostname);
+	}
+	
+	public ResultSet selectHostnameFromHostnamesWithUserid(int userid) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT hostname FROM hostnames WHERE userid = ?", userid);
 	}
 	
 	public void insertEntryHostnames(String hostname, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (NULL, ?, ?)", hostname, userid);
+		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (?, ?)", hostname, userid);
 	}
 	
-	//to do these
-	public void updateEntryHostnamesWithId(int id, String hostname, int userid) {
-		// TODO Auto-generated method stub	
+	public void updateEntryHostnamesWithHostname(String hostname, int userid) throws SQLException {		
+		db.executePreparedStatement2ArgsIntString("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
 	}
 	
-	public void deletEntryHostnamesWithIdHostname(int id, String hostname) {
-		// TODO Auto-generated method stub	
+	public void deleteEntryHostnamesWithHostname(String hostname) throws SQLException {
+		db.executePreparedStatement1ArgString("DELETE FROM hostnames where hostname = ?", hostname);
 	}
 	
 	//bluenode queries
@@ -71,29 +89,40 @@ public class Queries {
 		return db.getResultSet("SELECT * FROM bluenodes"); 
 	}
 	
-	public ResultSet selectAllFromBluenodesWhereId(int id) throws SQLException {		
-		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM bluenodes WHERE id = ?", id);		
-	}
-	
-	public ResultSet selectNameBluenodes() throws SQLException {				
+	public ResultSet selectNameFromBluenodes() throws SQLException {				
 		return db.getResultSet("SELECT name FROM bluenodes"); 
 	}
 	
-	public ResultSet selectIdNameFromBluenodes() throws SQLException {		
-		return db.getResultSet("SELECT id, name FROM bluenodes");		
+	public ResultSet selectUseridFromBluenodes() throws SQLException {		
+		return db.getResultSet("SELECT userid FROM bluenodes");		
+	}
+	
+	public ResultSet selectAllFromBluenodesWhereName(String name) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT * FROM bluenodes WHERE name = ?", name);		
+	}
+	
+	public ResultSet selectAllFromBluenodesWhereUserid(int userid) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM bluenodes WHERE userid = ?", userid);		
+	}
+	
+	public ResultSet selectUseridFromBluenodesWhereName(String name) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgString("SELECT userid FROM bluenodes WHERE name = ?", name);		
+	}
+	
+	public ResultSet selectNameFromBluenodesWhereUserid(int userid) throws SQLException {		
+		return db.getResultSetFromPreparedStatement1ArgInt("SELECT name FROM bluenodes WHERE userid = ?", userid);		
 	}
 	
 	public void insertEntryBluenodes(String name, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO bluenodes VALUES (NULL, ?, ?)", name, userid);
+		db.executePreparedStatement2ArgsStringInt("INSERT INTO bluenodes VALUES (?, ?)", name, userid);
 	}
 	
-	//to do these
-	public void updateEntryBluenodesWithId(int id, String name, int userid) {
-		// TODO Auto-generated method stub		
+	public void updateEntryBluenodesWithName(String name, int userid) throws SQLException {		
+		db.executePreparedStatement2ArgsIntString("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
 	}
 	
-	public void deleteEntryBluenodesWithIdName(int id, String name) {
-		// TODO Auto-generated method stub		
+	public void deleteEntryBluenodesWitName(String name) throws SQLException {
+		db.executePreparedStatement1ArgString("DELETE FROM bluenodes where name = ?", name);
 	}
 	
 	public void closeQueries() throws SQLException {
@@ -103,31 +132,29 @@ public class Queries {
 	public static void validateDatabase() throws SQLException {
 		 Database db = new Database();
 		 
-		 String query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
-	                + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-	                + "	name CHAR(128) UNIQUE, \n"
-	                + " userid INT(10) \n"
-	                + ");";
-		 
-	     db.executeStatement(query);
-	    
-	     query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
-	                + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-	                + "	hostname CHAR(128) UNIQUE,\n"
-	                + " userid INT(11) NOT NULL\n"
-	                + ");";
-	        
-	    db.executeStatement(query);
-	        
-       query = "CREATE TABLE IF NOT EXISTS users (\n"
-               + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
-               + "	username CHAR(128) UNIQUE,\n"
+		String query = "CREATE TABLE IF NOT EXISTS users (\n"
+			   + "	id INTEGER PRIMARY KEY AUTOINCREMENT,\n"
+			   + "	username CHAR(128) UNIQUE,\n"
                + "	password CHAR(256) DEFAULT NULL,\n"
                + "	scope INT(4) DEFAULT NULL,\n"
                + "	fullname CHAR(256) DEFAULT NULL\n"
                + ");";
        
 	    db.executeStatement(query); 	    
-	    db.close();
+	
+	    query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
+                + "	hostname CHAR(128) PRIMARY KEY,\n"
+                + " userid INT(10) \n"
+                + ");";
+        
+	    db.executeStatement(query);
+    
+	   query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
+                + "	name CHAR(128) PRIMARY KEY, \n"
+                + " userid INT(10) \n"
+                + ");";
+	 
+	   db.executeStatement(query);
+	   db.close();
 	}		
 }

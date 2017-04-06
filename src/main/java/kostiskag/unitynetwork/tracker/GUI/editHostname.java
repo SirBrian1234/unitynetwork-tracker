@@ -27,7 +27,7 @@ public class editHostname {
 	private JTextField textField_1;
 	private JTextField textField_2;
 	int type;
-	int hostnameId;
+	String hostname;
 	private JLabel label_1;
 	private JButton btnAddNewEntry;
 
@@ -38,7 +38,7 @@ public class editHostname {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					editHostname window = new editHostname(0,0);
+					editHostname window = new editHostname(0,"none");
 					window.frmEditHostnameEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -50,14 +50,16 @@ public class editHostname {
 	/**
 	 * Create the application.
 	 */
-	public editHostname(int type, int hostnameId) {
+	public editHostname(int type, String hostname) {
 		this.type = type;
-		this.hostnameId = hostnameId;
+		this.hostname = hostname;
 		initialize();
 		if (type == 0) { 
 			btnAddNewEntry.setText("Add new entry");
 		} else {
 			btnAddNewEntry.setText("Update entry");
+			textField_1.setText(hostname);
+			textField_1.setEditable(false);
 		}
 		frmEditHostnameEntry.setVisible(true);
 	}
@@ -105,13 +107,13 @@ public class editHostname {
 							return;
 						}
 						
-						Queries q;
+						Queries q = null;
 						try {
 							q = new Queries();
 							if (type == 0) {			
 								q.insertEntryHostnames(textField_1.getText(), userid);
 							} else {
-								q.updateEntryHostnamesWithId(hostnameId, textField_1.getText(), userid);
+								q.updateEntryHostnamesWithHostname(hostname, userid);
 							}
 							q.closeQueries();
 						} catch (SQLException e) {
@@ -121,6 +123,11 @@ public class editHostname {
 						    } else { 
 						    	e.printStackTrace();
 						    }	
+							try {
+								q.closeQueries();
+							} catch (SQLException e1) {
+								e1.printStackTrace();
+							}
 						}										
 						
 						App.window.updateDatabaseGUI();
