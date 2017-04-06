@@ -14,6 +14,8 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JPasswordField;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
@@ -226,12 +228,13 @@ public class editUser {
 		frmEditUserEntry.getContentPane().add(label);
 		
 		chckbxSetANew = new JCheckBox("set a new password");
-		chckbxSetANew.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent arg0) {
+		chckbxSetANew.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
 				if (chckbxSetANew.isSelected()) {
-					passwordField.setEnabled(true);
+					passwordField.setEditable(true);
 				} else {
-					passwordField.setEnabled(false);
+					passwordField.setEditable(false);
 				}
 			}
 		});
