@@ -127,7 +127,6 @@ public class editHostname {
 								return;
 						    } else { 
 						    	e.printStackTrace();
-						    	System.out.println(e.getErrorCode());
 						    }	
 						} catch (Exception e) {
 							label_1.setText("The given userid does not exist.");

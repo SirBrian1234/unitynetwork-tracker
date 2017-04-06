@@ -134,6 +134,7 @@ public class editBluenode {
 								}
 							} else {
 								lblNewLabel.setText("The given userid does not exist.");
+								q.closeQueries();
 								return;
 							}	
 							q.closeQueries();
