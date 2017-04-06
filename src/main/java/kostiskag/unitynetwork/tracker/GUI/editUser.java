@@ -18,6 +18,7 @@ import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
+import javax.swing.JCheckBox;
 
 public class editUser {
 
@@ -79,7 +80,7 @@ public class editUser {
 		frmEditUserEntry = new JFrame();
 		frmEditUserEntry.setResizable(false);
 		frmEditUserEntry.setTitle("Edit user entry");
-		frmEditUserEntry.setBounds(100, 100, 450, 300);
+		frmEditUserEntry.setBounds(100, 100, 450, 325);
 		frmEditUserEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditUserEntry.getContentPane().setLayout(null);
 		
@@ -103,25 +104,25 @@ public class editUser {
 		textField_1.setColumns(10);
 		
 		lblPassword = new JLabel("password");
-		lblPassword.setBounds(10, 99, 56, 14);
+		lblPassword.setBounds(47, 128, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblPassword);
 		
 		lblType = new JLabel("type");
-		lblType.setBounds(10, 141, 46, 14);
+		lblType.setBounds(10, 169, 46, 14);
 		frmEditUserEntry.getContentPane().add(lblType);
 		
 		comboBox = new JComboBox<String>();
 		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"system", "user", "robot", "goverment service/organisation/company "}));
-		comboBox.setBounds(76, 138, 257, 20);
+		comboBox.setBounds(76, 166, 257, 20);
 		frmEditUserEntry.getContentPane().add(comboBox);
 		
 		JLabel lblFullName = new JLabel("full name");
-		lblFullName.setBounds(10, 183, 56, 14);
+		lblFullName.setBounds(10, 211, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblFullName);
 		
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
-		textField_3.setBounds(76, 180, 257, 20);
+		textField_3.setBounds(76, 208, 257, 20);
 		frmEditUserEntry.getContentPane().add(textField_3);
 		
 		btnNewButton = new JButton("Add new entry");
@@ -159,17 +160,22 @@ public class editUser {
 				}			
 			}
 		});
-		btnNewButton.setBounds(296, 233, 128, 23);
+		btnNewButton.setBounds(296, 263, 128, 23);
 		frmEditUserEntry.getContentPane().add(btnNewButton);
 		
 		passwordField = new JPasswordField();
-		passwordField.setBounds(76, 96, 257, 20);
+		passwordField.setBounds(113, 125, 257, 20);
 		frmEditUserEntry.getContentPane().add(passwordField);
 		
 		label = new JLabel("");
 		label.setForeground(new Color(204, 0, 0));
 		label.setFont(new Font("Tahoma", Font.BOLD, 14));
-		label.setBounds(10, 208, 414, 14);
+		label.setBounds(10, 238, 414, 14);
 		frmEditUserEntry.getContentPane().add(label);
+		
+		JCheckBox chckbxSetANew = new JCheckBox("set a new password");
+		chckbxSetANew.setSelected(true);
+		chckbxSetANew.setBounds(10, 95, 167, 23);
+		frmEditUserEntry.getContentPane().add(chckbxSetANew);
 	}
 }
