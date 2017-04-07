@@ -313,7 +313,7 @@ public class MainWindow extends javax.swing.JFrame {
 						String username = (String) table.getValueAt(row, 1);
 						try {
 							Logic.removeUserAndAllHisItems(username);
-						} catch (SQLException e1) {
+						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -394,7 +394,7 @@ public class MainWindow extends javax.swing.JFrame {
 					if (row != -1) {
 						try {
 							Logic.removeHostname((String) table_1.getValueAt(row, 1));
-						} catch (SQLException e1) {
+						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -467,7 +467,7 @@ public class MainWindow extends javax.swing.JFrame {
 					if (row != -1) {
 						try {
 							Logic.removeBluenode((String) table_2.getValueAt(row, 0));
-						} catch (SQLException e1) {
+						} catch (Exception e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -592,11 +592,11 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			return;

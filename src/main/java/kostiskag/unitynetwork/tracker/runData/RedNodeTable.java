@@ -27,7 +27,7 @@ public class RedNodeTable {
         App.ConsolePrint(pre + "INITIALIZED " + size);
     }
 
-    public RedNodeEntry getRedNodeEntry(int id) {
+    public synchronized RedNodeEntry getRedNodeEntry(int id) {
         if (table.length > id) {
             return table[id];
         } else {
@@ -36,7 +36,7 @@ public class RedNodeTable {
         }
     }
 
-    public RedNodeEntry getRedNodeEntryByHn(String Hostname) {
+    public synchronized RedNodeEntry getRedNodeEntryByHn(String Hostname) {
         for (int i = 0; i < size; i++) {
             if (Hostname.equals(table[i].getHostname())) {
                 return table[i];
@@ -46,7 +46,7 @@ public class RedNodeTable {
         return null;
     }
     
-    public RedNodeEntry getRedNodeEntryByAddr(String vaddress) {
+    public synchronized RedNodeEntry getRedNodeEntryByAddr(String vaddress) {
         for (int i = 0; i < size; i++) {
             if (vaddress.equals(table[i].getVaddress())) {
                 return table[i];
@@ -56,13 +56,13 @@ public class RedNodeTable {
         return null;
     }
 
-    public int getSize() {
+    public synchronized int getSize() {
         return count;
     }
 
     //WARNING!!! There may be more than one entry with the same BlueNode this method will return
     //only the first result in table
-    public RedNodeEntry getRedNodeEntryByBN(String BNHostname) {
+    public synchronized RedNodeEntry getRedNodeEntryByBN(String BNHostname) {
         for (int i = 0; i < size; i++) {
             if (BNHostname.equals(table[i].getBNhostname())) {
                 return table[i];
@@ -72,7 +72,7 @@ public class RedNodeTable {
         return null;
     }
 
-    public int getNumOfAssociations(String BNhostname) {
+    public synchronized int getNumOfAssociations(String BNhostname) {
         int j = 0;
         for (int i = 0; i < size; i++) {
             if (BNhostname.equals(table[i].getBNhostname())) {
@@ -82,7 +82,7 @@ public class RedNodeTable {
         return j;
     }
 
-    public int lease(String hostname, String Vaddress, String BNhostname, Time regTimestamp) {
+    public synchronized int lease(String hostname, String Vaddress, String BNhostname, Time regTimestamp) {
         if (count < size) {
             table[count].init(hostname, Vaddress, BNhostname, regTimestamp);
             App.ConsolePrint(pre + count + " LEASED " + hostname + " ON " + BNhostname);
@@ -95,7 +95,7 @@ public class RedNodeTable {
         }
     }
 
-    public void release(String Hostname) {
+    public synchronized void release(String Hostname) {
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) //release                                                
             {
@@ -115,7 +115,7 @@ public class RedNodeTable {
         App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
     }
 
-    public void releaseByBN(String BNhostname) {
+    public synchronized void releaseByBN(String BNhostname) {
         for (int i = 0; i < count; i++) {
             if (BNhostname.equals(table[i].getBNhostname())) {
                 if (count != 0) {
@@ -129,7 +129,7 @@ public class RedNodeTable {
         }
     }
 
-    public Boolean checkOnlineByHn(String Hostname) {
+    public synchronized Boolean checkOnlineByHn(String Hostname) {
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) {
                 return true;
@@ -148,7 +148,7 @@ public class RedNodeTable {
     }
 
     //this basically searches if a BN has online RNS
-    public Boolean checkOnlineByBN(String BNHostname) {
+    public synchronized Boolean checkOnlineByBN(String BNHostname) {
         for (int i = 0; i < count; i++) {
             if (BNHostname.equals(table[i].getBNhostname())) {
                 return true;
@@ -157,7 +157,7 @@ public class RedNodeTable {
         return false;
     }
 
-    public void delete(int[] delTable) {
+    public synchronized void delete(int[] delTable) {
         App.ConsolePrint(pre + "FORCE DELETING " + delTable.length + " LOCAL RED NODES");
         for (int i = delTable.length; i > 0; i--) {
             String Hostname = getRedNodeEntry(delTable[i - 1]).getHostname();
@@ -167,7 +167,7 @@ public class RedNodeTable {
         }
     }
 
-    public void flushTable() {
+    public synchronized void flushTable() {
         for (int i = 0; i < size; i++) {
             table[i] = null;
         }
@@ -179,7 +179,7 @@ public class RedNodeTable {
         App.ConsolePrint(pre + "INITIALIZED " + size);
     }
     
-    public void updateTable() {
+    public synchronized void updateTable() {
         if (App.gui) {
             int rows = MainWindow.rednodes.getRowCount();
             for (int i = 0; i < rows; i++) {

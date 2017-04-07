@@ -63,7 +63,7 @@ public class BlueNodeFunctions {
 				data = "LEASE_FAILED";
 			}
 			q.closeQueries();
-		} catch (SQLException ex) {
+		} catch (SQLException | InterruptedException ex) {
 			Logger.getLogger(TrackService.class.getName()).log(Level.SEVERE, null, ex);
 			data = "SYSTEM_ERROR";
 		}
@@ -114,7 +114,7 @@ public class BlueNodeFunctions {
 				}
 				SocketFunctions.sendFinalData(data, writer);
 				q.closeQueries();
-			} catch (SQLException ex) {
+			} catch (SQLException | InterruptedException ex) {
 				Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
 				data = "SYSTEM_ERROR";
 			}
@@ -218,11 +218,11 @@ public class BlueNodeFunctions {
 			q.closeQueries();
 			return -1;
 
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 				return -2;
 			}
@@ -262,11 +262,11 @@ public class BlueNodeFunctions {
 			}
 			q.closeQueries();
 			return 0;			
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 				return -1;
 			}

@@ -3,6 +3,8 @@ package kostiskag.unitynetwork.tracker.database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import kostiskag.unitynetwork.tracker.App;
+
 /*
  * WARNING MYSQL ON LINUX IS CASE SENSITIVE
  */
@@ -10,7 +12,8 @@ public class Queries {
 	
 	Database db;
 	
-	public Queries() throws SQLException {
+	public Queries() throws SQLException, InterruptedException {
+		App.databaseLock.lock();
 		db = new Database();
 	}
 	
@@ -188,12 +191,15 @@ public class Queries {
 		db.executePreparedStatement1ArgInt("DELETE FROM bluenodes where userid = ?", userid);
 	}
 	
-	public void closeQueries() throws SQLException {
+	public void closeQueries() throws SQLException, InterruptedException {
 		db.close();
+		App.databaseLock.unlock();
 	}
 	
-	public static void validateDatabase() throws SQLException {
-		 Database db = new Database();
+	public static void validateDatabase() throws SQLException, InterruptedException {
+		App.databaseLock.lock();
+		
+		Database db = new Database();
 		 
 		String query = "CREATE TABLE IF NOT EXISTS users (\n"
 			   + "	id INTEGER PRIMARY KEY AUTOINCREMENT, \n"
@@ -229,5 +235,6 @@ public class Queries {
 	 
 	   db.executeStatement(query);
 	   db.close();
+	   App.databaseLock.unlock();		
 	}
 }

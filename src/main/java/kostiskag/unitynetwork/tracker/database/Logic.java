@@ -14,7 +14,7 @@ public class Logic {
 	 * unknown in order to catch it from the method caller as well 
 	 */
 	
-	public static void addNewUser(String username, String password, int scope, String fullname) throws SQLException{
+	public static void addNewUser(String username, String password, int scope, String fullname) throws Exception{
 		//we have to provide a salted and hashed password in the db along with the rest of the updates
 		//to do in the hash branch
 		//pass = hash(salt+pass)
@@ -23,18 +23,18 @@ public class Logic {
 			q = new Queries();
 			q.insertEntryUsers(username, password, scope, fullname);
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			throw e;
 		}
 	}
 	
-	public static void updateUserAndPassword(String username, String password, int scope, String fullname) throws SQLException {
+	public static void updateUserAndPassword(String username, String password, int scope, String fullname) throws Exception {
 		//we have to provide a salted and hashed password in the db along with the rest of the updates
 		//to do in the hash branch
 		//pass = hash(salt+pass)
@@ -43,18 +43,18 @@ public class Logic {
 			q = new Queries();
 			q.insertEntryUsers(username, password, scope, fullname);
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			throw e;
 		}
 	}
 	
-	public static void removeUserAndAllHisItems(String username) throws SQLException {
+	public static void removeUserAndAllHisItems(String username) throws Exception {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -77,11 +77,11 @@ public class Logic {
 				q.deleteEntryUsersWithUsername(username);
 			}
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			throw e;
@@ -99,7 +99,6 @@ public class Logic {
 					q.deleteEntryAddressFromBurned(address);
 					q.insertEntryHostnamesWithAddr(address, hostname, userid);										
 				} else {
-					System.out.println("no address");
 					q.insertEntryHostnamesNoAddr(hostname, userid);
 				}
 			} else {
@@ -141,7 +140,7 @@ public class Logic {
 		}
 	}
 	
-	public static void removeHostname(String hostname) throws SQLException {
+	public static void removeHostname(String hostname) throws Exception {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -155,28 +154,28 @@ public class Logic {
 				q.deleteEntryHostnamesWithHostname(hostname);
 			}
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			throw e;
 		}
 	}
 	
-	public static void removeBluenode(String name) throws SQLException {
+	public static void removeBluenode(String name) throws Exception {
 		Queries q = null;
 		try {
 			q =new Queries();
 			q.deleteEntryBluenodesWitName(name);
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			try {
 				q.closeQueries();
-			} catch (SQLException e1) {
+			} catch (SQLException | InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			throw e;

@@ -14,9 +14,11 @@ import org.junit.runners.MethodSorters;
 import org.junit.FixMethodOrder;
 
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.sync.Lock;
 
-
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//the proof that the databaseLock works is that we do not need the below statement anymore
+//in order to run threads one after another.
+//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabaseTest {
 	
 	@BeforeClass
@@ -44,10 +46,11 @@ public class DatabaseTest {
     	if (file.exists()) {
     		file.delete();
     	}
-    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";    		
+    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";    
+    	App.databaseLock = new Lock();	
 		try {
 			Queries.validateDatabase();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -69,7 +72,7 @@ public class DatabaseTest {
     	try {
 			Queries q = new Queries();
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -84,7 +87,7 @@ public class DatabaseTest {
 			q.selectAllFromUsers();
 			q.selectAllFromHostnames();
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -107,7 +110,7 @@ public class DatabaseTest {
 			    System.out.println(s.getString("fullname"));
 			}
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -128,7 +131,7 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("userid"));
 			}
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -148,7 +151,7 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("userid"));
 			}
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -170,7 +173,7 @@ public class DatabaseTest {
 			    System.out.println(s.getString("hostname"));			    
 			}
 			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (SQLException | InterruptedException e) {			
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -193,7 +196,7 @@ public class DatabaseTest {
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -224,7 +227,7 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("scope"));
 			    System.out.println(s.getString("fullname"));
 			}
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -252,7 +255,7 @@ public class DatabaseTest {
 				System.out.println(""+r.getInt("address"));
 			}
 			q.closeQueries();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}

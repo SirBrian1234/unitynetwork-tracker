@@ -90,11 +90,11 @@ public class editUser {
 					textField_3.setText(r.getString("fullname"));
 				}
 				q.closeQueries();
-			} catch (SQLException e) {
+			} catch (SQLException | InterruptedException e) {
 				e.printStackTrace();
 				try {
 					q.closeQueries();
-				} catch (SQLException e1) {
+				} catch (SQLException | InterruptedException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -193,7 +193,9 @@ public class editUser {
 						    } else { 
 						    	ex.printStackTrace();
 						    }	
-						}										
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						} 										
 						
 						App.window.updateDatabaseGUI();
 						frmEditUserEntry.dispose();

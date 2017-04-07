@@ -16,6 +16,7 @@ import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
 import kostiskag.unitynetwork.tracker.sonarService.Sonar;
+import kostiskag.unitynetwork.tracker.sync.Lock;
 import kostiskag.unitynetwork.tracker.trackService.TrackServer;
 
 /**
@@ -24,6 +25,9 @@ import kostiskag.unitynetwork.tracker.trackService.TrackServer;
  */
 public class App {
 
+	//this are our locks which will assure that no thread accesses
+	//the same data pools concurrently
+	public static Lock databaseLock;
 	//user input max sizes
 	public static int max_int_str_len = 32;
 	public static int max_str_len_small_size = 128;
@@ -71,11 +75,12 @@ public class App {
 		}
 
 		// 2. database
+		databaseLock = new Lock();
 		ConsolePrint("Testing Database Connection on " + databaseUrl + " ... ");
 		testDbConnection();
 		try {
 			Queries.validateDatabase();
-		} catch (SQLException e) {
+		} catch (SQLException | InterruptedException e) {
 			ConsolePrint("Database validation failed.");
 			e.printStackTrace();
 			die();

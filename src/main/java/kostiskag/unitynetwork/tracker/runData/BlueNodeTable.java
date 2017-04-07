@@ -27,7 +27,7 @@ public class BlueNodeTable {
         App.ConsolePrint(pre + "INITIALIZED " + size);
     }
 
-    public BlueNodeEntry getBlueNodeEntry(int id) {
+    public synchronized BlueNodeEntry getBlueNodeEntry(int id) {
         if (table.length > id) {
             return table[id];
         } else {
@@ -36,7 +36,7 @@ public class BlueNodeTable {
         }
     }
 
-    public BlueNodeEntry getBlueNodeEntryByHn(String Hostname) {
+    public synchronized BlueNodeEntry getBlueNodeEntryByHn(String Hostname) {
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) {
                 return table[i];
@@ -47,7 +47,7 @@ public class BlueNodeTable {
     }
 
     //WARNING!!! Physical address may not be unique
-    public BlueNodeEntry getBlueNodeEntryByAddr(String Phaddress) {
+    public synchronized BlueNodeEntry getBlueNodeEntryByAddr(String Phaddress) {
         for (int i = 0; i < count; i++) {
             if (Phaddress.equals(table[i].getPhaddress())) {
                 return table[i];
@@ -57,7 +57,7 @@ public class BlueNodeTable {
         return null;
     }
 
-    public int getBlueNodeIdByLowestLoad() {
+    public synchronized int getBlueNodeIdByLowestLoad() {
         int min = table[0].getLoad();
         int id = 0;
 
@@ -74,7 +74,7 @@ public class BlueNodeTable {
         return count;
     }
 
-    public int lease(String Hostname, String Phaddress, int port, int load, Time regTimestamp) {
+    public synchronized int lease(String Hostname, String Phaddress, int port, int load, Time regTimestamp) {
         if (count < size) {
             table[count].init(Hostname, Phaddress, port, load, regTimestamp);
             App.ConsolePrint(pre + count + " LEASED " + Hostname + " WITH " + Phaddress + ":" + port);
@@ -87,7 +87,7 @@ public class BlueNodeTable {
         }
     }
 
-    public void release(String Hostname) {
+    public synchronized void release(String Hostname) {
         boolean released = false;
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) {                
@@ -108,13 +108,13 @@ public class BlueNodeTable {
             App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
     }
 
-    public void Renew(String BlueNodeHostname, String address, int port, int load, Time time) {
+    public synchronized void Renew(String BlueNodeHostname, String address, int port, int load, Time time) {
         release(BlueNodeHostname);
         lease(BlueNodeHostname, address, port, load, time);
         updateTable();
     }
 
-    public void setLoad(String Hostname, int load) {
+    public synchronized void setLoad(String Hostname, int load) {
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) {
                 table[i].setLoad(load);
@@ -124,7 +124,7 @@ public class BlueNodeTable {
         App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
     }
 
-    public Boolean checkOnlineByHn(String Hostname) {
+    public synchronized Boolean checkOnlineByHn(String Hostname) {
         for (int i = 0; i < count; i++) {
             if (Hostname.equals(table[i].getHostname())) {
                 return true;
@@ -134,7 +134,7 @@ public class BlueNodeTable {
     }
 
     //WARNING!!! Multiple BN may have the same physical address the first result found in table will be returned
-    public Boolean checkOnlineByAddr(String Phaddress) {
+    public synchronized Boolean checkOnlineByAddr(String Phaddress) {
         for (int i = 0; i < count; i++) {
             if (Phaddress.equals(table[i].getPhaddress())) {
                 return true;
@@ -143,7 +143,7 @@ public class BlueNodeTable {
         return false;
     }
 
-    public void delete(int[] delTable) {
+    public synchronized void delete(int[] delTable) {
         App.ConsolePrint(pre + "FORCE DELETING " + delTable.length + " LOCAL RED NODES");
         for (int i = delTable.length; i > 0; i--) {
             String Hostname = getBlueNodeEntry(delTable[i - 1]).getHostname();
@@ -153,7 +153,7 @@ public class BlueNodeTable {
         }
     }
 
-    public void flushTable() {
+    public synchronized void flushTable() {
         for (int i = 0; i < size; i++) {
             table[i] = null;
         }
@@ -165,7 +165,7 @@ public class BlueNodeTable {
         App.ConsolePrint(pre + "INITIALIZED " + size);
     }
 
-    public void updateTable() {
+    public synchronized void updateTable() {
         //MainWindow.hostable.
         if (App.gui) {
             int rows = MainWindow.bluenodes.getRowCount();

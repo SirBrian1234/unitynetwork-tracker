@@ -69,11 +69,11 @@ public class editBluenode {
 					textField_2.setText(""+r.getInt("userid"));
 				}
 				q.closeQueries();
-			} catch (SQLException e) {
+			} catch (SQLException | InterruptedException e) {
 				e.printStackTrace();
 				try {
 					q.closeQueries();
-				} catch (SQLException e1) {
+				} catch (SQLException | InterruptedException e1) {
 					e1.printStackTrace();
 				}
 			}						
@@ -147,7 +147,14 @@ public class editBluenode {
 						    }
 							try {
 								q.closeQueries();
-							} catch (SQLException e1) {
+							} catch (SQLException | InterruptedException e1) {
+								e1.printStackTrace();
+							}
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+							try {
+								q.closeQueries();
+							} catch (SQLException | InterruptedException e1) {
 								e1.printStackTrace();
 							}
 						}										
