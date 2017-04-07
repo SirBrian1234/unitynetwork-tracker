@@ -88,17 +88,13 @@ public class TrackService extends Thread {
             BlueNodeFunctions.BlueRel(BlueNodeHostname, writer);
         } else if (args.length == 3 && args[0].equals("RELEASE") && args[1].equals("RN")) {
             BlueNodeFunctions.RedRel(BlueNodeHostname, args[2], writer);
-        } else if (args.length == 1 && args[0].equals("UPDATE")) {
-            BlueNodeFunctions.UpdatePh(BlueNodeHostname, writer, socket);
         } else if (args.length == 2 && args[0].equals("GETPH")) {
             BlueNodeFunctions.GetPh(args[1], writer);
         } else if (args.length == 2 && args[0].equals("CHECKRN")) {
             BlueNodeFunctions.CheckRn(args[1], writer);
         } else if (args.length == 2 && args[0].equals("CHECKRNA")) {
             BlueNodeFunctions.CheckRnAddr(args[1], writer);
-        } else if (args.length == 3 && args[0].equals("REPORT") && args[1].equals("BN")) {
-            BlueNodeFunctions.Report(BlueNodeHostname, args[2], writer);
-        } else {
+        }else {
             data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);
         }

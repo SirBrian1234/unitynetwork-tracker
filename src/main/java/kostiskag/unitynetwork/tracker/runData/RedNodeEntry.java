@@ -8,54 +8,41 @@ import java.sql.Time;
  */
 public class RedNodeEntry {
         
-    private String hostname;
-    private String Vaddress;
-    private String BNhostname;
+    private final String hostname;
+    private final String vAddress;
     private Time regTimestamp;
+    
+    private Object timeLock = new Object();
 
-    public RedNodeEntry(String hostname, String Vaddress, String BNhostname, Time regTimestamp) {
+    public RedNodeEntry(String hostname, String Vaddress, Time regTimestamp) {
         this.hostname = hostname;
-        this.BNhostname = BNhostname;
-        this.Vaddress  = Vaddress;
+        this.vAddress  = Vaddress;
         this.regTimestamp = regTimestamp;        
     }
-
-    public void init(String hostname, String Vaddress, String BNhostname, Time regTimestamp) {
-        this.hostname = hostname;
-        this.BNhostname = BNhostname;
-        this.Vaddress  = Vaddress;
-        this.regTimestamp = regTimestamp;
-    }
     
+    public RedNodeEntry(String hostname, String Vaddress) {
+        this.hostname = hostname;
+        this.vAddress  = Vaddress;
+        this.regTimestamp = new Time(System.currentTimeMillis());
+    }
+
     public String getHostname() {
         return hostname;
     }
 
     public String getVaddress() {
-        return Vaddress;
+        return vAddress;
     }        
 
-    public String getBNhostname() {
-        return BNhostname;
-    }    
-
-    public Time getRegTimestamp() {
-        return regTimestamp;
+    public Time getTimestamp() {
+    	synchronized (timeLock) {
+    		return regTimestamp;
+		}        
     }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public void setBNhostname(String BNhostname) {
-        this.BNhostname = BNhostname;
-    }    
-
-    public void setRegTimestamp(Time regTimestamp) {
-        this.regTimestamp = regTimestamp;
-    }        
-           
-    public void takeATimestamp(){
-        this.regTimestamp = new Time(System.currentTimeMillis());
+       
+    public void updateTimestamp(){
+    	synchronized (timeLock) {
+    		this.regTimestamp = new Time(System.currentTimeMillis());
+    	}
     } 
 }

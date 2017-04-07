@@ -8,11 +8,15 @@ import java.sql.Time;
  */
 public class BlueNodeEntry {
     
-    private String hostname;
-    private String Phaddress;
-    private int port;
+    private final String hostname;
+    private final String Phaddress;
+    private final int port;
     private int load; //number of clients
     private Time regTimestamp;
+    private RedNodeTable rednodes;
+    
+    private Object loadLock = new Object();
+    private Object timeLock = new Object();
 
     public BlueNodeEntry(String hostname, String Phaddress, int port, int load, Time regTimestamp) {
         this.hostname = hostname;
@@ -20,16 +24,29 @@ public class BlueNodeEntry {
         this.port = port;
         this.load = load;
         this.regTimestamp = regTimestamp;
+        this.rednodes = new RedNodeTable(this);
     }
-
-    public void init(String hostname, String Phaddress, int port, int load, Time regTimestamp) {
+    
+    //auto timestamp
+    public BlueNodeEntry(String hostname, String Phaddress, int port, int load) {
         this.hostname = hostname;
         this.Phaddress = Phaddress;
         this.port = port;
         this.load = load;
-        this.regTimestamp = regTimestamp;
+        this.regTimestamp = new Time(System.currentTimeMillis());
+        this.rednodes = new RedNodeTable(this);
     }
     
+    //auto timestamp, no load
+    public BlueNodeEntry(String hostname, String Phaddress, int port) {
+        this.hostname = hostname;
+        this.Phaddress = Phaddress;
+        this.port = port;
+        this.load = 0;
+        this.regTimestamp = new Time(System.currentTimeMillis());
+        this.rednodes = new RedNodeTable(this);
+    }
+
     public String getHostname() {
         return hostname;
     }
@@ -38,47 +55,43 @@ public class BlueNodeEntry {
         return Phaddress;
     }
 
-    public int getLoad() {
-        return load;
-    }
-
     public int getPort() {
         return port;
     }
 
-    public Time getRegTimestamp() {
-        return regTimestamp;
+    public int getLoad() {
+    	synchronized (loadLock) {
+    		return load;
+    	}
     }
 
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public void setPhaddress(String Phaddress) {
-        this.Phaddress = Phaddress;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
+    public Time getTimestamp() {
+    	synchronized (timeLock) {
+    		return regTimestamp;
+    	}
     }
 
     public void setLoad(int load) {
-        this.load = load;
+    	synchronized (loadLock) {
+    		this.load = load;
+    	}
     }
-
-    public void setRegTimestamp(Time regTimestamp) {
-        this.regTimestamp = regTimestamp;
-    }        
-        
-    public void takeATimestamp(){
-        this.regTimestamp = new Time(System.currentTimeMillis());
-    }       
 
     public void increaseLoad() {
-        load++;
+    	synchronized (loadLock) {
+    		load++;
+		}        
     }
     
-    public void decreaseLoad() {
-        load--;
+    public synchronized void decreaseLoad() {
+    	synchronized (loadLock) {
+    		load--;
+    	}
     }
+    
+    public void updateTimestamp(){
+    	synchronized (timeLock) {
+    		this.regTimestamp = new Time(System.currentTimeMillis());
+    	}
+    }    
 }

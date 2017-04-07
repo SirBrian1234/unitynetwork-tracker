@@ -50,10 +50,10 @@ public class BlueNodeFunctions {
 					int port = Integer.parseInt(givenPort);
 					if (!App.BNtable.checkOnlineByHn(BlueNodeHostname)) {
 						// normal connect for a non associated BN
-						App.BNtable.lease(BlueNodeHostname, address, port, 0, new Time(System.currentTimeMillis()));
+						App.BNtable.leaseBn(BlueNodeHostname, address, port, 0, new Time(System.currentTimeMillis()));
 					} else {
 						// the BN crashed and asks to reconnect to the system
-						App.RNtable.releaseByBN(BlueNodeHostname);
+						App.RNtable.releaseByBluenodeName(BlueNodeHostname);
 						App.BNtable.Renew(BlueNodeHostname, address, port, 0, new Time(System.currentTimeMillis()));
 					}
 					data = "LEASED " + address;
@@ -126,8 +126,8 @@ public class BlueNodeFunctions {
 	public static void BlueRel(String hostname, PrintWriter writer) {
 		String data = null;
 		if (App.BNtable.checkOnlineByHn(hostname)) {
-			App.RNtable.releaseByBN(hostname);
-			App.BNtable.release(hostname);
+			App.RNtable.releaseByBluenodeName(hostname);
+			App.BNtable.releaseBnByHn(hostname);
 			data = "RELEASED";
 		} else {
 			data = "RELEASE_FAILED";
@@ -186,7 +186,7 @@ public class BlueNodeFunctions {
 
 		String data;
 		if (App.RNtable.checkOnlineByAddr(vaddress)) {
-			data = "ONLINE " + App.RNtable.getRedNodeEntryByAddr(vaddress).getBNhostname();
+			data = "ONLINE " + App.RNtable.getRedNodeEntriesByAddr(vaddress).getBNhostname();
 		} else {
 			data = "OFFLINE";
 		}
@@ -271,33 +271,6 @@ public class BlueNodeFunctions {
 				return -1;
 			}
 			return -1;
-		}
-	}
-
-	// updates known address, works like dynamic domain
-	public static void UpdatePh(String BNhostname, PrintWriter writer, Socket socket) {
-		if (App.BNtable.checkOnlineByHn(BNhostname)) {
-			String data = "OK";
-			App.BNtable.getBlueNodeEntryByHn(BNhostname).setPhaddress(socket.getInetAddress().getHostAddress());
-			SocketFunctions.sendFinalData(data, writer);
-		} else {
-			String data = "NOT_FOUND";
-			SocketFunctions.sendFinalData(data, writer);
-		}
-	}
-
-	public static void Report(String BNhostname, String hostname, PrintWriter writer) {
-		if (App.BNtable.checkOnlineByHn(BNhostname)) {
-			if (App.BNtable.checkOnlineByHn(hostname)) {
-				String data = "OK";
-				SocketFunctions.sendFinalData(data, writer);
-			} else {
-				String data = "ERROR DST NOT_ONLINE";
-				SocketFunctions.sendFinalData(data, writer);
-			}
-		} else {
-			String data = "ERROR SOURCE NOT_ONLINE";
-			SocketFunctions.sendFinalData(data, writer);
 		}
 	}
 }

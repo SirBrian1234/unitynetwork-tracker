@@ -17,15 +17,15 @@ public class TableFunctions {
         int count = App.BNtable.getSize();
 
         for (int i=0; i< count; i++) {            
-            String Hostname = App.BNtable.getBlueNodeEntry(i).getHostname();
-            String Physical = App.BNtable.getBlueNodeEntry(i).getPhaddress();
-            int port = App.BNtable.getBlueNodeEntry(i).getPort();
+            String Hostname = App.BNtable.getBlueNodeEntryById(i).getHostname();
+            String Physical = App.BNtable.getBlueNodeEntryById(i).getPhaddress();
+            int port = App.BNtable.getBlueNodeEntryById(i).getPort();
             
             if (BlueNodeFunctions.checkOnline(Hostname)) {
-                App.BNtable.getBlueNodeEntryByHn(Hostname).takeATimestamp();
+                App.BNtable.getBlueNodeEntryByHn(Hostname).updateTimestamp();
                 BlueNodeFunctions.getRedNodes(Hostname, Physical, port);
             } else {                
-                App.BNtable.release(Hostname); //efoswn egine release edw pera auto shmainei oti to count exei meiwthei... opote sth for tha kanei +1 vhma kai tha pesei eksw!!!                
+                App.BNtable.releaseBnByHn(Hostname); //efoswn egine release edw pera auto shmainei oti to count exei meiwthei... opote sth for tha kanei +1 vhma kai tha pesei eksw!!!                
                 count--;
                 i--;                
             }

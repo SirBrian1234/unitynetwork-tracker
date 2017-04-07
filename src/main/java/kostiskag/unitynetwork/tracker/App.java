@@ -35,7 +35,6 @@ public class App {
 	public static TrackServer track;
 	public static MainWindow window;
 	public static BlueNodeTable BNtable;
-	public static RedNodeTable RNtable;
 	public static boolean gui = true;
 	public static String netName;
 	public static int auth;
@@ -84,8 +83,7 @@ public class App {
 		
 		// 3. tables
 		ConsolePrint("initializing tables...");
-		BNtable = new BlueNodeTable(bncap);
-		RNtable = new RedNodeTable(rncap);
+		BNtable = new BlueNodeTable();
 			
 		// 4. gui
 		if (gui) {

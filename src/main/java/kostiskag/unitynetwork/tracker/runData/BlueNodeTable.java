@@ -1,10 +1,9 @@
 package kostiskag.unitynetwork.tracker.runData;
 
 import java.sql.Time;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Iterator;
+import java.util.LinkedList;
 import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 
 /**
  *
@@ -13,173 +12,160 @@ import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 public class BlueNodeTable {
 
     private static String pre = "^BNTABLE ";
-    private BlueNodeEntry[] table;
-    private int size;
-    private int count;
-    private BlueNodeEntry temp;
+    private LinkedList<BlueNodeEntry> list;
 
-    public BlueNodeTable(int size) {
-        this.size = size;
-        table = new BlueNodeEntry[size];
-        for (int i = 0; i < size; i++) {
-            table[i] = new BlueNodeEntry("none", "none", 0, 0, null);
-        }
-        App.ConsolePrint(pre + "INITIALIZED " + size);
+    public BlueNodeTable() {
+        list = new LinkedList<BlueNodeEntry>();
+        App.ConsolePrint(pre + "INITIALIZED ");
     }
 
-    public BlueNodeEntry getBlueNodeEntry(int id) {
-        if (table.length > id) {
-            return table[id];
+    public synchronized BlueNodeEntry getBlueNodeEntryById(int id) {
+        if (id >= 0 && id < list.size()) {
+    	    return list.get(id);
         } else {
             App.ConsolePrint(pre + "NO ENTRY " + id + " IN TABLE");
             return null;
         }
     }
 
-    public BlueNodeEntry getBlueNodeEntryByHn(String Hostname) {
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) {
-                return table[i];
+    //get getBlueNodeEntryById should be preferred if possible for speed
+    public synchronized BlueNodeEntry getBlueNodeEntryByHn(String Hostname) {
+    	Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+        while (iterator.hasNext()) {
+        	BlueNodeEntry element = iterator.next();
+            if (Hostname.equals(element.getHostname())) {
+                return element;
             }
         }
         App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
         return null;
     }
+    
+    public synchronized BlueNodeEntry getBlueNodeEntryByLowestLoad() {
+    	BlueNodeEntry retrieved = null;
+    	if (list.size() > 0) {
+    		int min = list.getFirst().getLoad();
+    		retrieved = list.getFirst();
+    		
+	    	Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+	        int i = 0;
+	        while (iterator.hasNext()) {
+	        	BlueNodeEntry element = iterator.next();
+	            if (element.getLoad() <= min) {
+	                min = element.getLoad();
+	                retrieved = element;
+	            }
+	            i++;
+	        }	      
+        } 
+        return retrieved;
+    }
 
-    //WARNING!!! Physical address may not be unique
-    public BlueNodeEntry getBlueNodeEntryByAddr(String Phaddress) {
-        for (int i = 0; i < count; i++) {
-            if (Phaddress.equals(table[i].getPhaddress())) {
-                return table[i];
+    //WARNING!!! Physical address is not expected to be unique
+    //therefore the table may return all the instances with the same phaddress
+    public synchronized LinkedList<BlueNodeEntry> getBlueNodeEntriesByPhAddr(String Phaddress) {
+    	LinkedList<BlueNodeEntry> found = new LinkedList<>();
+    	Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+        while (iterator.hasNext()) {
+        	BlueNodeEntry element = iterator.next();
+            if (Phaddress.equals(element.getPhaddress())) {
+                found.add(element);
             }
         }
         App.ConsolePrint(pre + "NO ENTRY FOR " + Phaddress + " IN TABLE");
-        return null;
+        return found;
     }
 
-    public int getBlueNodeIdByLowestLoad() {
-        int min = table[0].getLoad();
-        int id = 0;
-
-        for (int i = 0; i < count; i++) {
-            if (table[i].getLoad() <= min) {
-                min = table[i].getLoad();
-                id = i;
-            }
-        }
-        return id;
+    public synchronized int getSize() {
+        return list.size();
     }
 
-    public int getSize() {
-        return count;
+    public synchronized int leaseBn(String Hostname, String Phaddress, int port, int load, Time regTimestamp) {        
+        BlueNodeEntry bn = new BlueNodeEntry(Hostname, Phaddress, port, load, regTimestamp);
+        list.add(bn);
+        App.ConsolePrint(pre + " LEASED " + Hostname + " WITH " + Phaddress + ":" + port);
+        notifyGUI();
+        return list.size();        
     }
 
-    public int lease(String Hostname, String Phaddress, int port, int load, Time regTimestamp) {
-        if (count < size) {
-            table[count].init(Hostname, Phaddress, port, load, regTimestamp);
-            App.ConsolePrint(pre + count + " LEASED " + Hostname + " WITH " + Phaddress + ":" + port);
-            count++;
-            updateTable();
-            return count;
+    public synchronized int leaseBn(String Hostname, String Phaddress, int port, int load) {        
+        BlueNodeEntry bn = new BlueNodeEntry(Hostname, Phaddress, port, load);
+        list.add(bn);
+        App.ConsolePrint(pre + " LEASED " + Hostname + " WITH " + Phaddress + ":" + port);
+        notifyGUI();
+        return list.size();        
+    }
+    
+    public synchronized boolean releaseBnByID(int id) {
+    	if (id >= 0 && id < list.size()) {
+    		BlueNodeEntry element = list.remove(id);              
+            App.ConsolePrint(pre +element.getHostname()+" RELEASED ENTRY");
+            App.ConsolePrint(pre +element.getHostname()+" REMOVING BN ITEMS");
+            App.RNtable.releaseByBluenodeName(element.getHostname());
+            notifyGUI();
+            return true;
         } else {
-            App.ConsolePrint(pre + "NO MORE SPACE INSIDE ADDRESSTABLE");
-            return -1;
+            App.ConsolePrint(pre + "NO ENTRY " + id + " IN TABLE");
+            return false;
         }
     }
-
-    public void release(String Hostname) {
+    
+    //releaseBnByID should be preferred for speed
+    public synchronized boolean releaseBnByHn(String Hostname) {
         boolean released = false;
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) {                
-                    table[i].init("none", "none", 0, 0, null);
-                
-                    temp = table[i];                    
-                    table[i] = table[count-1];                    
-                    table[count-1] = temp;
-                    
-                    count--;                    
+        Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+        int i = 0;
+        while (iterator.hasNext()) {
+        	BlueNodeEntry element = iterator.next();
+            if (Hostname.equals(element.getHostname())) {                
+                    list.remove(i);              
                     App.ConsolePrint(pre +Hostname+" RELEASED ENTRY");
+                    App.ConsolePrint(pre +Hostname+" REMOVING BN ITEMS");
+                    App.RNtable.releaseByBluenodeName(Hostname);
                     released = true;
+                    notifyGUI();
                     break;
             }
+            i++;
         }
         
         if (!released)
             App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
+        return released;
     }
 
-    public void Renew(String BlueNodeHostname, String address, int port, int load, Time time) {
-        release(BlueNodeHostname);
-        lease(BlueNodeHostname, address, port, load, time);
-        updateTable();
-    }
-
-    public void setLoad(String Hostname, int load) {
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) {
-                table[i].setLoad(load);
-                return;
-            }
-        }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
-    }
-
-    public Boolean checkOnlineByHn(String Hostname) {
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) {
+    public synchronized Boolean checkOnlineByHn(String Hostname) {
+    	Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+    	while (iterator.hasNext()) {
+        	BlueNodeEntry element = iterator.next();
+            if (Hostname.equals(element.getHostname())) {  
                 return true;
             }
         }
         return false;
     }
-
-    //WARNING!!! Multiple BN may have the same physical address the first result found in table will be returned
-    public Boolean checkOnlineByAddr(String Phaddress) {
-        for (int i = 0; i < count; i++) {
-            if (Phaddress.equals(table[i].getPhaddress())) {
-                return true;
-            }
-        }
-        return false;
+    
+    //you should also call flush RN malakies den tha uparhe rn table ka ikathe bn tha exei tous dikous tou rns
+    public synchronized void flushBnTable() {
+    	list.clear();
     }
 
-    public void delete(int[] delTable) {
-        App.ConsolePrint(pre + "FORCE DELETING " + delTable.length + " LOCAL RED NODES");
-        for (int i = delTable.length; i > 0; i--) {
-            String Hostname = getBlueNodeEntry(delTable[i - 1]).getHostname();
-            App.ConsolePrint(pre + "DELETING " + Hostname);
-            release(Hostname);
-            updateTable();
+    //this will build the obj for gui
+    //gui can handle itself
+    public synchronized String[][] buildGUIObject() {        
+    	String obj[][] = new String[list.size()][];
+        int i = 0;
+        Iterator<BlueNodeEntry> iterator = list.descendingIterator();
+    	while (iterator.hasNext()) {
+    		BlueNodeEntry element = iterator.next();
+            obj[i] = new String[]{element.getHostname(), element.getPhaddress(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()};
         }
+    	return obj;
     }
-
-    public void flushTable() {
-        for (int i = 0; i < size; i++) {
-            table[i] = null;
-        }
-        table = new BlueNodeEntry[size];
-        for (int i = 0; i < size; i++) {
-            table[i] = new BlueNodeEntry("none", "none", 0, 0, null);
-        }
-        count = 0;
-        App.ConsolePrint(pre + "INITIALIZED " + size);
-    }
-
-    public void updateTable() {
-        //MainWindow.hostable.
-        if (App.gui) {
-            int rows = MainWindow.bluenodes.getRowCount();
-            for (int i = 0; i < rows; i++) {
-                MainWindow.bluenodes.removeRow(0);
-            }
-            try {
-                Thread.sleep(800); //waiting after removal just for the user feeling so tha he can see the table empty for a couple of time
-            } catch (InterruptedException ex) {
-                Logger.getLogger(BlueNodeTable.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            for (int i = 0; i < count; i++) {
-                MainWindow.bluenodes.addRow(new Object[]{table[i].getHostname(), table[i].getPhaddress(), table[i].getPort(), table[i].getLoad(), table[i].getRegTimestamp().toString()});
-            }
-        }
+    
+    private void notifyGUI () {
+    	if (App.gui) {
+    		App.window.updateBlueNodeTable();
+    	}
     }
 }
