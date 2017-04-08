@@ -64,7 +64,7 @@ public class TrackService extends Thread {
     public void BlueNodeService(String BlueNodeHostname) {        
         String data;
         
-        int auth = BlueNodeFunctions.authBN(BlueNodeHostname);
+        int auth = BlueNodeFunctions.authBluenode(BlueNodeHostname);
         if (auth > -1) {
             data = "OK";
         } else if (auth == -1) {
@@ -94,10 +94,11 @@ public class TrackService extends Thread {
             BlueNodeFunctions.CheckRn(args[1], writer);
         } else if (args.length == 2 && args[0].equals("CHECKRNA")) {
             BlueNodeFunctions.CheckRnAddr(args[1], writer);
-        }else {
+        } else {
             data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);
         }
+        SocketFunctions.connectionClose(socket);
     }
 
     private void RedNodeService(String hostname) {
@@ -109,6 +110,7 @@ public class TrackService extends Thread {
         } else {
             String data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);
-        }  
+        }
+        SocketFunctions.connectionClose(socket);
     }    
 }

@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
  
-public class MD5Functions { 
+public class HashFunctions { 
  
     private static String convertToHex(byte[] data) { 
         StringBuffer buf = new StringBuffer();

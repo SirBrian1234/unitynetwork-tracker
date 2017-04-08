@@ -12,9 +12,10 @@ import java.util.logging.Logger;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.MD5Functions;
+import kostiskag.unitynetwork.tracker.functions.HashFunctions;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
+import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
 /**
  *
@@ -23,19 +24,23 @@ import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
  *         Bluenode queries:
  *
  *         LEASE BN 
- *         LEASE RN [NAME] 
+ *         LEASE RN [HOSTNAME] 
  *         RELEASE BN 
- *         RELEASE RN [NAME] 
+ *         RELEASE RN [HOSTNAME] 
  *         GETPH 
- *         CHECKRN
+ *         CHECKRN [HOSTNAME]
+ *         CHECKRNA [VADDRESS]
  *         
  */
 public class BlueNodeFunctions {
 
-	public static void BlueLease(String BlueNodeHostname, String givenPort, PrintWriter writer, Socket socket) {
+	/*
+	 * lease a bluenode on the network
+	 */
+	public static void BlueLease(String bluenodeHostname, String givenPort, PrintWriter writer, Socket socket) {
 
 		String data = null;
-		Queries q;
+		Queries q = null;
 		ResultSet getResults = null;
 
 		try {
@@ -44,90 +49,106 @@ public class BlueNodeFunctions {
 			
 			boolean found = false;
 			while (getResults.next() && !found) {
-				if (getResults.getString("name").equals(BlueNodeHostname)) {
+				if (getResults.getString("name").equals(bluenodeHostname)) {
 					found = true;
 					String address = socket.getInetAddress().getHostAddress();
 					int port = Integer.parseInt(givenPort);
-					if (!App.BNtable.checkOnlineByHn(BlueNodeHostname)) {
+					if (!App.BNtable.checkOnlineByHn(bluenodeHostname)) {
 						// normal connect for a non associated BN
-						App.BNtable.leaseBn(BlueNodeHostname, address, port, 0, new Time(System.currentTimeMillis()));
-					} else {
-						// the BN crashed and asks to reconnect to the system
-						App.RNtable.releaseByBluenodeName(BlueNodeHostname);
-						App.BNtable.Renew(BlueNodeHostname, address, port, 0, new Time(System.currentTimeMillis()));
+						App.BNtable.leaseBn(bluenodeHostname, address, port, new Time(System.currentTimeMillis()));
+						data = "LEASED " + address;
 					}
-					data = "LEASED " + address;
 				}
 			}
-			if (found == false) {
+			if (!found) {
 				data = "LEASE_FAILED";
 			}
 			q.closeQueries();
 		} catch (SQLException ex) {
 			Logger.getLogger(TrackService.class.getName()).log(Level.SEVERE, null, ex);
 			data = "SYSTEM_ERROR";
+			try {
+				q.closeQueries();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	public static void RedLease(String BlueNodeHostname, String givenHostname, String username, String password,
+	/*
+	 * lease a rednode on the network over a bluenode
+	 */
+	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
 			PrintWriter writer) {
 		int userauth = checkUser(password);
-		String data = null;
 
-		Queries q;
-		ResultSet getResults = null;
-
-		if (userauth > 0) {
-			boolean found = false;
-			try {
-				q = new Queries();
-				getResults = q.selectHostnameFromHostnamesWithUserid(userauth);
-
-				if (getResults == null) {
-					data = "SYSTEM_ERROR";
-				} else {
-					while (getResults.next() && !found) {
-						String hostname = getResults.getString("hostname");
-						if (hostname.equals(givenHostname)) {
-							found = true;
-							if (!App.RNtable.checkOnlineByHn(hostname)) {
-								int id = getResults.getInt("id");
-								int inuserid = checkUser(password);
-								if (userauth == inuserid) {
-									App.RNtable.lease(hostname, VAddressFunctions.numberTo10ipAddr("" + id),
-											BlueNodeHostname, new Time(System.currentTimeMillis()));
-									data = "LEASED " + id;
-									App.BNtable.getBlueNodeEntryByHn(BlueNodeHostname).increaseLoad();
+		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		if (bn != null) {				
+			String data = null;
+			Queries q = null;
+			ResultSet getResults = null;
+	
+			if (userauth > 0) {
+				boolean found = false;
+				try {
+					q = new Queries();
+					getResults = q.selectHostnameFromHostnamesWithUserid(userauth);
+	
+					if (getResults == null) {
+						data = "SYSTEM_ERROR";
+					} else {
+						while (getResults.next() && !found) {
+							String hostname = getResults.getString("hostname");
+							if (hostname.equals(givenHostname)) {
+								found = true;
+								if (!App.BNtable.checkOnlineRnByHn(hostname)) {
+									//the id from hostnames is the hostname's virtual address
+									int vAddress = getResults.getInt("id");
+									int inuserid = getResults.getInt("userid");
+									if (userauth == inuserid) {
+										bn.rednodes.lease(hostname, VAddressFunctions.numberTo10ipAddr("" + vAddress), new Time(System.currentTimeMillis()));
+										data = "LEASED " + vAddress;									
+									} else {
+										//a user tried to lease another user's hostname
+										data = "USER_HOSTNAME_MISSMATCH";
+									}
 								} else {
-									data = "USER_HOSTNAME_MISSMATCH";
+									data = "ALLREADY_LEASED";
 								}
-							} else {
-								data = "ALLREADY_LEASED";
 							}
 						}
+	
+						if (!found) {
+							data = "LEASE_FAILED";
+						}
 					}
-
-					if (found == false) {
-						data = "LEASE_FAILED";
+					SocketFunctions.sendFinalData(data, writer);
+					q.closeQueries();
+				} catch (SQLException ex) {
+					Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
+					SocketFunctions.sendFinalData("SYSTEM_ERROR", writer);
+					try {
+						q.closeQueries();
+					} catch (SQLException e) {
+						e.printStackTrace();
 					}
 				}
-				SocketFunctions.sendFinalData(data, writer);
-				q.closeQueries();
-			} catch (SQLException ex) {
-				Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
-				data = "SYSTEM_ERROR";
+			} else {
+				SocketFunctions.sendFinalData("AUTH_FAILED", writer);
 			}
 		} else {
 			SocketFunctions.sendFinalData("AUTH_FAILED", writer);
 		}
 	}
 
+	/*
+	 * releases a bluenode from the network
+	 */
 	public static void BlueRel(String hostname, PrintWriter writer) {
 		String data = null;
 		if (App.BNtable.checkOnlineByHn(hostname)) {
-			App.RNtable.releaseByBluenodeName(hostname);
-			App.BNtable.releaseBnByHn(hostname);
+			App.BNtable.releaseBnByHn(hostname);			
 			data = "RELEASED";
 		} else {
 			data = "RELEASE_FAILED";
@@ -135,65 +156,87 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	public static void RedRel(String givenBNhostname, String givenHostname, PrintWriter writer) {
+	/*
+	 * releases a rednode from a bluenode
+	 */
+	public static void RedRel(String bluenodeName, String hostname, PrintWriter writer) {
 		String data = null;
 		boolean found = false;
 
-		if (App.RNtable.checkOnlineByHn(givenHostname)) {
-			found = true;
-			if (App.RNtable.getRedNodeEntryByHn(givenHostname).getBNhostname().equals(givenBNhostname)) {
-				App.RNtable.release(givenHostname);
-				App.BNtable.getBlueNodeEntryByHn(givenBNhostname).decreaseLoad();
+		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		if (bn != null) {
+			if (bn.rednodes.checkOnlineByHn(hostname)) {
+				bn.rednodes.releaseByHn(hostname);
 				data = "RELEASED";
 			} else {
 				data = "NOT_AUTHORIZED";
 			}
-		}
-		if (found == false) {
+		} else {
 			data = "NOT_AUTHORIZED";
 		}
-
+		
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	// gets the phaddress and port for a known BN
+	/* 
+	 * provides the physical address and port of a known bluenode
+	 */
 	public static void GetPh(String BNTargetHostname, PrintWriter writer) {
-
 		String data;
-
-		if (App.BNtable.checkOnlineByHn(BNTargetHostname)) {
-			data = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname).getPhaddress() + " "
-					+ App.BNtable.getBlueNodeEntryByHn(BNTargetHostname).getPort();
+		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
+		if (bn != null) {			
+			data = bn.getPhaddress()+" "+ bn.getPort();
 		} else {
 			data = "NOT_FOUND";
 		}
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	// checks if a RN is ONLINE
-	public static void CheckRn(String RNHostname, PrintWriter writer) {
-
+	/*
+	 *  checks whether a RN is ONLINE and from which BN is connected
+	 */
+	public static void CheckRn(String hostname, PrintWriter writer) {
 		String data;
-		if (App.RNtable.checkOnlineByHn(RNHostname)) {
-			data = "ONLINE " + App.RNtable.getRedNodeEntryByHn(RNHostname).getBNhostname();
+		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
+		if (bn != null) {
+			data = "ONLINE " + bn.getName();
 		} else {
 			data = "OFFLINE";
 		}
 		SocketFunctions.sendFinalData(data, writer);
 	}
-
+	
+	/*
+	 * Retrieves a bluenode hostname based on a given vaddress
+	 */
 	public static void CheckRnAddr(String vaddress, PrintWriter writer) {
-
-		String data;
-		if (App.RNtable.checkOnlineByAddr(vaddress)) {
-			data = "ONLINE " + App.RNtable.getRedNodeEntriesByAddr(vaddress).getBNhostname();
-		} else {
-			data = "OFFLINE";
-		}
-		SocketFunctions.sendFinalData(data, writer);
+		Queries q = null;
+		String data = null;
+		String hostname = null;
+		int vaddressNum = VAddressFunctions._10ipAddrToNumber(vaddress);
+		
+		try {
+			q = new Queries();
+			ResultSet r = q.selectAllFromHostnamesWhereAddress(vaddressNum);
+			while(r.next()) {
+				hostname = r.getString("hostname");			
+			}
+			
+			if (hostname != null) {
+				data = "ONLINE " + App.BNtable.checkOnlineRnByHn(hostname);
+			} else {
+				data = "OFFLINE";
+			}
+			SocketFunctions.sendFinalData(data, writer);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}			
 	}
-
-	public static int authBN(String BlueNodeHostname) {
+	
+	/*
+	 * authorizes a bluenode to join the network
+	 */
+	public static int authBluenode(String BlueNodeHostname) {
 		Queries q = null;
 		ResultSet getResults;
 		try {
@@ -223,15 +266,17 @@ public class BlueNodeFunctions {
 			try {
 				q.closeQueries();
 			} catch (SQLException e1) {
-				e1.printStackTrace();
-				return -2;
+				e1.printStackTrace();				
 			}
 			return -2;
 		}
 	}
 
+	/*
+	 * validates a network user to a bluenode 
+	 */
 	public static int checkUser(String outhash) {
-		String data;
+		String data = null;
 		Queries q = null;
 		ResultSet getResults;
 
@@ -244,17 +289,12 @@ public class BlueNodeFunctions {
 			}
 
 			int i = 0;
-			while (getResults.next()) {
-				data = getResults.getString("username") + "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage"
-						+ getResults.getString("password");
+			while (getResults.next()) {				
 				try {
-					data = MD5Functions.MD5(data);
-				} catch (NoSuchAlgorithmException ex) {
-					Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
-					data = "SYSTEM_ERROR";
-				} catch (UnsupportedEncodingException ex) {
-					Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
-					data = "SYSTEM_ERROR";
+					data = getResults.getString("username")+App.salt+HashFunctions.MD5(getResults.getString("password"));
+					data = HashFunctions.MD5(data);
+				} catch (Exception ex) {
+					ex.printStackTrace();					
 				}
 				if (outhash.equals(data)) {
 					return getResults.getInt("id");

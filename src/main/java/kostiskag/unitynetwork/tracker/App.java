@@ -15,7 +15,7 @@ import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
-import kostiskag.unitynetwork.tracker.sonarService.Sonar;
+import kostiskag.unitynetwork.tracker.sonarService.SonarService;
 import kostiskag.unitynetwork.tracker.trackService.TrackServer;
 
 /**
@@ -50,6 +50,9 @@ public class App {
 	public static boolean log;
 	public static File logFile;
 	public static int pingTime;
+	// salt
+	// you will have to wait for the network branch for this to chage
+	public static final String salt = "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage";
 
 	public App() {
 
@@ -103,7 +106,7 @@ public class App {
 
 		// 6. sonar
 		if (pingTime > 0) {
-			Sonar sonar = new Sonar(pingTime);
+			SonarService sonar = new SonarService(pingTime);
 			sonar.start();
 		} else {
 			ConsolePrint("Non valid ping time detected. Please correct the "+configFileName+" file");

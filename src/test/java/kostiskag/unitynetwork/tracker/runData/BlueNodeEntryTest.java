@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.junit.FixMethodOrder;
 
-public class BlueNodeTableTest {
+public class BlueNodeEntryTest {
 	@BeforeClass
 	public static void linkedTest() {
 		//counting starts from zero - an id may never exceed size - no excuses here!!!
@@ -24,7 +24,7 @@ public class BlueNodeTableTest {
 		LinkedList<BlueNodeEntry> li= new LinkedList<>();
 		li.add(bn);
 		System.out.println("size "+li.size());
-		System.out.println("counting "+li.get(0).getHostname());
+		System.out.println("counting "+li.get(0).getName());
 	}
 	
 	@Test
@@ -33,7 +33,7 @@ public class BlueNodeTableTest {
 		String address = "10.0.0.1";
 		int port = 4440;
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
-		assertTrue(bn.getHostname().equals(hostname));
+		assertTrue(bn.getName().equals(hostname));
 	}
 	
 	@Test

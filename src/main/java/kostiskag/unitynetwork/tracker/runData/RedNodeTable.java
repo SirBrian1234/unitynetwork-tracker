@@ -23,7 +23,12 @@ public class RedNodeTable {
         list = new LinkedList<RedNodeEntry>();
         App.ConsolePrint(pre + "INITIALIZED ");
     }
-
+    
+    public RedNodeTable(BlueNodeEntry bluenode, LinkedList<RedNodeEntry> builtList) {
+    	this.bluenode = bluenode;
+        list = builtList;
+        App.ConsolePrint(pre + "INITIALIZED ");
+    }
     
     public synchronized RedNodeEntry getRedNodeEntryById(int id) {
     	if (id >= 0 && id < list.size()) {
@@ -62,6 +67,20 @@ public class RedNodeTable {
     public synchronized int getSize() {
         return list.size();
     }
+    
+    public synchronized LinkedList<RedNodeEntry> getList() {
+        return list;
+    }
+    
+    public synchronized LinkedList<String> getLeasedHostnameList() {
+    	LinkedList<String> fetched = new LinkedList<>();
+    	Iterator<RedNodeEntry> iterator = list.descendingIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	fetched.add(element.getHostname());
+        }
+        return fetched;
+    }
 
     public synchronized int lease(String hostname, String vAddress, Time timestamp) {
     	RedNodeEntry rn = new RedNodeEntry(hostname, vAddress, timestamp);
@@ -76,22 +95,45 @@ public class RedNodeTable {
     	notifyGUI();
     	return list.size();
     }
+    
+    public synchronized boolean checkOnlineByHn(String hostname) {
+    	Iterator<RedNodeEntry> iterator = list.descendingIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	element.getHostname().equals(hostname);
+        	return true;
+        }
+        return false;
+    }
+    
+    public synchronized int releaseByHn(String hostname) {
+    	Iterator<RedNodeEntry> iterator = list.descendingIterator();
+        int i = 0;
+    	while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+            if (hostname.equals(element.getHostname())) {
+                list.remove(i);
+                notifyGUI();
+                break;
+            }
+            i++;
+        }    	    	
+    	return list.size();
+    }
+    
+    public synchronized int releaseById(int id) {
+    	if (id >= 0 && id  < list.size()) {
+    		list.remove(id);
+    		notifyGUI();
+    	}    	
+    	return list.size();	    	
+    }
 
     public synchronized void flushTable() {
         list.clear();
         App.ConsolePrint(pre + "INITIALIZED ");
+        notifyGUI();
     }
-
-	public synchronized String[][] buildGUIObject() {
-		String obj[][] = new String[list.size()][];
-        int i = 0;
-        Iterator<RedNodeEntry> iterator = list.descendingIterator();
-    	while (iterator.hasNext()) {
-    		RedNodeEntry element = iterator.next();
-            obj[i] = new String[]{element.getHostname(), element.getHostname(), ""+element.getVaddress(), ""+bluenode.getHostname(), element.getTimestamp().toString()};
-        }
-    	return obj;
-	}
 	
 	private void notifyGUI () {
     	if (App.gui) {

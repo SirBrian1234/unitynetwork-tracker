@@ -13,16 +13,22 @@ import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
 /**
- *
- * @author kostis
- */
+*
+* @author kostis
+* 
+*         (unregistered) Rednode queries:
+*
+*         GETBNS
+*         GETRBN
+*         
+*/
 public class RedNodeFunctions {
 
 	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) {
 		String data;
-		if (kostiskag.unitynetwork.tracker.App.BNtable.getSize() > 0) {
-			BlueNodeEntry recomended = kostiskag.unitynetwork.tracker.App.BNtable.getBlueNodeEntryByLowestLoad();
-			String hostname = recomended.getHostname();
+		if (App.BNtable.getSize() > 0) {
+			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
+			String hostname = recomended.getName();
 			String phaddress = recomended.getPhaddress();
 			int port = recomended.getPort();
 			int load = recomended.getLoad();
@@ -35,16 +41,18 @@ public class RedNodeFunctions {
 
 	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) {
 		int size = App.BNtable.getSize();
-		SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
-		//size may change while in proccess
-		//needs to be updated
-		for (int i = 0; i < size; i++) {
-			String hostname = App.BNtable.getBlueNodeEntryById(i).getHostname();
-			String phaddress = App.BNtable.getBlueNodeEntryById(i).getPhaddress();
-			int port = App.BNtable.getBlueNodeEntryById(i).getPort();
-			int load = App.BNtable.getBlueNodeEntryById(i).getLoad();
-			SocketFunctions.sendFinalData(hostname + " " + phaddress + " " + port + " " + load, writer);
+		if (App.BNtable.getSize() > 0) {
+			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
+			String fetched[][] = App.BNtable.buildStringInstanceObject();
+			int i = 0;
+			while(fetched[i] != null) {			
+				SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
+				i++;
+			}			
+			SocketFunctions.sendFinalData("", writer);
+		} else {
+			String data = "NONE";
+			SocketFunctions.sendFinalData(data, writer);
 		}
-		SocketFunctions.sendFinalData("", writer);
 	}
 }

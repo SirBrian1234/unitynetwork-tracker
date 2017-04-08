@@ -8,47 +8,33 @@ import java.sql.Time;
  */
 public class BlueNodeEntry {
     
-    private final String hostname;
+    private final String name;
     private final String Phaddress;
     private final int port;
-    private int load; //number of clients
     private Time regTimestamp;
-    private RedNodeTable rednodes;
+    public RedNodeTable rednodes;
     
-    private Object loadLock = new Object();
     private Object timeLock = new Object();
 
-    public BlueNodeEntry(String hostname, String Phaddress, int port, int load, Time regTimestamp) {
-        this.hostname = hostname;
-        this.Phaddress = Phaddress;
+    public BlueNodeEntry(String name, String phAddress, int port, Time regTimestamp) {
+        this.name = name;
+        this.Phaddress = phAddress;
         this.port = port;
-        this.load = load;
         this.regTimestamp = regTimestamp;
         this.rednodes = new RedNodeTable(this);
     }
     
     //auto timestamp
-    public BlueNodeEntry(String hostname, String Phaddress, int port, int load) {
-        this.hostname = hostname;
-        this.Phaddress = Phaddress;
+    public BlueNodeEntry(String name, String phAddress, int port) {
+        this.name = name;
+        this.Phaddress = phAddress;
         this.port = port;
-        this.load = load;
-        this.regTimestamp = new Time(System.currentTimeMillis());
-        this.rednodes = new RedNodeTable(this);
-    }
-    
-    //auto timestamp, no load
-    public BlueNodeEntry(String hostname, String Phaddress, int port) {
-        this.hostname = hostname;
-        this.Phaddress = Phaddress;
-        this.port = port;
-        this.load = 0;
         this.regTimestamp = new Time(System.currentTimeMillis());
         this.rednodes = new RedNodeTable(this);
     }
 
-    public String getHostname() {
-        return hostname;
+    public String getName() {
+        return name;
     }
 
     public String getPhaddress() {
@@ -58,34 +44,18 @@ public class BlueNodeEntry {
     public int getPort() {
         return port;
     }
-
+    
     public int getLoad() {
-    	synchronized (loadLock) {
-    		return load;
-    	}
+    	return rednodes.getSize();
+    }
+    
+    public RedNodeTable getRedNodes() {
+    	return rednodes;
     }
 
     public Time getTimestamp() {
     	synchronized (timeLock) {
     		return regTimestamp;
-    	}
-    }
-
-    public void setLoad(int load) {
-    	synchronized (loadLock) {
-    		this.load = load;
-    	}
-    }
-
-    public void increaseLoad() {
-    	synchronized (loadLock) {
-    		load++;
-		}        
-    }
-    
-    public synchronized void decreaseLoad() {
-    	synchronized (loadLock) {
-    		load--;
     	}
     }
     
