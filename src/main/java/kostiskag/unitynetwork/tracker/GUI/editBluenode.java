@@ -18,7 +18,7 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
 
-public class EditBluenode {
+public class editBluenode {
 
 	private JFrame frmEditBluenodeEntry;
 	private JTextField textField_1;
@@ -35,7 +35,7 @@ public class EditBluenode {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditBluenode window = new EditBluenode(0, "none");
+					editBluenode window = new editBluenode(0, "none");
 					window.frmEditBluenodeEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -47,7 +47,7 @@ public class EditBluenode {
 	/**
 	 * Create the application.
 	 */
-	public EditBluenode(int type, String name) {
+	public editBluenode(int type, String name) {
 		this.type = type;
 		this.name = name;
 		initialize();

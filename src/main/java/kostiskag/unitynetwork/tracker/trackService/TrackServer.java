@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package kostiskag.unitynetwork.tracker.trackService;
 
 import java.io.IOException;
 import java.net.ServerSocket;

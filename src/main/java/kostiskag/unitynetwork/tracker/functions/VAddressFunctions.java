@@ -31,7 +31,7 @@ public class VAddressFunctions {
         }
     }
 
-    public static int _10ipAddrToNumber(String vaddress) {
+    public static String _10ipAddrToNumber(String vaddress) {
         InetAddress addr = null;
         try {
             addr = InetAddress.getByName(vaddress);
@@ -46,6 +46,6 @@ public class VAddressFunctions {
             hostnum = (hostnum << 8) + (hostpart[i] & 0xff);
         }
         hostnum = hostnum - 1;
-        return hostnum;
+        return "" + hostnum;
     }
 }

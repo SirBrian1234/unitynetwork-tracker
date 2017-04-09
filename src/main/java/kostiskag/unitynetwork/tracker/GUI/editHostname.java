@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 
-public class EditHostname {
+public class editHostname {
 
 	private JFrame frmEditHostnameEntry;
 	private JTextField textField_1;
@@ -39,7 +39,7 @@ public class EditHostname {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditHostname window = new EditHostname(0,"none");
+					editHostname window = new editHostname(0,"none");
 					window.frmEditHostnameEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -51,7 +51,7 @@ public class EditHostname {
 	/**
 	 * Create the application.
 	 */
-	public EditHostname(int type, String hostname) {
+	public editHostname(int type, String hostname) {
 		this.type = type;
 		this.hostname = hostname;
 		initialize();
