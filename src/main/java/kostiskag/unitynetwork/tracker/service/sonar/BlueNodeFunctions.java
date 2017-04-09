@@ -37,6 +37,8 @@ public class BlueNodeFunctions {
         BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
         PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
         String args[] = SocketFunctions.readData(inputReader);   
+        
+        /*
         String data = null;
         String BlueNodeHostname = args[1];
         int auth = BlueNodeGlobalFunctions.authBluenode(BlueNodeHostname);
@@ -50,7 +52,7 @@ public class BlueNodeFunctions {
             SocketFunctions.sendFinalData(data, writer);
             SocketFunctions.connectionClose(socket);
             return false;
-        }               
+        }*/               
         args = SocketFunctions.sendData("TRACKER", writer, inputReader);
 
         //there should be an auth here
@@ -78,6 +80,7 @@ public class BlueNodeFunctions {
         BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
         PrintWriter writer = SocketFunctions.makeWriteWriter(socket);
         String args[] = SocketFunctions.readData(inputReader);
+        /*
         String data;
         String bluenodeName = args[1];
         int auth = BlueNodeGlobalFunctions.authBluenode(bluenodeName);
@@ -91,7 +94,7 @@ public class BlueNodeFunctions {
             SocketFunctions.sendFinalData(data, writer);
             SocketFunctions.connectionClose(socket);
             return null;
-        }    
+        }*/    
         args = SocketFunctions.sendData("TRACKER", writer, inputReader);
 
         //there should be an auth here
