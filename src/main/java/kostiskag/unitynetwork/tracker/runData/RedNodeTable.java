@@ -1,198 +1,151 @@
 package kostiskag.unitynetwork.tracker.runData;
 
 import java.sql.Time;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import com.mysql.jdbc.UpdatableResultSet;
+
 import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.GUI.MainWindow;
 
 /**
- *
- * @author kostis
+ * Each BlueNodeEntry owns an object of a RedNodeTable.
+ * In other words an object of a RedNodeTable represents all the connected rns over a bn
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class RedNodeTable {
 
     private static String pre = "^RNTABLE ";
-    private RedNodeEntry[] table;
-    private int size;
-    private int count;
-    private RedNodeEntry temp;
-
-    public RedNodeTable(int size) {
-        this.size = size;
-        table = new RedNodeEntry[size];
-        for (int i = 0; i < size; i++) {
-            table[i] = new RedNodeEntry("none", "none", "none", null);
-        }
-        App.ConsolePrint(pre + "INITIALIZED " + size);
+    private BlueNodeEntry bluenode;
+    private LinkedList<RedNodeEntry> list = new LinkedList<>();
+    
+    public RedNodeTable(BlueNodeEntry bluenode) {
+    	this.bluenode = bluenode;
+        list = new LinkedList<RedNodeEntry>();
+        App.ConsolePrint(pre + "INITIALIZED ");
+    }
+    
+    public RedNodeTable(BlueNodeEntry bluenode, LinkedList<RedNodeEntry> builtList) {
+    	this.bluenode = bluenode;
+        list = builtList;
+        App.ConsolePrint(pre + "INITIALIZED ");
     }
 
-    public synchronized RedNodeEntry getRedNodeEntry(int id) {
-        if (table.length > id) {
-            return table[id];
-        } else {
-            App.ConsolePrint(pre + "NO ENTRY " + id + " IN TABLE");
-            return null;
-        }
-    }
-
-    public synchronized RedNodeEntry getRedNodeEntryByHn(String Hostname) {
-        for (int i = 0; i < size; i++) {
-            if (Hostname.equals(table[i].getHostname())) {
-                return table[i];
+    public synchronized RedNodeEntry getRedNodeEntryByHn(String hostname) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+            if (hostname.equals(element.getHostname())) {
+                return element;
             }
-        }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
+        }    	
         return null;
     }
     
-    public synchronized RedNodeEntry getRedNodeEntryByAddr(String vaddress) {
-        for (int i = 0; i < size; i++) {
-            if (vaddress.equals(table[i].getVaddress())) {
-                return table[i];
+    public synchronized RedNodeEntry getRedNodeEntryByVAddr(String vaddress) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	if (vaddress.equals(element.getVaddress())) {
+                return element;
             }
-        }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + vaddress + " IN TABLE");
+        }    	
         return null;
     }
 
     public synchronized int getSize() {
-        return count;
+        return list.size();
     }
-
-    //WARNING!!! There may be more than one entry with the same BlueNode this method will return
-    //only the first result in table
-    public synchronized RedNodeEntry getRedNodeEntryByBN(String BNHostname) {
-        for (int i = 0; i < size; i++) {
-            if (BNHostname.equals(table[i].getBNhostname())) {
-                return table[i];
-            }
+    
+    public synchronized LinkedList<RedNodeEntry> getList() {
+        return list;
+    }
+    
+    public synchronized LinkedList<String> getLeasedRedNodeHostnameList() {
+    	LinkedList<String> fetched = new LinkedList<>();
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	fetched.add(element.getHostname());
         }
-        App.ConsolePrint(pre + "NO ASSOCIATIONS FOR " + BNHostname + " IN TABLE");
-        return null;
+        return fetched;
     }
 
-    public synchronized int getNumOfAssociations(String BNhostname) {
-        int j = 0;
-        for (int i = 0; i < size; i++) {
-            if (BNhostname.equals(table[i].getBNhostname())) {
-                j++;
-            }
+    public synchronized void lease(String hostname, String vAddress) throws Exception {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	if (element.getHostname().equals(hostname) || element.getVaddress().equals(vAddress)) {
+        		throw new Exception("Attempted to lease a non unique rednode entry.");
+        	}
         }
-        return j;
+        
+    	RedNodeEntry rn = new RedNodeEntry(hostname, vAddress);
+    	list.add(rn);
     }
-
-    public synchronized int lease(String hostname, String Vaddress, String BNhostname, Time regTimestamp) {
-        if (count < size) {
-            table[count].init(hostname, Vaddress, BNhostname, regTimestamp);
-            App.ConsolePrint(pre + count + " LEASED " + hostname + " ON " + BNhostname);
-            count++;
-            updateTable();
-            return count;
-        } else {
-            App.ConsolePrint(pre + "NO MORE SPACE INSIDE RNTABLE");
-            return -1;
-        }
-    }
-
-    public synchronized void release(String Hostname) {
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) //release                                                
-            {
-                if (count != 0) {
-
-                    temp = table[count - 1];
-                    table[count - 1] = table[i];
-                    table[i] = temp;
-                    table[count - 1].init("none", "none", "none", null);
-                    count--;
-                    updateTable();
-                    App.ConsolePrint(pre + "RELEASED ENTRY");
-                    return;
-                }
-            }
-        }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
-    }
-
-    public synchronized void releaseByBN(String BNhostname) {
-        for (int i = 0; i < count; i++) {
-            if (BNhostname.equals(table[i].getBNhostname())) {
-                if (count != 0) {
-                    temp = table[count - 1];
-                    table[count - 1] = table[i];
-                    table[i] = temp;
-                    table[count - 1].init("none", "none", "none", null);
-                    count--;
-                }
-            }
-        }
-    }
-
-    public synchronized Boolean checkOnlineByHn(String Hostname) {
-        for (int i = 0; i < count; i++) {
-            if (Hostname.equals(table[i].getHostname())) {
-                return true;
-            }
+    
+    public synchronized boolean checkOnlineByHn(String hostname) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	if (element.getHostname().equals(hostname)) {
+        		return true;
+        	}
         }
         return false;
     }
     
-     public Boolean checkOnlineByAddr(String vaddress) {
-        for (int i = 0; i < count; i++) {
-            if (vaddress.equals(table[i].getVaddress())) {
-                return true;
-            }
+    public synchronized boolean checkOnlineByVaddress(String vAddress) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+        	if (element.getVaddress().equals(vAddress)) {
+        		return true;
+        	}
         }
         return false;
     }
-
-    //this basically searches if a BN has online RNS
-    public synchronized Boolean checkOnlineByBN(String BNHostname) {
-        for (int i = 0; i < count; i++) {
-            if (BNHostname.equals(table[i].getBNhostname())) {
+    
+    public synchronized boolean release(String hostname) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        int i = 0;
+    	while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+            if (hostname.equals(element.getHostname())) {
+                list.remove(i);
+                notifyGUI();
+                App.ConsolePrint(pre +hostname+" RELEASED ENTRY");
                 return true;
             }
-        }
-        return false;
+            i++;
+        }    	    	
+    	return false;
     }
-
-    public synchronized void delete(int[] delTable) {
-        App.ConsolePrint(pre + "FORCE DELETING " + delTable.length + " LOCAL RED NODES");
-        for (int i = delTable.length; i > 0; i--) {
-            String Hostname = getRedNodeEntry(delTable[i - 1]).getHostname();
-            App.ConsolePrint(pre + "DELETING RN " + Hostname);
-            release(Hostname);
-            updateTable();
-        }
+    
+    public synchronized boolean releaseByVAddress(String vAddress) {
+    	Iterator<RedNodeEntry> iterator = list.listIterator();
+        int i = 0;
+    	while (iterator.hasNext()) {
+        	RedNodeEntry element = iterator.next();
+            if (vAddress.equals(element.getVaddress())) {
+                list.remove(i);
+                notifyGUI();
+                return true;
+            }
+            i++;
+        }    	    	
+    	return false;
     }
-
+   
     public synchronized void flushTable() {
-        for (int i = 0; i < size; i++) {
-            table[i] = null;
-        }
-        table = new RedNodeEntry[size];
-        for (int i = 0; i < size; i++) {
-            table[i] = new RedNodeEntry("none", "none", "none", null);
-        }
-        count = 0;
-        App.ConsolePrint(pre + "INITIALIZED " + size);
+        list.clear();
+        notifyGUI();
     }
-    
-    public synchronized void updateTable() {
-        if (App.gui) {
-            int rows = MainWindow.rednodes.getRowCount();
-            for (int i = 0; i < rows; i++) {
-                MainWindow.rednodes.removeRow(0);
-            }
-            try {
-                Thread.sleep(800); //waiting after removal just for the user feeling so tha he can see the table empty for a couple of time
-            } catch (InterruptedException ex) {
-                Logger.getLogger(RedNodeTable.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            for (int i = 0; i < count; i++) {                
-                MainWindow.rednodes.addRow(new Object[]{table[i].getHostname(), table[i].getVaddress(), table[i].getBNhostname(), table[i].getRegTimestamp().toString()});
-            }
-        }
+	
+	private void notifyGUI () {
+    	if (App.gui) {
+    		App.window.updateRedNodeTable();
+    	}
     }
 }

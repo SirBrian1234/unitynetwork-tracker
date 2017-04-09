@@ -26,7 +26,7 @@ import javax.swing.JCheckBox;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ChangeEvent;
 
-public class editUser {
+public class EditUser {
 
 	private JFrame frmEditUserEntry;
 	private JTextField textField;
@@ -50,7 +50,7 @@ public class editUser {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					editUser window = new editUser(0,"none");
+					EditUser window = new EditUser(0,"none");
 					window.frmEditUserEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -62,7 +62,7 @@ public class editUser {
 	/**
 	 * Create the application.
 	 */
-	public editUser(int type, String username) {
+	public EditUser(int type, String username) {
 		//type is 
 		//0 for new entry
 		//1 for update

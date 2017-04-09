@@ -127,16 +127,10 @@ public class SocketFunctions {
     }
 
     public static void connectionClose(Socket socket) {
-        if (socket == null){
-            System.out.println(pre + "CONNECTION CLOSE FAILED, NO CONNECTION");            
-            return;
-        }
         try {
             socket.close();
         } catch (IOException ex) {
             Logger.getLogger(SocketFunctions.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       
+        }       
     }
-
 }

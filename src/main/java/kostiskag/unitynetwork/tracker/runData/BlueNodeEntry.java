@@ -8,77 +8,60 @@ import java.sql.Time;
  */
 public class BlueNodeEntry {
     
-    private String hostname;
-    private String Phaddress;
-    private int port;
-    private int load; //number of clients
+    private final String name;
+    private final String Phaddress;
+    private final int port;
     private Time regTimestamp;
+    public RedNodeTable rednodes;
+    
+    private Object timeLock = new Object();
 
-    public BlueNodeEntry(String hostname, String Phaddress, int port, int load, Time regTimestamp) {
-        this.hostname = hostname;
-        this.Phaddress = Phaddress;
+    public BlueNodeEntry(String name, String phAddress, int port, Time regTimestamp) {
+        this.name = name;
+        this.Phaddress = phAddress;
         this.port = port;
-        this.load = load;
         this.regTimestamp = regTimestamp;
-    }
-
-    public void init(String hostname, String Phaddress, int port, int load, Time regTimestamp) {
-        this.hostname = hostname;
-        this.Phaddress = Phaddress;
-        this.port = port;
-        this.load = load;
-        this.regTimestamp = regTimestamp;
+        this.rednodes = new RedNodeTable(this);
     }
     
-    public String getHostname() {
-        return hostname;
+    //auto timestamp
+    public BlueNodeEntry(String name, String phAddress, int port) {
+        this.name = name;
+        this.Phaddress = phAddress;
+        this.port = port;
+        this.regTimestamp = new Time(System.currentTimeMillis());
+        this.rednodes = new RedNodeTable(this);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getPhaddress() {
         return Phaddress;
     }
 
-    public int getLoad() {
-        return load;
-    }
-
     public int getPort() {
         return port;
     }
-
-    public Time getRegTimestamp() {
-        return regTimestamp;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public void setPhaddress(String Phaddress) {
-        this.Phaddress = Phaddress;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
-
-    public void setLoad(int load) {
-        this.load = load;
-    }
-
-    public void setRegTimestamp(Time regTimestamp) {
-        this.regTimestamp = regTimestamp;
-    }        
-        
-    public void takeATimestamp(){
-        this.regTimestamp = new Time(System.currentTimeMillis());
-    }       
-
-    public void increaseLoad() {
-        load++;
+    
+    public int getLoad() {
+    	return rednodes.getSize();
     }
     
-    public void decreaseLoad() {
-        load--;
+    public RedNodeTable getRedNodes() {
+    	return rednodes;
     }
+
+    public Time getTimestamp() {
+    	synchronized (timeLock) {
+    		return regTimestamp;
+    	}
+    }
+    
+    public void updateTimestamp(){
+    	synchronized (timeLock) {
+    		this.regTimestamp = new Time(System.currentTimeMillis());
+    	}
+    }    
 }

@@ -41,22 +41,24 @@ public class MainWindow extends javax.swing.JFrame {
 	 * Creates new form MainWindow
 	 */
 	public static boolean lockDbEdit = false;
-	public static DefaultTableModel bluenodes;
-	public static DefaultTableModel rednodes;
+	
+	private static DefaultTableModel bluenodes;
+	private static DefaultTableModel rednodes;
 
 	private DefaultTableModel modelBluenodesDb;
 	private DefaultTableModel modelUsersDb;
 	private DefaultTableModel modelHostnamesDb;
-
+	
+	private String[] bluenodesTableHead = new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
+	private String[] rednodesTableHead = new String[] { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" };
+	
 	private String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
 	private String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
 	private String[] blunodesDbHead = new String[] { "name", "userid" };
 
 	public MainWindow() {
-		bluenodes = new DefaultTableModel(new String[][] {},
-				new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" });
-		rednodes = new DefaultTableModel(new String[][] {},
-				new String[] { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" });
+		bluenodes = new DefaultTableModel(new String[][] {}, bluenodesTableHead);
+		rednodes = new DefaultTableModel(new String[][] {}, rednodesTableHead);
 
 		modelUsersDb = new DefaultTableModel(new String[][] {}, usersDbHead);
 		modelHostnamesDb = new DefaultTableModel(new String[][] {}, hostnamesDbHead);
@@ -117,7 +119,7 @@ public class MainWindow extends javax.swing.JFrame {
 		jPanel4 = new javax.swing.JPanel();
 		jPanel4.setBounds(10, 697, 589, 31);
 		jButton1 = new javax.swing.JButton();
-		jButton3 = new javax.swing.JButton();
+		jButton1.setToolTipText("Refresh makes the GUI table to catch up with the internal data");
 
 		jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("BlueNodes"));
 
@@ -130,28 +132,21 @@ public class MainWindow extends javax.swing.JFrame {
 				jButton1ActionPerformed(evt);
 			}
 		});
-
-		jButton3.setText("Ping Refresh");
-		jButton3.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton3ActionPerformed(evt);
-			}
-		});
 		BlueNodes.setLayout(null);
 
 		javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-		jPanel4Layout.setHorizontalGroup(jPanel4Layout.createParallelGroup(Alignment.TRAILING)
+		jPanel4Layout.setHorizontalGroup(
+			jPanel4Layout.createParallelGroup(Alignment.TRAILING)
 				.addGroup(jPanel4Layout.createSequentialGroup()
-						.addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
-						.addPreferredGap(ComponentPlacement.UNRELATED)
-						.addComponent(jButton3, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
-						.addGap(417)));
-		jPanel4Layout
-				.setVerticalGroup(jPanel4Layout.createParallelGroup(Alignment.TRAILING).addGroup(Alignment.LEADING,
-						jPanel4Layout
-								.createSequentialGroup().addGroup(jPanel4Layout.createParallelGroup(Alignment.BASELINE)
-										.addComponent(jButton1).addComponent(jButton3))
-								.addContainerGap(40, Short.MAX_VALUE)));
+					.addComponent(jButton1, GroupLayout.PREFERRED_SIZE, 150, GroupLayout.PREFERRED_SIZE)
+					.addGap(577))
+		);
+		jPanel4Layout.setVerticalGroup(
+			jPanel4Layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(jPanel4Layout.createSequentialGroup()
+					.addComponent(jButton1)
+					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+		);
 		jPanel4.setLayout(jPanel4Layout);
 		BlueNodes.add(jPanel4);
 		BlueNodes.add(jPanel1);
@@ -168,6 +163,7 @@ public class MainWindow extends javax.swing.JFrame {
 		jPanel5 = new javax.swing.JPanel();
 		jPanel5.setBounds(10, 697, 546, 31);
 		jButton2 = new javax.swing.JButton();
+		jButton2.setToolTipText("Refresh makes the GUI table to catch up with the internal data");
 
 		jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("RedNodes"));
 
@@ -279,7 +275,7 @@ public class MainWindow extends javax.swing.JFrame {
 				// add new user
 				if (!lockDbEdit) {
 					// lockDbEdit = true;
-					new editUser(0, "");
+					new EditUser(0, "");
 				}
 			}
 		});
@@ -294,7 +290,7 @@ public class MainWindow extends javax.swing.JFrame {
 					// lockDbEdit = true;
 					int row = table.getSelectedRow();
 					if (row != -1) {
-						new editUser(1, (String) table.getValueAt(row, 1));
+						new EditUser(1, (String) table.getValueAt(row, 1));
 					}
 				}
 			}
@@ -313,7 +309,7 @@ public class MainWindow extends javax.swing.JFrame {
 						String username = (String) table.getValueAt(row, 1);
 						try {
 							Logic.removeUserAndAllHisItems(username);
-						} catch (Exception e1) {
+						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -334,7 +330,8 @@ public class MainWindow extends javax.swing.JFrame {
 
 		scrollPane.setViewportView(table);
 
-		btnNewButton_3 = new JButton("Reload DB");
+		btnNewButton_3 = new JButton("Refresh DB");
+		btnNewButton_3.setToolTipText("Refresh makes the GUI database tables to catch up with the internal data");
 		btnNewButton_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateDatabaseGUI();
@@ -361,7 +358,7 @@ public class MainWindow extends javax.swing.JFrame {
 				// new hostname
 				if (!lockDbEdit) {
 					// lockDbEdit = true;
-					new editHostname(0, "");
+					new EditHostname(0, "");
 				}
 			}
 		});
@@ -376,7 +373,7 @@ public class MainWindow extends javax.swing.JFrame {
 					// lockDbEdit = true;
 					int row = table_1.getSelectedRow();
 					if (row != -1) {
-						new editHostname(1, (String) table_1.getValueAt(row, 1));
+						new EditHostname(1, (String) table_1.getValueAt(row, 1));
 					}
 				}
 			}
@@ -394,7 +391,7 @@ public class MainWindow extends javax.swing.JFrame {
 					if (row != -1) {
 						try {
 							Logic.removeHostname((String) table_1.getValueAt(row, 1));
-						} catch (Exception e1) {
+						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -434,7 +431,7 @@ public class MainWindow extends javax.swing.JFrame {
 				// new bluenode
 				if (!lockDbEdit) {
 					// lockDbEdit = true;
-					new editBluenode(0, "");
+					new EditBluenode(0, "");
 				}
 			}
 		});
@@ -449,7 +446,7 @@ public class MainWindow extends javax.swing.JFrame {
 					// lockDbEdit = true;
 					int row = table_2.getSelectedRow();
 					if (row != -1) {
-						new editBluenode(1, (String) table_2.getValueAt(row, 0));
+						new EditBluenode(1, (String) table_2.getValueAt(row, 0));
 					}
 				}
 			}
@@ -467,7 +464,7 @@ public class MainWindow extends javax.swing.JFrame {
 					if (row != -1) {
 						try {
 							Logic.removeBluenode((String) table_2.getValueAt(row, 0));
-						} catch (Exception e1) {
+						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
 						updateDatabaseGUI();
@@ -497,120 +494,40 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton1ActionPerformed
-		App.BNtable.updateTable();
+		updateBlueNodeTable();
 	}
 
 	private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton2ActionPerformed
-		App.RNtable.updateTable();
-	}
-
-	private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jButton3ActionPerformed
-		TableFunctions.updateTablesViaAuthClient();
+		updateRedNodeTable();
 	}
 
 	private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jCheckBox1ActionPerformed
 		App.autoScrollDown = jCheckBox1.isSelected();
 	}
 
-	public void updateDatabaseGUI() {
-		// reload database on gui
-		String[][] usersDbData = null;
-		String[][] hostnamesDbData = null;
-		String[][] blunodesDbData = null;
-		ResultSet bns = null, hnms = null, usrs = null;
-		Queries q = null;
-
-		try {
-			q = new Queries();
-			usrs = q.selectAllFromUsers();
-			hnms = q.selectAllFromHostnames();
-			bns = q.selectAllFromBluenodes();
-
-			ArrayList<String[]> usrsList = new ArrayList<String[]>();
-			ArrayList<String[]> hnmsList = new ArrayList<String[]>();
-			ArrayList<String[]> bnsList = new ArrayList<String[]>();
-
-			int i = 0;
-			while (usrs.next()) {
-				String entry[] = new String[5];
-				entry[0] = new String("" + usrs.getInt("id"));
-				entry[1] = new String(usrs.getString("username"));
-				entry[2] = new String(usrs.getString("password"));
-				int scope = usrs.getInt("scope");
-				if (scope == 0) {
-					entry[3] = "system";
-				} else if (scope == 1) {
-					entry[3] = "user";
-				} else if (scope == 2) {
-					entry[3] = "robot";
-				} else if (scope == 3) {
-					entry[3] = "gov/org/comp";
-				}
-				entry[4] = new String(usrs.getString("fullname"));
-				usrsList.add(entry);
-				i++;
-			}
-
-			usersDbData = new String[usrsList.size()][5];
-			i = 0;
-			while (i < usrsList.size()) {
-				usersDbData[i] = usrsList.get(i);
-				i++;
-			}
-
-			i = 0;
-			while (hnms.next()) {
-				String entry[] = new String[3];
-				entry[0] = "" + hnms.getInt("address");
-				entry[1] = hnms.getString("hostname");
-				entry[2] = "" + hnms.getInt("userid");
-				hnmsList.add(entry);
-				i++;
-			}
-
-			hostnamesDbData = new String[hnmsList.size()][3];
-			i = 0;
-			while (i < hnmsList.size()) {
-				hostnamesDbData[i] = hnmsList.get(i);
-				i++;
-			}
-
-			i = 0;
-			while (bns.next()) {
-				String entry[] = new String[2];
-				entry[0] = bns.getString("name");
-				entry[1] = "" + bns.getInt("userid");
-				bnsList.add(entry);
-				i++;
-			}
-
-			blunodesDbData = new String[bnsList.size()][2];
-			i = 0;
-			while (i < bnsList.size()) {
-				blunodesDbData[i] = bnsList.get(i);
-				i++;
-			}
-
-			q.closeQueries();
-		} catch (SQLException | InterruptedException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException | InterruptedException e1) {
-				e1.printStackTrace();
-			}
-			return;
-		}
-
-		modelBluenodesDb = new DefaultTableModel(blunodesDbData, blunodesDbHead);
-		modelUsersDb = new DefaultTableModel(usersDbData, usersDbHead);
-		modelHostnamesDb = new DefaultTableModel(hostnamesDbData, hostnamesDbHead);
-
+	public synchronized void updateDatabaseGUI() {
+		LinkedList<String[][]> data = Logic.buildGUIObject();
+		modelUsersDb = new DefaultTableModel(data.poll(), usersDbHead);
+		modelHostnamesDb = new DefaultTableModel(data.poll(), hostnamesDbHead);
+		modelBluenodesDb = new DefaultTableModel(data.poll(), blunodesDbHead);
 		table.setModel(modelUsersDb);
 		table_1.setModel(modelHostnamesDb);
 		table_2.setModel(modelBluenodesDb);
-
 		repaint();
+	}
+	
+	public synchronized void updateBlueNodeTable() {
+		String[][] data = App.BNtable.buildStringInstanceObject();
+        bluenodes = new DefaultTableModel(data, bluenodesTableHead);
+        jTable2.setModel(bluenodes);
+        repaint();
+	}
+	
+	public synchronized void updateRedNodeTable() {
+		String[][] data = App.BNtable.buildRednodeStringInstanceObject();
+        rednodes = new DefaultTableModel(data, rednodesTableHead);
+        jTable1.setModel(rednodes);
+        repaint();
 	}
 
 	private javax.swing.JPanel BlueNodes;
@@ -618,7 +535,6 @@ public class MainWindow extends javax.swing.JFrame {
 	private javax.swing.JPanel RedNodes;
 	private javax.swing.JButton jButton1;
 	private javax.swing.JButton jButton2;
-	private javax.swing.JButton jButton3;
 	private javax.swing.JButton jButton4;
 	private javax.swing.JCheckBox jCheckBox1;
 	private javax.swing.JPanel jPanel1;
