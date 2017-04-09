@@ -44,7 +44,6 @@ public class App {
 	public static String password;
 	// capacity
 	public static int bncap;
-	public static int rncap;
 	public static boolean autoScrollDown = true;
 	private static int messageCount;
 	public static boolean log;

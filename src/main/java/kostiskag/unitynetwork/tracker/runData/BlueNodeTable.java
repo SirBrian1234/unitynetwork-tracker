@@ -130,19 +130,23 @@ public class BlueNodeTable {
         return list.size();
     }
 
-    public synchronized void lease(String name, String phAddress, int port) throws Exception {        
-    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-        	if (element.getName().equals(name) || (element.getPhaddress().equals(phAddress) && element.getPort() == port)) {
-        		throw new Exception("Attempted to insert a non unique bluenode entry.");
-        	}
-        }
-    	
-    	BlueNodeEntry bn = new BlueNodeEntry(name, phAddress, port);
-        list.add(bn);
-        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
-        notifyGUI();
+    public synchronized void lease(String name, String phAddress, int port) throws Exception {     
+    	if (App.bncap == 0 || App.bncap > list.size()) {
+	    	Iterator<BlueNodeEntry> iterator = list.listIterator();
+	        while (iterator.hasNext()) {
+	        	BlueNodeEntry element = iterator.next();
+	        	if (element.getName().equals(name) || (element.getPhaddress().equals(phAddress) && element.getPort() == port)) {
+	        		throw new Exception("Attempted to insert a non unique bluenode entry.");
+	        	}
+	        }
+	    	
+	    	BlueNodeEntry bn = new BlueNodeEntry(name, phAddress, port);
+	        list.add(bn);
+	        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
+	        notifyGUI();
+    	} else {
+    		App.ConsolePrint(pre + "Maximum Blue Node upper limit reached.");
+    	}
     }
     
     public synchronized void leaseRednode(String bluenodeName, String hostname, String vAddress) throws Exception {

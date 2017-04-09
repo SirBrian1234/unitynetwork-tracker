@@ -25,7 +25,6 @@ public class ReadPreferencesFile {
         String databaseUrl = cfg.getProperty("DatabaseUrl").replaceAll("\\s+","");
         String databaseUser = cfg.getProperty("DatabaseUser").replaceAll("\\s+","");
         String databsePassword = cfg.getProperty("DatabsePassword").replaceAll("\\s+","");
-        String redNodeCapacity = cfg.getProperty("RedNodeCapacity").replaceAll("\\s+","");
         String blueNodeCapacity = cfg.getProperty("BlueNodeCapacity").replaceAll("\\s+","");     
         String ping = cfg.getProperty("Ping").replaceAll("\\s+","");        
         String useGUI = cfg.getProperty("UseGUI").replaceAll("\\s+","");
@@ -36,7 +35,6 @@ public class ReadPreferencesFile {
         App.databaseUrl = databaseUrl;
         App.user = databaseUser;
         App.password = databsePassword;        
-        App.rncap = Integer.parseInt(redNodeCapacity);
         App.bncap = Integer.parseInt(blueNodeCapacity);
         App.pingTime = Integer.parseInt(ping);
         App.gui = Boolean.parseBoolean(useGUI);        
@@ -46,7 +44,6 @@ public class ReadPreferencesFile {
         System.out.println("NetworkName is "+App.netName);        
         System.out.println("AuthPort is "+App.auth);                
         System.out.println("Database URL is "+App.databaseUrl);
-        System.out.println("RedNodeLimit is "+App.rncap);
         System.out.println("BlueNodeLimit is "+App.bncap);        
         System.out.println("ping time is "+App.pingTime+" sec");
         System.out.println("gui is "+App.gui);
@@ -95,15 +92,15 @@ public class ReadPreferencesFile {
 		+ "\n"
 		+ "#\n"
 		+ "# Load and Capacity\n"
+		+ "# Leave zero for an infinite number of connected Blue Nodes\n"
+		+ "# otherwise set a maximum limit, ex. 100.\n"
 		+ "#\n"
-		+ "\n"
-		+ "RedNodeCapacity = 1000\n"
-		+ "BlueNodeCapacity = 20\n"
+		+ "BlueNodeCapacity = 0\n"
 		+ "\n"
 		+ "# ping time in sec\n"
-		+ "# ping is the time gap where the tracker may search for all active BlueNodes\n"
+		+ "# ping is the time gap where the tracker may search for all active Blue Nodes\n"
 		+ "# in order to detect whether someone is not responding\n"
-		+ "Ping = 20\n"
+		+ "Ping = 180\n"
 		+ "\n"
 		+ "#\n"
 		+ "# Application behaviour\n"
