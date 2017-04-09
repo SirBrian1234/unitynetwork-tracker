@@ -4,9 +4,9 @@
 	<groupId>kostiskag.unitynetwork.tracker</groupId>
 	<artifactId>UnityNetwork_Tracker</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0</version>
+	<version>3.0</version>
 	<name>UnityNetwork_Tracker</name>
-	<url>http://maven.apache.org</url>
+	<url>https://github.com/kostiskag/unitynetwork-tracker</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
