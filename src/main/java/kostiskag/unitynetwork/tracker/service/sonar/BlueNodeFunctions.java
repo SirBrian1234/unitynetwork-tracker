@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.sonarService;
+package kostiskag.unitynetwork.tracker.service.sonar;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
@@ -11,12 +11,16 @@ import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 import kostiskag.unitynetwork.tracker.runData.RedNodeEntry;
+import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
+
 
 /**
+ * These functions are being used from the sonar service - the tracker client
+ * 
+ *  CHECK
+ *  GETREDNODES
  *
- * @author kostis
- *
- * This functions are being used from the sonar service - the tracker client
+ *  @author Konstantinos Kagiampakis
  */
 public class BlueNodeFunctions {
 
@@ -32,7 +36,21 @@ public class BlueNodeFunctions {
 
         BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
         PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
-        String args[] = SocketFunctions.readData(inputReader);        
+        String args[] = SocketFunctions.readData(inputReader);   
+        String data = null;
+        String BlueNodeHostname = args[1];
+        int auth = BlueNodeGlobalFunctions.authBluenode(BlueNodeHostname);
+        if (auth == -1) {
+            data = "NOT_REGISTERED";
+            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.connectionClose(socket);
+            return false;
+        } else if (auth == 0){
+            data = "SYSTEM_ERROR";
+            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.connectionClose(socket);
+            return false;
+        }               
         args = SocketFunctions.sendData("TRACKER", writer, inputReader);
 
         //there should be an auth here
@@ -60,6 +78,20 @@ public class BlueNodeFunctions {
         BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
         PrintWriter writer = SocketFunctions.makeWriteWriter(socket);
         String args[] = SocketFunctions.readData(inputReader);
+        String data;
+        String bluenodeName = args[1];
+        int auth = BlueNodeGlobalFunctions.authBluenode(bluenodeName);
+        if (auth == -1) {
+            data = "NOT_REGISTERED";
+            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.connectionClose(socket);
+            return null;
+        } else if (auth == 0){
+            data = "SYSTEM_ERROR";
+            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.connectionClose(socket);
+            return null;
+        }    
         args = SocketFunctions.sendData("TRACKER", writer, inputReader);
 
         //there should be an auth here
@@ -71,8 +103,8 @@ public class BlueNodeFunctions {
             int count = Integer.parseInt(args[1]);
             for (int i = 0; i < count; i++) {
                 args = SocketFunctions.readData(inputReader);
-                RedNodeEntry r =  new RedNodeEntry(args[0], args[1], new Time(System.currentTimeMillis()));                    
-                list.add(r); 
+                //RedNodeEntry r =  new RedNodeEntry(args[0], args[1], new Time(System.currentTimeMillis()));                    
+                //list.add(r); 
             }
         }
         SocketFunctions.connectionClose(socket);

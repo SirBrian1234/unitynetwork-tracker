@@ -1,12 +1,17 @@
-package kostiskag.unitynetwork.tracker.sonarService;
+package kostiskag.unitynetwork.tracker.service.sonar;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import kostiskag.unitynetwork.tracker.App;
 
 /**
- *
- * @author kostis
+ * Works like the java garbage collector but for killed bluenodes and redonodes. The sonar
+ * connects to the leased bluenodes and requests to get their respective rednodes back
+ * When a dead bn is found it, and its rns are removed from the network
+ * If a bn has died it has to wait for this duration in order to
+ * be able to reconnect to the network.  
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class SonarService extends Thread {
 
@@ -17,16 +22,6 @@ public class SonarService extends Thread {
     public SonarService(int time) {
         this.time = time;
     }
-    
-    /*
-     * Works like the java garbage collector for killed bluenodes and redonodes
-     * When a bn died and is not responding it has to wait for this duration in order to
-     * be able to reconnect to the network.  
-     * 
-     * When a dead bn is found its leased rns are removed as well and the rns
-     * may try to reconnect
-     * 
-     */
 
     @Override
     public void run() {

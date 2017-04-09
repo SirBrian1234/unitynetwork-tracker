@@ -15,8 +15,8 @@ import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
-import kostiskag.unitynetwork.tracker.sonarService.SonarService;
-import kostiskag.unitynetwork.tracker.trackService.TrackServer;
+import kostiskag.unitynetwork.tracker.service.sonar.SonarService;
+import kostiskag.unitynetwork.tracker.service.track.TrackServer;
 
 /**
  *

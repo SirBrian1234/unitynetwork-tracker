@@ -519,14 +519,14 @@ public class MainWindow extends javax.swing.JFrame {
 	public synchronized void updateBlueNodeTable() {
 		String[][] data = App.BNtable.buildStringInstanceObject();
         bluenodes = new DefaultTableModel(data, bluenodesTableHead);
-        jTable1.setModel(bluenodes);
+        jTable2.setModel(bluenodes);
         repaint();
 	}
 	
 	public synchronized void updateRedNodeTable() {
 		String[][] data = App.BNtable.buildRednodeStringInstanceObject();
         rednodes = new DefaultTableModel(data, rednodesTableHead);
-        jTable2.setModel(rednodes);
+        jTable1.setModel(rednodes);
         repaint();
 	}
 

@@ -1,10 +1,12 @@
-package kostiskag.unitynetwork.tracker.trackService;
+package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
+import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
 
 /**
  *
@@ -64,7 +66,7 @@ public class TrackService extends Thread {
     public void BlueNodeService(String BlueNodeHostname) {        
         String data;
         
-        int auth = BlueNodeFunctions.authBluenode(BlueNodeHostname);
+        int auth = BlueNodeGlobalFunctions.authBluenode(BlueNodeHostname);
         if (auth > -1) {
             data = "OK";
         } else if (auth == -1) {
@@ -72,12 +74,7 @@ public class TrackService extends Thread {
             SocketFunctions.sendFinalData(data, writer);
             SocketFunctions.connectionClose(socket);
             return;
-        } else {
-            data = "SYSTEM_ERROR";
-            SocketFunctions.sendFinalData(data, writer);
-            SocketFunctions.connectionClose(socket);
-            return;
-        }        
+        }       
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         
         if (args.length == 3 && args[0].equals("LEASE") && args[1].equals("BN")) {

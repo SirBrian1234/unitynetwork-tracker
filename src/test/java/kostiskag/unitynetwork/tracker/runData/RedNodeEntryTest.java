@@ -1,17 +1,10 @@
 package kostiskag.unitynetwork.tracker.runData;
 
-
-import static org.junit.Assert.assertTrue;
-
-import java.util.LinkedList;
-
 import static org.junit.Assert.assertEquals;
-import org.junit.AfterClass;
-import org.junit.Before;
+import static org.junit.Assert.assertTrue;
+import java.sql.Time;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
 
 public class RedNodeEntryTest {
 	@BeforeClass
@@ -20,8 +13,30 @@ public class RedNodeEntryTest {
 	}
 	
 	@Test
-	public void testInitBlueNodeEntry() {
-		assertTrue(true);
+	public void testRedNodeEntryHostname() {
+		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		assertEquals(rn.getHostname(), "ouiou");		
 	}
-		
+	
+	@Test
+	public void testRedNodeEntryVaddr() {
+		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		assertEquals(rn.getVaddress(), "10.0.0.1");		
+	}
+	
+	@Test
+	public void testRedNodeTime() {
+		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			assertTrue(false);	
+		}
+		if (rn.getTimestamp().equals(new Time(System.currentTimeMillis()))) {
+			assertTrue(false);		
+		} else {
+			assertTrue(true);
+		}
+	}
 }

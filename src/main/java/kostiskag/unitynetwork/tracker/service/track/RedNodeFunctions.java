@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package kostiskag.unitynetwork.tracker.trackService;
+package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.BufferedReader;
 import java.io.PrintWriter;

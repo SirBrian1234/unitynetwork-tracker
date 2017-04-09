@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.trackService;
+package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -53,10 +53,15 @@ public class BlueNodeFunctions {
 					found = true;
 					String address = socket.getInetAddress().getHostAddress();
 					int port = Integer.parseInt(givenPort);
-					if (!App.BNtable.checkOnlineByHn(bluenodeHostname)) {
+					if (!App.BNtable.checkOnlineByName(bluenodeHostname)) {
 						// normal connect for a non associated BN
-						App.BNtable.leaseBn(bluenodeHostname, address, port, new Time(System.currentTimeMillis()));
-						data = "LEASED " + address;
+						try {
+							App.BNtable.lease(bluenodeHostname, address, port);
+							data = "LEASED " + address;
+						} catch (Exception e) {
+							e.printStackTrace();
+							data = "LEASE_FAILED";
+						}						
 					}
 				}
 			}
@@ -107,7 +112,12 @@ public class BlueNodeFunctions {
 									int vAddress = getResults.getInt("id");
 									int inuserid = getResults.getInt("userid");
 									if (userauth == inuserid) {
-										bn.rednodes.lease(hostname, VAddressFunctions.numberTo10ipAddr("" + vAddress), new Time(System.currentTimeMillis()));
+										try {
+											bn.rednodes.lease(hostname, VAddressFunctions.numberTo10ipAddr("" + vAddress));
+										} catch (Exception e) {
+											e.printStackTrace();
+											data = "ALLREADY_LEASED";											
+										}
 										data = "LEASED " + vAddress;									
 									} else {
 										//a user tried to lease another user's hostname
@@ -147,8 +157,13 @@ public class BlueNodeFunctions {
 	 */
 	public static void BlueRel(String hostname, PrintWriter writer) {
 		String data = null;
-		if (App.BNtable.checkOnlineByHn(hostname)) {
-			App.BNtable.releaseBnByHn(hostname);			
+		if (App.BNtable.checkOnlineByName(hostname)) {
+			try {
+				App.BNtable.release(hostname);
+			} catch (Exception e) {
+				e.printStackTrace();
+				data = "RELEASE_FAILED";
+			}			
 			data = "RELEASED";
 		} else {
 			data = "RELEASE_FAILED";
@@ -166,7 +181,7 @@ public class BlueNodeFunctions {
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
 		if (bn != null) {
 			if (bn.rednodes.checkOnlineByHn(hostname)) {
-				bn.rednodes.releaseByHn(hostname);
+				bn.rednodes.release(hostname);
 				data = "RELEASED";
 			} else {
 				data = "NOT_AUTHORIZED";
@@ -233,44 +248,7 @@ public class BlueNodeFunctions {
 		}			
 	}
 	
-	/*
-	 * authorizes a bluenode to join the network
-	 */
-	public static int authBluenode(String BlueNodeHostname) {
-		Queries q = null;
-		ResultSet getResults;
-		try {
-			q = new Queries();
-			getResults = q.selectNameFromBluenodes();
-
-			if (getResults == null) {
-				return -2;
-			}
-
-			while (getResults.next()) {
-				if (getResults.getString("name").equals(BlueNodeHostname)) {
-					if (App.BNtable.checkOnlineByHn(BlueNodeHostname)) {
-						q.closeQueries();
-						return 1;
-					} else {
-						q.closeQueries();
-						return 0;
-					}
-				}
-			}
-			q.closeQueries();
-			return -1;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();				
-			}
-			return -2;
-		}
-	}
+	
 
 	/*
 	 * validates a network user to a bluenode 

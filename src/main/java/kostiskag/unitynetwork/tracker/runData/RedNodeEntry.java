@@ -3,8 +3,10 @@ package kostiskag.unitynetwork.tracker.runData;
 import java.sql.Time;
 
 /**
- *
- * @author kostis
+ * Objects of a RedNodeEntry represent the connected
+ * rednodes on the network
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class RedNodeEntry {
         
@@ -14,12 +16,6 @@ public class RedNodeEntry {
     
     private Object timeLock = new Object();
 
-    public RedNodeEntry(String hostname, String Vaddress, Time regTimestamp) {
-        this.hostname = hostname;
-        this.vAddress  = Vaddress;
-        this.regTimestamp = regTimestamp;        
-    }
-    
     public RedNodeEntry(String hostname, String Vaddress) {
         this.hostname = hostname;
         this.vAddress  = Vaddress;
