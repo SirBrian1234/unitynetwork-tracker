@@ -38,7 +38,7 @@ public class SonarService extends Thread {
         }
     }
     
-    public void kill(){
+    public synchronized void kill(){
         kill = true;
     }
 }

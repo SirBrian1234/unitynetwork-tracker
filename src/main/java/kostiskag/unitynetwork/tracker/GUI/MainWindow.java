@@ -77,7 +77,7 @@ public class MainWindow extends javax.swing.JFrame {
 						"Are you sure you wish to terminate the Tracker?\nThis may result in the overall network termination.\nIf you decide to close the Tracker, it will send the appropriate kill signals to the connected BlueNodes.",
 						"", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
-					System.exit(0);
+					App.terminate();
 				}
 			}
 		});

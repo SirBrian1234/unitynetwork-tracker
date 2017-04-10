@@ -50,6 +50,8 @@ public class App {
 	public static boolean log;
 	public static File logFile;
 	public static int pingTime;
+	//objects
+	public static SonarService sonar;
 	// salt
 	// you will have to wait for the network branch for this to chage
 	public static final String salt = "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage";
@@ -107,7 +109,7 @@ public class App {
 
 		// 6. sonar service
 		if (pingTime > 0) {
-			SonarService sonar = new SonarService(pingTime);
+			sonar = new SonarService(pingTime);
 			sonar.start();
 		} else {
 			ConsolePrint("Non valid ping time detected. Please correct the "+configFileName+" file");
@@ -141,6 +143,12 @@ public class App {
 				Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
 			}
 		}
+	}
+	
+	public static void terminate() {
+		App.sonar.kill();
+		App.BNtable.sendKillSigsAndClearTable();
+		App.die();
 	}
 
 	public static void die() {

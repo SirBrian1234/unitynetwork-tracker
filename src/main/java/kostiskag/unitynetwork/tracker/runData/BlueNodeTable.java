@@ -205,10 +205,6 @@ public class BlueNodeTable {
         throw new Exception("NO REDNODE ENTRY FOR " + hostname + " IN TABLE");                   
     }
     
-    public synchronized void flushBnTable() {
-    	list.clear();
-    }
-    
     public synchronized void rebuildTableViaAuthClient() {
     	Iterator<BlueNodeEntry> iterator = list.listIterator();
     	while (iterator.hasNext()) {
@@ -224,6 +220,17 @@ public class BlueNodeTable {
         }
     	System.out.println(pre+" BN Table rebuilt");
     	notifyGUI();    	
+    }
+    
+    public synchronized void sendKillSigsAndClearTable() {
+    	Iterator<BlueNodeEntry> iterator = list.listIterator();
+    	while (iterator.hasNext()) {
+        	BlueNodeEntry element = iterator.next();            
+        	BlueNodeFunctions.sendkillsig(element);
+            iterator.remove();                           
+        }
+    	System.out.println(pre+" BN Table cleared");
+    	notifyGUI(); 
     }
 
     //this will build the obj for gui

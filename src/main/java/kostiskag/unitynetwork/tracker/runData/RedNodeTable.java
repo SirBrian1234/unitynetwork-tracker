@@ -139,11 +139,6 @@ public class RedNodeTable {
     	return false;
     }
    
-    public synchronized void flushTable() {
-        list.clear();
-        notifyGUI();
-    }
-	
 	private void notifyGUI () {
     	if (App.gui) {
     		App.window.updateRedNodeTable();
