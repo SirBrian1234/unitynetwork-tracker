@@ -149,7 +149,7 @@ public class BlueNodeTable {
 	        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
 	        notifyGUI();
     	} else {
-    		App.ConsolePrint(pre + "Maximum Blue Node upper limit reached.");
+    		throw new Exception(pre + "Maximum Blue Node upper limit reached.");
     	}
     }
     
