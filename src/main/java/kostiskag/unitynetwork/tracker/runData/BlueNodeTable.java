@@ -130,21 +130,32 @@ public class BlueNodeTable {
     }
 
     public synchronized void lease(String name, String phAddress, int port) throws Exception {     
-    	if (App.bncap == 0 || App.bncap > list.size()) {
-	    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-	        while (iterator.hasNext()) {
-	        	BlueNodeEntry element = iterator.next();
-	        	if (element.getName().equals(name) || (element.getPhaddress().equals(phAddress) && element.getPort() == port)) {
-	        		throw new Exception("Attempted to insert a non unique bluenode entry.");
-	        	}
-	        }
+    	if (
+				!name.isEmpty() && 
+				name.length() <= App.max_str_len_small_size && 
+				!phAddress.isEmpty() && 
+				phAddress.length() <= App.max_str_addr_len && 
+				port > 0 && port <= 65535
+    		) {
 	    	
-	    	BlueNodeEntry bn = new BlueNodeEntry(name, phAddress, port);
-	        list.add(bn);
-	        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
-	        notifyGUI();
+    		if (App.bncap == 0 || App.bncap > list.size()) {
+		    	Iterator<BlueNodeEntry> iterator = list.listIterator();
+		        while (iterator.hasNext()) {
+		        	BlueNodeEntry element = iterator.next();
+		        	if (element.getName().equals(name) || (element.getPhaddress().equals(phAddress) && element.getPort() == port)) {
+		        		throw new Exception("Attempted to insert a non unique bluenode entry.");
+		        	}
+		        }
+		    	
+		    	BlueNodeEntry bn = new BlueNodeEntry(name, phAddress, port);
+		        list.add(bn);
+		        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
+		        notifyGUI();
+	    	} else {
+	    		throw new Exception(pre + "Maximum Blue Node upper limit reached.");
+	    	}
     	} else {
-    		throw new Exception(pre + "Maximum Blue Node upper limit reached.");
+    		throw new Exception(pre + "Bad input data.");
     	}
     }
     
@@ -176,7 +187,6 @@ public class BlueNodeTable {
         
         element.rednodes.lease(hostname, vAddress);
         App.ConsolePrint(pre + " LEASED RN " + hostname + " OVER "+bluenodeName);
-    	notifyGUI();
     }
     
     public synchronized void release(String name) throws Exception {
@@ -248,18 +258,25 @@ public class BlueNodeTable {
     }
     
     public synchronized String[][] buildRednodeStringInstanceObject() {        
-    	String obj[][] = null;
-        int i = 0;
+    	LinkedList<RedNodeEntry> li = new LinkedList<>();
         Iterator<BlueNodeEntry> iterator = list.listIterator();
     	while (iterator.hasNext()) {
     		BlueNodeEntry element = iterator.next();
     		Iterator<RedNodeEntry> redIterator = element.getRedNodes().getList().listIterator();
     		while (redIterator.hasNext()) {
         		RedNodeEntry redElement = redIterator.next();
-                obj[i] = new String[]{redElement.getHostname(), redElement.getHostname(), ""+redElement.getVaddress(), ""+element.getName(), redElement.getTimestamp().toString()};
-                i++;
+        		li.add(redElement);
             }
         }
+    	
+    	String obj[][] = new String[li.size()][];
+    	Iterator<RedNodeEntry> redIterator = li.listIterator();
+    	int i=0;
+    	while (redIterator.hasNext()) {
+    		RedNodeEntry e = redIterator.next();
+    		obj[i] = new String[]{e.getHostname(), e.getVaddress(), e.getParentBlueNode().getName(), e.getTimestamp().toString()};            
+    		i++;
+    	}	
     	return obj;
     }
     

@@ -96,7 +96,7 @@ public class BlueNodeFunctions {
 				boolean found = false;
 				try {
 					q = new Queries();
-					getResults = q.selectHostnameFromHostnamesWithUserid(userauth);
+					getResults = q.selectAllFromHostnamesWhereUserid(userauth);
 	
 					if (getResults == null) {
 						data = "SYSTEM_ERROR";
@@ -107,7 +107,7 @@ public class BlueNodeFunctions {
 								found = true;
 								if (!App.BNtable.checkOnlineRnByHn(hostname)) {
 									//the id from hostnames is the hostname's virtual address
-									int vAddress = getResults.getInt("id");
+									int vAddress = getResults.getInt("address");
 									int inuserid = getResults.getInt("userid");
 									if (userauth == inuserid) {
 										try {

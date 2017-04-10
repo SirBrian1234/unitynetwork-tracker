@@ -14,19 +14,19 @@ public class RedNodeEntryTest {
 	
 	@Test
 	public void testRedNodeEntryHostname() {
-		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		RedNodeEntry rn = new RedNodeEntry(null, "ouiou", "10.0.0.1");
 		assertEquals(rn.getHostname(), "ouiou");		
 	}
 	
 	@Test
 	public void testRedNodeEntryVaddr() {
-		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		RedNodeEntry rn = new RedNodeEntry(null, "ouiou", "10.0.0.1");
 		assertEquals(rn.getVaddress(), "10.0.0.1");		
 	}
 	
 	@Test
 	public void testRedNodeTime() {
-		RedNodeEntry rn = new RedNodeEntry("ouiou", "10.0.0.1");
+		RedNodeEntry rn = new RedNodeEntry(null, "ouiou", "10.0.0.1");
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e) {

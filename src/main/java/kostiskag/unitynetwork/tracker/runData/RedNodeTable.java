@@ -83,8 +83,9 @@ public class RedNodeTable {
 	        	}
 	        }
 	        
-	    	RedNodeEntry rn = new RedNodeEntry(hostname, vAddress);
+	    	RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
 	    	list.add(rn);
+	    	notifyGUI();
     	} else {
     		throw new Exception("Rednode lease bad data.");
     	}

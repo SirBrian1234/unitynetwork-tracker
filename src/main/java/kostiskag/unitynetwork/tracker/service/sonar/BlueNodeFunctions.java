@@ -143,8 +143,8 @@ public class BlueNodeFunctions {
             int count = Integer.parseInt(args[1]);
             for (int i = 0; i < count; i++) {
                 args = SocketFunctions.readData(inputReader);
-                //RedNodeEntry r =  new RedNodeEntry(args[0], args[1], new Time(System.currentTimeMillis()));                    
-                //list.add(r); 
+                RedNodeEntry r =  new RedNodeEntry(bn, args[0], args[1]);                    
+                list.add(r); 
             }
         }
         SocketFunctions.connectionClose(socket);

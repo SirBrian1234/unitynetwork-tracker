@@ -39,10 +39,14 @@ public class RedNodeFunctions {
 			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
 			String fetched[][] = App.BNtable.buildStringInstanceObject();
 			int i = 0;
-			while(fetched[i] != null) {			
-				SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
-				i++;
-			}			
+			try {
+				while(fetched[i] != null) {			
+					SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
+					i++;
+				}	
+			} catch (ArrayIndexOutOfBoundsException ex) {
+				
+			}
 			SocketFunctions.sendFinalData("", writer);
 		} else {
 			String data = "NONE";

@@ -12,13 +12,15 @@ public class RedNodeEntry {
         
     private final String hostname;
     private final String vAddress;
+    private final BlueNodeEntry bn;
     private Time regTimestamp;
     
     private Object timeLock = new Object();
 
-    public RedNodeEntry(String hostname, String Vaddress) {
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, String Vaddress) {
         this.hostname = hostname;
         this.vAddress  = Vaddress;
+        this.bn = bn;
         this.regTimestamp = new Time(System.currentTimeMillis());
     }
 
@@ -28,7 +30,11 @@ public class RedNodeEntry {
 
     public String getVaddress() {
         return vAddress;
-    }        
+    }
+    
+    public BlueNodeEntry getParentBlueNode() {
+        return bn;
+    }
 
     public Time getTimestamp() {
     	synchronized (timeLock) {
