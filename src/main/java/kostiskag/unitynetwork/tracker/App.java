@@ -25,12 +25,12 @@ import kostiskag.unitynetwork.tracker.service.track.TrackServer;
 public class App {
 
 	//user input max sizes
-	public static int max_int_str_len = 32;
-	public static int max_str_len_small_size = 128;
-	public static int max_str_len_large_size = 256;
+	public static final int max_int_str_len = 32;
+	public static final int max_str_len_small_size = 128;
+	public static final int max_str_len_large_size = 256;
 	// file names
-	public static String configFileName = "tracker.conf";
-	public static String logFileName = "tracker.log";
+	public static final String configFileName = "tracker.conf";
+	public static final String logFileName = "tracker.log";
 	// data
 	public static TrackServer track;
 	public static MainWindow window;
@@ -65,7 +65,7 @@ public class App {
 				fw.write("---------------------------------------------------------------\n");
 				fw.close();
 			} catch (IOException ex) {
-				Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+				ex.printStackTrace();
 				ConsolePrint("Log file error! If the error continues disable logging from the "+configFileName+" file.");
 				die();
 			}
@@ -101,9 +101,10 @@ public class App {
 			track.start();
 		} else {
 			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the "+configFileName);
+			die();
 		}
 
-		// 6. sonar
+		// 6. sonar service
 		if (pingTime > 0) {
 			SonarService sonar = new SonarService(pingTime);
 			sonar.start();
@@ -175,8 +176,8 @@ public class App {
 		}
 	}
 
-	/*
-	 * main class here
+	/**
+	 * The app's main class here
 	 */
 	public static void main(String[] args) {
 		System.out.println("@Started main at " + Thread.currentThread().getName());
@@ -229,6 +230,6 @@ public class App {
 		}
 
 		System.out.println("Starting UnityTracker... ");
-		App tracker = new App();
+		new App();
 	}
 }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.BufferedReader;
@@ -13,14 +9,12 @@ import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
 /**
+* (unregistered) Rednode queries:
 *
-* @author kostis
+* GETBNS
+* GETRBN
 * 
-*         (unregistered) Rednode queries:
-*
-*         GETBNS
-*         GETRBN
-*         
+* @author Konstantinos Kagiampakis
 */
 public class RedNodeFunctions {
 

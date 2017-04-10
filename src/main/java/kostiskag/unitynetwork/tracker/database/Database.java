@@ -6,23 +6,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import org.sqlite.core.DB;
-
 import kostiskag.unitynetwork.tracker.App;
 
+/**
+ * This is the database low level. An external method 
+ * should no call methods from here it should use Queries and Logic instead.
+ * 
+ * @author kostis
+ */
 public class Database {
 
     Connection con;
-    boolean error = false;
     
     public Database() throws SQLException {
-        con = null;        
-
         String url = App.databaseUrl;
         String user = App.user;
         String password = App.password;
-
         con = DriverManager.getConnection(url, user, password);                    
     }
     
@@ -32,9 +31,8 @@ public class Database {
    
 	public ResultSet getResultSet(String Query) throws SQLException {
 	    Statement st = null;
-	    ResultSet rs  = null;        
 	    st = con.createStatement();
-	    return rs = st.executeQuery(Query);        
+	    return st.executeQuery(Query);        
 	}
 	
 	public void executeStatement(String Query) throws SQLException {
@@ -124,5 +122,4 @@ public class Database {
 	    pst.setString(4, arg4);
 	    pst.execute();		
 	}
-
 }

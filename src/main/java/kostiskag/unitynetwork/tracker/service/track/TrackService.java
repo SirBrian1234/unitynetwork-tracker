@@ -9,35 +9,31 @@ import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
 
 /**
- *
- * @author kostis
- *
+ * CENTRAL TRACK SERVICE 
+ * 
+ * first it determines if it is a rednode or a bluenode
+ * 
+ * for an (unregistered) rednode 
+ * a. it indicates the closest bluenode to connect
+ * b. or a list of the available bluenodes and their respective load
+ * 
+ * for a bluenode it can
+ * a. lease the BN itself
+ * b. auth/lease an RN connected to him
+ * c. resolve some queries
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class TrackService extends Thread {
 
     private Socket socket;    
     private BufferedReader reader;
     private PrintWriter writer;
-    private Database con;
 
     TrackService(Socket connectionSocket) {
         socket = connectionSocket;        
     }
 
-    /*
-     * CENTRAL TRACK SERVICE 
-     * first it determines if it is a rednode or a bluenode
-     * 
-     * for an (unregistered) rednode 
-     * a. it indicates the closest bluenode to connect
-     * b. or a list of the available bluenodes and their respective load
-     * 
-     * for a bluenode it can
-     * a. lease the BN itself
-     * b. auth/lease an RN connected to him
-     * c. resolve some queries
-     */
-    
     @Override
     public void run() {
         System.out.println("@Started auth service at " + Thread.currentThread().getName());

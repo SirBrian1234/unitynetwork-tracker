@@ -1,35 +1,24 @@
 package kostiskag.unitynetwork.tracker.GUI;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedList;
-
-import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
-
-import com.mysql.jdbc.UpdatableResultSet;
-
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.database.Logic;
-import kostiskag.unitynetwork.tracker.database.Logic.*;
-import kostiskag.unitynetwork.tracker.runData.*;
-import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JTabbedPane;
-import javax.swing.JPanel;
+import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.border.TitledBorder;
-import javax.swing.JTable;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Logic;
 
 /**
  *
@@ -57,6 +46,7 @@ public class MainWindow extends javax.swing.JFrame {
 	private String[] blunodesDbHead = new String[] { "name", "userid" };
 
 	public MainWindow() {
+		setTitle("Unity Network Tracker");
 		bluenodes = new DefaultTableModel(new String[][] {}, bluenodesTableHead);
 		rednodes = new DefaultTableModel(new String[][] {}, rednodesTableHead);
 
@@ -65,8 +55,7 @@ public class MainWindow extends javax.swing.JFrame {
 		modelBluenodesDb = new DefaultTableModel(new String[][] {}, blunodesDbHead);
 
 		initComponents();
-		setTitle("UnityNetwork Tracker");
-
+		
 		table.setModel(modelUsersDb);
 		table_1.setModel(modelHostnamesDb);
 		table_2.setModel(modelBluenodesDb);

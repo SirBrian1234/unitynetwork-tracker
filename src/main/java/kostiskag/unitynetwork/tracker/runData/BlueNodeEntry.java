@@ -3,8 +3,9 @@ package kostiskag.unitynetwork.tracker.runData;
 import java.sql.Time;
 
 /**
- *
- * @author kostis
+ * Each connected bluenode is represented by a BlueNode entry.
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class BlueNodeEntry {
     

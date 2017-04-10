@@ -15,7 +15,6 @@ import kostiskag.unitynetwork.tracker.App;
  *
  * @author kostis
  */
-
 public class SocketFunctions {
     //socket stuff
     public static String pre = "^SOCKET ";       

@@ -2,11 +2,11 @@ package kostiskag.unitynetwork.tracker.service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
 
 public class BlueNodeGlobalFunctions {
+	
 	/**
 	 * Provides the level of authorization for a bluenode.
 	 * 

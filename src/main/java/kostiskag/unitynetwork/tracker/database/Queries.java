@@ -3,8 +3,17 @@ package kostiskag.unitynetwork.tracker.database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-/*
+/**
+ * This is the database middle level
+ * all methods should call methods from here. The methods
+ * here may call the database low level.
  * WARNING MYSQL ON LINUX IS CASE SENSITIVE
+ * 
+ * Each Queries object may run multiple queries and exit
+ * as long as it does the database is reserved which ensures that
+ * there can be only one active Queries object at a time.
+ * 
+ * @author kostis
  */
 public class Queries {
 	

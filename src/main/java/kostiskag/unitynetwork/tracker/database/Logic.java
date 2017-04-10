@@ -5,6 +5,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+/**
+ * The database upper logic which calls methods from Queries
+ * 
+ * @author kosti
+ */
 public class Logic {
 	
 	/*

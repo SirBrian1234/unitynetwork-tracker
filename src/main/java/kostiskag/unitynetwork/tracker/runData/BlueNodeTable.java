@@ -7,12 +7,16 @@ import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.service.sonar.BlueNodeFunctions;
 
 /**
+ * A bluenode table holds all the joined bluenodes on the network.
+ * Each connected bluenode is represented by a BlueNode entry.
+ * Where each BlueNode entry holds a RedNode list with all its connected 
+ * rednodes.
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class BlueNodeTable {
 
-    private static String pre = "^BNTABLE ";
+    private final static String pre = "^BNTABLE ";
     private LinkedList<BlueNodeEntry> list;
 
     public BlueNodeTable() {

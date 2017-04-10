@@ -18,23 +18,21 @@ import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
 /**
+ *  Bluenode queries:
  *
- * @author kostis
- * 
- *         Bluenode queries:
- *
- *         LEASE BN 
- *         LEASE RN [HOSTNAME] 
- *         RELEASE BN 
- *         RELEASE RN [HOSTNAME] 
- *         GETPH 
- *         CHECKRN [HOSTNAME]
- *         CHECKRNA [VADDRESS]
- *         
+ *  LEASE BN 
+ *  LEASE RN [HOSTNAME] 
+ *  RELEASE BN 
+ *  RELEASE RN [HOSTNAME] 
+ *  GETPH 
+ *  CHECKRN [HOSTNAME]
+ *  CHECKRNA [VADDRESS]
+ *  
+ *  @author Konstantinos Kagiampakis
  */
 public class BlueNodeFunctions {
 
-	/*
+	/**
 	 * lease a bluenode on the network
 	 */
 	public static void BlueLease(String bluenodeHostname, String givenPort, PrintWriter writer, Socket socket) {
@@ -81,7 +79,7 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	/*
+	/**
 	 * lease a rednode on the network over a bluenode
 	 */
 	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
@@ -152,7 +150,7 @@ public class BlueNodeFunctions {
 		}
 	}
 
-	/*
+	/**
 	 * releases a bluenode from the network
 	 */
 	public static void BlueRel(String hostname, PrintWriter writer) {
@@ -171,7 +169,7 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	/*
+	/**
 	 * releases a rednode from a bluenode
 	 */
 	public static void RedRel(String bluenodeName, String hostname, PrintWriter writer) {
@@ -193,7 +191,7 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	/* 
+	/** 
 	 * provides the physical address and port of a known bluenode
 	 */
 	public static void GetPh(String BNTargetHostname, PrintWriter writer) {
@@ -207,7 +205,7 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	/*
+	/**
 	 *  checks whether a RN is ONLINE and from which BN is connected
 	 */
 	public static void CheckRn(String hostname, PrintWriter writer) {
@@ -221,7 +219,7 @@ public class BlueNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 	
-	/*
+	/**
 	 * Retrieves a bluenode hostname based on a given vaddress
 	 */
 	public static void CheckRnAddr(String vaddress, PrintWriter writer) {
@@ -250,7 +248,7 @@ public class BlueNodeFunctions {
 	
 	
 
-	/*
+	/**
 	 * validates a network user to a bluenode 
 	 */
 	public static int checkUser(String outhash) {

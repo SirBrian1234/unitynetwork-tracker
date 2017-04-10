@@ -6,24 +6,26 @@ import java.net.Socket;
 import kostiskag.unitynetwork.tracker.App;
 
 /**
- *
- * @author kostis
+ * The auth server listens for bluenode and rednode clients
+ * When a client is connected the connected socket is moved in a thread
+ * in order to be able to accept other clients as well.
+ * 
+ * @author Konstantinos Kagiampakis
  */
 public class TrackServer extends Thread{
 
-    public String pre = "^AUTH SERVER ";
-    public static int authport;
-    public static Boolean didTrigger = false;
-
+    private final String pre = "^AUTH SERVER ";
+    private final int authPort;
+    
     public TrackServer(int authport) {
-        this.authport = authport;
+        this.authPort = authport;
     }
 
     @Override
     public void run() {  
         App.ConsolePrint("@Started blue auth server at " + Thread.currentThread().getName());
         try {
-            ServerSocket welcomeSocket = new ServerSocket(authport);                                    
+            ServerSocket welcomeSocket = new ServerSocket(authPort);                                    
             while (true) {    
                 Socket connectionSocket = welcomeSocket.accept();                
                 TrackService service = new TrackService(connectionSocket);

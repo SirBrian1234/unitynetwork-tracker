@@ -4,15 +4,10 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.sql.Time;
 import java.util.LinkedList;
-
-import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 import kostiskag.unitynetwork.tracker.runData.RedNodeEntry;
-import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
-
 
 /**
  * These functions are being used from the sonar service - the tracker client

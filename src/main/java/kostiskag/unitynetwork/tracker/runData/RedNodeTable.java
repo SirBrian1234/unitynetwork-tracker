@@ -1,11 +1,7 @@
 package kostiskag.unitynetwork.tracker.runData;
 
-import java.sql.Time;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import com.mysql.jdbc.UpdatableResultSet;
-
 import kostiskag.unitynetwork.tracker.App;
 
 /**
@@ -16,7 +12,7 @@ import kostiskag.unitynetwork.tracker.App;
  */
 public class RedNodeTable {
 
-    private static String pre = "^RNTABLE ";
+    private final static String pre = "^RNTABLE ";
     private BlueNodeEntry bluenode;
     private LinkedList<RedNodeEntry> list = new LinkedList<>();
     

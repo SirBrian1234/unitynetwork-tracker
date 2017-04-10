@@ -15,9 +15,9 @@ import kostiskag.unitynetwork.tracker.App;
  */
 public class SonarService extends Thread {
 
-    String pre = "^Ping ";
-    boolean kill = false;
-    int time;
+    private final String pre = "^Ping ";
+    private boolean kill = false;
+    private final int time;
     
     public SonarService(int time) {
         this.time = time;
