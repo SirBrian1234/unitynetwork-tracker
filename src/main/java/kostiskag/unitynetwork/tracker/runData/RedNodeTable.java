@@ -69,16 +69,25 @@ public class RedNodeTable {
     }
 
     public synchronized void lease(String hostname, String vAddress) throws Exception {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-        	if (element.getHostname().equals(hostname) || element.getVaddress().equals(vAddress)) {
-        		throw new Exception("Attempted to lease a non unique rednode entry.");
-        	}
-        }
-        
-    	RedNodeEntry rn = new RedNodeEntry(hostname, vAddress);
-    	list.add(rn);
+    	if (	
+    			hostname.length() > 0 && 
+    			hostname.length() <= App.max_str_len_small_size && 
+    			vAddress.length() > 0 && 
+    			vAddress.length() <= App.max_str_addr_len) {
+	    	
+    		Iterator<RedNodeEntry> iterator = list.listIterator();
+	        while (iterator.hasNext()) {
+	        	RedNodeEntry element = iterator.next();
+	        	if (element.getHostname().equals(hostname) || element.getVaddress().equals(vAddress)) {
+	        		throw new Exception("Attempted to lease a non unique rednode entry.");
+	        	}
+	        }
+	        
+	    	RedNodeEntry rn = new RedNodeEntry(hostname, vAddress);
+	    	list.add(rn);
+    	} else {
+    		throw new Exception("Rednode lease bad data.");
+    	}
     }
     
     public synchronized boolean checkOnlineByHn(String hostname) {
@@ -105,31 +114,27 @@ public class RedNodeTable {
     
     public synchronized boolean release(String hostname) {
     	Iterator<RedNodeEntry> iterator = list.listIterator();
-        int i = 0;
     	while (iterator.hasNext()) {
         	RedNodeEntry element = iterator.next();
             if (hostname.equals(element.getHostname())) {
-                list.remove(i);
-                notifyGUI();
+            	iterator.remove();
+            	notifyGUI();
                 App.ConsolePrint(pre +hostname+" RELEASED ENTRY");
                 return true;
             }
-            i++;
         }    	    	
     	return false;
     }
     
     public synchronized boolean releaseByVAddress(String vAddress) {
     	Iterator<RedNodeEntry> iterator = list.listIterator();
-        int i = 0;
     	while (iterator.hasNext()) {
         	RedNodeEntry element = iterator.next();
             if (vAddress.equals(element.getVaddress())) {
-                list.remove(i);
+                iterator.remove();
                 notifyGUI();
                 return true;
             }
-            i++;
         }    	    	
     	return false;
     }

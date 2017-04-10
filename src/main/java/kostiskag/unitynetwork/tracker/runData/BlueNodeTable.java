@@ -38,7 +38,6 @@ public class BlueNodeTable {
     
     //the combination of ph address and port is unique
     public synchronized BlueNodeEntry getBlueNodeEntryByPhAddrPort(String Phaddress, int port) {
-    	LinkedList<String> fetched = new LinkedList<>();
     	Iterator<BlueNodeEntry> iterator = list.listIterator();
         while (iterator.hasNext()) {
         	BlueNodeEntry bn = iterator.next();
@@ -56,14 +55,12 @@ public class BlueNodeTable {
     		retrieved = list.getFirst();
     		
 	    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-	        int i = 0;
 	        while (iterator.hasNext()) {
 	        	BlueNodeEntry element = iterator.next();
 	            if (element.getLoad() <= min) {
 	                min = element.getLoad();
 	                retrieved = element;
 	            }
-	            i++;
 	        }	      
         } 
         return retrieved;
@@ -128,8 +125,6 @@ public class BlueNodeTable {
         return found;
     }
     
-    
-
     public synchronized int getSize() {
         return list.size();
     }
@@ -186,16 +181,14 @@ public class BlueNodeTable {
     
     public synchronized void release(String name) throws Exception {
         Iterator<BlueNodeEntry> iterator = list.listIterator();
-        int i = 0;
         while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();
             if (name.equals(element.getName())) {                
-                    list.remove(i);              
+                    iterator.remove();              
                     App.ConsolePrint(pre +name+" RELEASED ENTRY");
                     notifyGUI();
                     return;
             }
-            i++;
         }        
         throw new Exception("NO BLUENODE ENTRY FOR " + name + " IN TABLE");                   
     }
@@ -218,7 +211,6 @@ public class BlueNodeTable {
     
     public synchronized void rebuildTableViaAuthClient() {
     	Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	int i = 0;
     	while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();            
             if (BlueNodeFunctions.checkBnOnline(element)) {
@@ -227,9 +219,8 @@ public class BlueNodeTable {
                 LinkedList<RedNodeEntry> rns = BlueNodeFunctions.getRedNodes(element);
                 element.rednodes = new RedNodeTable(element, rns);
             } else {                
-                list.remove(i);               
+            	iterator.remove();               
             }
-            i++;
         }
     	System.out.println(pre+" BN Table rebuilt");
     	notifyGUI();    	
@@ -250,12 +241,12 @@ public class BlueNodeTable {
     }
     
     public synchronized String[][] buildRednodeStringInstanceObject() {        
-    	String obj[][] = new String[list.size()][];
+    	String obj[][] = null;
         int i = 0;
         Iterator<BlueNodeEntry> iterator = list.listIterator();
     	while (iterator.hasNext()) {
     		BlueNodeEntry element = iterator.next();
-    		Iterator<RedNodeEntry> redIterator = element.getRedNodes().getList().descendingIterator();
+    		Iterator<RedNodeEntry> redIterator = element.getRedNodes().getList().listIterator();
     		while (redIterator.hasNext()) {
         		RedNodeEntry redElement = redIterator.next();
                 obj[i] = new String[]{redElement.getHostname(), redElement.getHostname(), ""+redElement.getVaddress(), ""+element.getName(), redElement.getTimestamp().toString()};
