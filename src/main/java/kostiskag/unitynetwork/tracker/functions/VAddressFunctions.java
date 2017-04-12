@@ -5,15 +5,23 @@ import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import kostiskag.unitynetwork.tracker.App;
+
 /**
  *
  * @author kostis
  */
 public class VAddressFunctions {
     
-    public static String numberTo10ipAddr(String vaddress) {
+	/**
+	 * If a database's firs id is one there is no need to sum/substarct one to get ahead of the network address
+	 * 
+	 * @param vaddress
+	 * @return
+	 */
+    public static String numberTo10ipAddr(int num_addr) {
         byte[] networkpart = new byte[]{0x0a};
-        int hostnum = Integer.parseInt(vaddress) + 1;
+        int hostnum = num_addr + App.systemReservedAddressNumber;
 
         byte[] hostpart = new byte[]{
             (byte) ((hostnum) >>> 16),
@@ -45,7 +53,7 @@ public class VAddressFunctions {
         for (int i = 0; i < hostpart.length; i++) {
             hostnum = (hostnum << 8) + (hostpart[i] & 0xff);
         }
-        hostnum = hostnum - 1;
+        hostnum = hostnum - App.systemReservedAddressNumber;
         return hostnum;
     }
 }

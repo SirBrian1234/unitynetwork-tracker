@@ -22,6 +22,21 @@ import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
  * b. auth/lease an RN connected to him
  * c. resolve some queries
  * 
+ * Bluenode queries:
+ *
+ *  LEASE BN 
+ *  LEASE RN [HOSTNAME] [USERNAME] [HASHED(HASHED(SALT)+PASSWORD)]
+ *  RELEASE BN 
+ *  RELEASE RN [HOSTNAME] 
+ *  GETPH [BLUENODE_NAME] -> IP_ADDRESS PORT
+ *  CHECKRN [HOSTNAME] -> BLUENODE_NAME
+ *  CHECKRNA [VADDRESS] -> ONLINE/OFFLINE
+ * 
+ * (unregistered) Rednode queries:
+ *
+ * GETBNS -> RETURNS A LIST OF BNS
+ * GETRBN -> RETURNS BN WITH THE LOWEST LOAD
+ *
  * @author Konstantinos Kagiampakis
  */
 public class TrackService extends Thread {

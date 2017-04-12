@@ -21,10 +21,10 @@ import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
  *  Bluenode queries:
  *
  *  LEASE BN 
- *  LEASE RN [HOSTNAME] 
+ *  LEASE RN [HOSTNAME] [USERNAME] [HASHED(HASHED(SALT)+PASSWORD)]
  *  RELEASE BN 
  *  RELEASE RN [HOSTNAME] 
- *  GETPH 
+ *  GETPH [BLUENODE_NAME]
  *  CHECKRN [HOSTNAME]
  *  CHECKRNA [VADDRESS]
  *  
@@ -81,6 +81,7 @@ public class BlueNodeFunctions {
 
 	/**
 	 * lease a rednode on the network over a bluenode
+	 * on a successful lease a full ip is returned 
 	 */
 	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
 			PrintWriter writer) {
@@ -107,16 +108,17 @@ public class BlueNodeFunctions {
 								found = true;
 								if (!App.BNtable.checkOnlineRnByHn(hostname)) {
 									//the id from hostnames is the hostname's virtual address
-									int vAddress = getResults.getInt("address");
+									int num_addr = getResults.getInt("address");
 									int inuserid = getResults.getInt("userid");
 									if (userauth == inuserid) {
 										try {
-											bn.rednodes.lease(hostname, VAddressFunctions.numberTo10ipAddr("" + vAddress));
+											String vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
+											bn.rednodes.lease(hostname, vaddress);
+											data = "LEASED " + vaddress;
 										} catch (Exception e) {
 											e.printStackTrace();
 											data = "ALLREADY_LEASED";											
-										}
-										data = "LEASED " + vAddress;									
+										}																			
 									} else {
 										//a user tried to lease another user's hostname
 										data = "USER_HOSTNAME_MISSMATCH";
@@ -267,8 +269,8 @@ public class BlueNodeFunctions {
 			int i = 0;
 			while (getResults.next()) {				
 				try {
-					data = getResults.getString("username")+App.salt+HashFunctions.MD5(getResults.getString("password"));
-					data = HashFunctions.MD5(data);
+					data = HashFunctions.SHA256(App.SALT) +  HashFunctions.SHA256(getResults.getString("username")) + HashFunctions.SHA256(App.SALT) +  HashFunctions.SHA256(getResults.getString("password"));
+					data = HashFunctions.SHA256(data);
 				} catch (Exception ex) {
 					ex.printStackTrace();					
 				}

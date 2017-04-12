@@ -52,10 +52,13 @@ public class App {
 	public static int pingTime;
 	//objects
 	public static SonarService sonar;
+	// network maths
+	public static final int virtualNetworkAddressCapacity = (int) (Math.pow(2,24) - 2);
+	public static final int systemReservedAddressNumber = 2; 	
 	// salt
 	// you will have to wait for the network branch for this to chage
-	public static final String salt = "lol!_you_just_cant_copy_hashes_and_use_them_from_the_webpage";
-
+	public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
+	
 	public App() {
 
 		// 1. log
