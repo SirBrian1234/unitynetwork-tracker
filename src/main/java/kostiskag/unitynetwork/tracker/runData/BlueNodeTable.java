@@ -77,6 +77,17 @@ public class BlueNodeTable {
     	return null;
     }
     
+    public synchronized BlueNodeEntry reverseLookupBnBasedOnRnVaddr(String vAddress) {
+    	Iterator<BlueNodeEntry> iterator = list.listIterator();
+        while (iterator.hasNext()) {
+        	BlueNodeEntry bn = iterator.next();
+        	if (bn.rednodes.checkOnlineByVaddress(vAddress)) {
+        		return bn;
+        	}        	
+        }        
+    	return null;
+    }
+    
     public synchronized LinkedList<String> getLeasedRedNodeHostnameList() {
     	LinkedList<String> fetched = new LinkedList<>();
     	Iterator<BlueNodeEntry> iterator = list.listIterator();

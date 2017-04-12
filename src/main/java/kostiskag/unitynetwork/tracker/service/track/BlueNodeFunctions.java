@@ -21,7 +21,7 @@ import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
  *  Bluenode queries:
  *
  *  LEASE BN 
- *  LEASE RN [HOSTNAME] [USERNAME] [HASHED(HASHED(SALT)+PASSWORD)]
+ *  LEASE RN [HOSTNAME] [USERNAME] [PASSWORD]
  *  RELEASE BN 
  *  RELEASE RN [HOSTNAME] 
  *  GETPH [BLUENODE_NAME]
@@ -214,7 +214,7 @@ public class BlueNodeFunctions {
 		String data;
 		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
-			data = "ONLINE " + bn.getName();
+			data = "ONLINE " +bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}
@@ -222,30 +222,20 @@ public class BlueNodeFunctions {
 	}
 	
 	/**
-	 * Retrieves a bluenode hostname based on a given vaddress
+	 * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
 	 */
 	public static void CheckRnAddr(String vaddress, PrintWriter writer) {
 		Queries q = null;
 		String data = null;
 		String hostname = null;
-		int vaddressNum = VAddressFunctions._10ipAddrToNumber(vaddress);
 		
-		try {
-			q = new Queries();
-			ResultSet r = q.selectAllFromHostnamesWhereAddress(vaddressNum);
-			while(r.next()) {
-				hostname = r.getString("hostname");			
-			}
-			
-			if (hostname != null) {
-				data = "ONLINE " + App.BNtable.checkOnlineRnByHn(hostname);
-			} else {
-				data = "OFFLINE";
-			}
-			SocketFunctions.sendFinalData(data, writer);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}			
+		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRnVaddr(vaddress);
+		if (bn!=null) {
+			data = "ONLINE "+bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
+		} else {
+			data = "OFFLINE";
+		}						
+		SocketFunctions.sendFinalData(data, writer);				
 	}
 	
 	
