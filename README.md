@@ -43,6 +43,7 @@ In order to build this project, Java JDK 1.7 or greater and Apache Maven have to
 git clone https://github.com/kostiskag/unitynetwork-tracker.git
 cd unitynetwork-tracker
 mvn package
+mvn dependency:copy-dependencies
 ```
 
 ## Run
