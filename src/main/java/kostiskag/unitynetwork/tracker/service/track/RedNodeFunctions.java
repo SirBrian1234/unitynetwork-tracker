@@ -18,7 +18,7 @@ import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 */
 public class RedNodeFunctions {
 
-	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) {
+	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
 		String data;
 		if (App.BNtable.getSize() > 0) {
 			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
@@ -33,7 +33,7 @@ public class RedNodeFunctions {
 		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) {
+	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
 		int size = App.BNtable.getSize();
 		if (App.BNtable.getSize() > 0) {
 			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);

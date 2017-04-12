@@ -230,14 +230,32 @@ public class BlueNodeTable {
     	Iterator<BlueNodeEntry> iterator = list.listIterator();
     	while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();            
-            if (BlueNodeFunctions.checkBnOnline(element)) {
-            	System.out.println(pre+"Fetching RNs from BN "+element.getName());
-                element.updateTimestamp();
-                LinkedList<RedNodeEntry> rns = BlueNodeFunctions.getRedNodes(element);
-                element.rednodes = new RedNodeTable(element, rns);
-            } else {                
-            	iterator.remove();               
-            }
+            try {
+				if (BlueNodeFunctions.checkBnOnline(element)) {
+					System.out.println(pre+"Fetching RNs from BN "+element.getName());
+				    element.updateTimestamp();
+				    LinkedList<RedNodeEntry> rns = BlueNodeFunctions.getRedNodes(element);
+				    LinkedList<RedNodeEntry> in = element.rednodes.getList();
+				    LinkedList<RedNodeEntry> valid = new LinkedList<RedNodeEntry>();
+				    Iterator<RedNodeEntry> rnsIt = rns.iterator();
+				    
+				    while (rnsIt.hasNext()) {
+				    	RedNodeEntry outE = rnsIt.next();				    	
+			    		Iterator<RedNodeEntry> inIt = in.iterator();
+			    		while(inIt.hasNext()) {
+			    			RedNodeEntry inE = inIt.next();	
+				    		if (inE.getHostname().equals(outE.getHostname())) {
+				    			valid.add(inE);			    			
+				    		}				    	
+			    		}
+				    }				    
+				    element.rednodes = new RedNodeTable(element, valid);
+				} else {                
+					iterator.remove();               
+				}
+			} catch (Exception e) {
+				iterator.remove();  
+			}
         }
     	System.out.println(pre+" BN Table rebuilt");
     	notifyGUI();    	
@@ -247,7 +265,11 @@ public class BlueNodeTable {
     	Iterator<BlueNodeEntry> iterator = list.listIterator();
     	while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();            
-        	BlueNodeFunctions.sendkillsig(element);
+        	try {
+				BlueNodeFunctions.sendkillsig(element);
+			} catch (Exception e) {
+				
+			}
             iterator.remove();                           
         }
     	System.out.println(pre+" BN Table cleared");

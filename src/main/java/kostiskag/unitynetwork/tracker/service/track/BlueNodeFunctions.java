@@ -34,8 +34,9 @@ public class BlueNodeFunctions {
 
 	/**
 	 * lease a bluenode on the network
+	 * @throws Exception 
 	 */
-	public static void BlueLease(String bluenodeHostname, String givenPort, PrintWriter writer, Socket socket) {
+	public static void BlueLease(String bluenodeHostname, String givenPort, PrintWriter writer, Socket socket) throws Exception {
 
 		String data = null;
 		Queries q = null;
@@ -68,7 +69,6 @@ public class BlueNodeFunctions {
 			}
 			q.closeQueries();
 		} catch (SQLException ex) {
-			Logger.getLogger(TrackService.class.getName()).log(Level.SEVERE, null, ex);
 			data = "SYSTEM_ERROR";
 			try {
 				q.closeQueries();
@@ -82,9 +82,10 @@ public class BlueNodeFunctions {
 	/**
 	 * lease a rednode on the network over a bluenode
 	 * on a successful lease a full ip is returned 
+	 * @throws Exception 
 	 */
 	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
-			PrintWriter writer) {
+			PrintWriter writer) throws Exception {
 		int userauth = checkUser(password);
 
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
@@ -133,16 +134,15 @@ public class BlueNodeFunctions {
 							data = "LEASE_FAILED";
 						}
 					}
-					SocketFunctions.sendFinalData(data, writer);
 					q.closeQueries();
-				} catch (SQLException ex) {
-					Logger.getLogger(BlueNodeFunctions.class.getName()).log(Level.SEVERE, null, ex);
-					SocketFunctions.sendFinalData("SYSTEM_ERROR", writer);
+					SocketFunctions.sendFinalData(data, writer);					
+				} catch (SQLException ex) {					
 					try {
 						q.closeQueries();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
+					SocketFunctions.sendFinalData("SYSTEM_ERROR", writer);
 				}
 			} else {
 				SocketFunctions.sendFinalData("AUTH_FAILED", writer);
@@ -154,8 +154,9 @@ public class BlueNodeFunctions {
 
 	/**
 	 * releases a bluenode from the network
+	 * @throws Exception 
 	 */
-	public static void BlueRel(String hostname, PrintWriter writer) {
+	public static void BlueRel(String hostname, PrintWriter writer) throws Exception {
 		String data = null;
 		if (App.BNtable.checkOnlineByName(hostname)) {
 			try {
@@ -173,8 +174,9 @@ public class BlueNodeFunctions {
 
 	/**
 	 * releases a rednode from a bluenode
+	 * @throws Exception 
 	 */
-	public static void RedRel(String bluenodeName, String hostname, PrintWriter writer) {
+	public static void RedRel(String bluenodeName, String hostname, PrintWriter writer) throws Exception {
 		String data = null;
 		boolean found = false;
 
@@ -195,8 +197,9 @@ public class BlueNodeFunctions {
 
 	/** 
 	 * provides the physical address and port of a known bluenode
+	 * @throws Exception 
 	 */
-	public static void GetPh(String BNTargetHostname, PrintWriter writer) {
+	public static void GetPh(String BNTargetHostname, PrintWriter writer) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
 		if (bn != null) {			
@@ -209,8 +212,9 @@ public class BlueNodeFunctions {
 
 	/**
 	 *  checks whether a RN is ONLINE and from which BN is connected
+	 * @throws Exception 
 	 */
-	public static void CheckRn(String hostname, PrintWriter writer) {
+	public static void CheckRn(String hostname, PrintWriter writer) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
@@ -223,8 +227,9 @@ public class BlueNodeFunctions {
 	
 	/**
 	 * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
+	 * @throws Exception 
 	 */
-	public static void CheckRnAddr(String vaddress, PrintWriter writer) {
+	public static void CheckRnAddr(String vaddress, PrintWriter writer) throws Exception {
 		Queries q = null;
 		String data = null;
 		String hostname = null;

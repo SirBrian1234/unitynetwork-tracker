@@ -1,6 +1,7 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import kostiskag.unitynetwork.tracker.database.Database;
@@ -53,28 +54,38 @@ public class TrackService extends Thread {
     public void run() {
         System.out.println("@Started auth service at " + Thread.currentThread().getName());
         
-        reader = SocketFunctions.makeReadWriter(socket);
-        writer = SocketFunctions.makeWriteWriter(socket);
-        
-        String[] args;
-        String data;
-        
-        data = "UnityTracker";
-        
-        args = SocketFunctions.sendData(data, writer, reader);
+        try {
+			reader = SocketFunctions.makeReadWriter(socket);
+			writer = SocketFunctions.makeWriteWriter(socket);
+		        
+	        String[] args;
+	        String data;
+	        
+	        data = "UnityTracker";
+	        
+	        args = SocketFunctions.sendData(data, writer, reader);
 
-        if (args.length == 2 && args[0].equals("BLUENODE")) {
-            BlueNodeService(args[1]);
-        } else if (args.length == 2 && args[0].equals("REDNODE")) {
-            RedNodeService(args[1]);
-        } else {
-            data = "WRONG_COMMAND";
-            SocketFunctions.sendFinalData(data, writer);            
-        }
-        SocketFunctions.connectionClose(socket);                      
+	        if (args.length == 2 && args[0].equals("BLUENODE")) {
+	            BlueNodeService(args[1]);
+	        } else if (args.length == 2 && args[0].equals("REDNODE")) {
+	            RedNodeService(args[1]);
+	        } else {
+	            data = "WRONG_COMMAND";
+	            SocketFunctions.sendFinalData(data, writer);            
+	        }
+	        SocketFunctions.connectionClose(socket);   
+	        
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				SocketFunctions.connectionClose(socket);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}   
+		}                         
     }    
     
-    public void BlueNodeService(String BlueNodeHostname) {        
+    public void BlueNodeService(String BlueNodeHostname) throws Exception {        
         String data;
         
         int auth = BlueNodeGlobalFunctions.authBluenode(BlueNodeHostname);
@@ -109,7 +120,7 @@ public class TrackService extends Thread {
         SocketFunctions.connectionClose(socket);
     }
 
-    private void RedNodeService(String hostname) {
+    private void RedNodeService(String hostname) throws Exception {
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         if (args.length == 1 && args[0].equals("GETBNS")) {
              RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);

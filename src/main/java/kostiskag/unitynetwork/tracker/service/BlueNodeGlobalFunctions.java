@@ -25,11 +25,10 @@ public class BlueNodeGlobalFunctions {
 
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
-					if (App.BNtable.checkOnlineByName(BlueNodeHostname)) {
-						q.closeQueries();
+					q.closeQueries();
+					if (App.BNtable.checkOnlineByName(BlueNodeHostname)) {						
 						return 1;
-					} else {
-						q.closeQueries();
+					} else {						
 						return 0;
 					}
 				}
