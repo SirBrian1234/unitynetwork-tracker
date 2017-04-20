@@ -27,12 +27,14 @@ import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 public class BlueNodeFunctions {
 
     public static String pre = "^AUTH CLIENT ";
+    public static int timeout = 3000;
 
     public static boolean checkBnOnline(BlueNodeEntry bn) throws Exception {
         InetAddress addr = SocketFunctions.getAddress(bn.getPhaddress());
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
+			socket.setSoTimeout(timeout);
 			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
@@ -85,6 +87,8 @@ public class BlueNodeFunctions {
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
+			socket.setSoTimeout(timeout);
+			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
 	        String args[] = SocketFunctions.readData(inputReader);   
@@ -136,6 +140,7 @@ public class BlueNodeFunctions {
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
+			socket.setSoTimeout(timeout);
 			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);

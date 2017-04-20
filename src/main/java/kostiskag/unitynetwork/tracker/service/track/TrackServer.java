@@ -15,6 +15,7 @@ import kostiskag.unitynetwork.tracker.App;
 public class TrackServer extends Thread{
 
     private final String pre = "^AUTH SERVER ";
+    private final int timeout = 3000;
     private final int authPort;
     
     public TrackServer(int authport) {
@@ -25,9 +26,10 @@ public class TrackServer extends Thread{
     public void run() {  
         App.ConsolePrint("@Started blue auth server at " + Thread.currentThread().getName());
         try {
-            ServerSocket welcomeSocket = new ServerSocket(authPort);                                    
+            ServerSocket welcomeSocket = new ServerSocket(authPort);  
             while (true) {    
-                Socket connectionSocket = welcomeSocket.accept();                
+                Socket connectionSocket = welcomeSocket.accept();    
+                connectionSocket.setSoTimeout(timeout);
                 TrackService service = new TrackService(connectionSocket);
                 service.start();
             }        

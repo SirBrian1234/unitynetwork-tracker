@@ -49,7 +49,6 @@ public class BlueNodeFunctions {
 			boolean found = false;
 			while (getResults.next() && !found) {
 				if (getResults.getString("name").equals(bluenodeHostname)) {
-					found = true;
 					String address = socket.getInetAddress().getHostAddress();
 					int port = Integer.parseInt(givenPort);
 					if (!App.BNtable.checkOnlineByName(bluenodeHostname)) {
@@ -57,11 +56,14 @@ public class BlueNodeFunctions {
 						try {
 							App.BNtable.lease(bluenodeHostname, address, port);
 							data = "LEASED " + address;
+							found = true;
+							break;
 						} catch (Exception e) {
 							e.printStackTrace();
 							data = "LEASE_FAILED";
+							break;
 						}						
-					}
+					} 
 				}
 			}
 			if (!found) {
@@ -205,7 +207,7 @@ public class BlueNodeFunctions {
 		if (bn != null) {			
 			data = bn.getPhaddress()+" "+ bn.getPort();
 		} else {
-			data = "NOT_FOUND";
+			data = "OFFLINE";
 		}
 		SocketFunctions.sendFinalData(data, writer);
 	}
