@@ -4,7 +4,7 @@ import java.sql.Time;
 import java.util.Iterator;
 import java.util.LinkedList;
 import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.service.sonar.BlueNodeFunctions;
+import kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
  * A bluenode table holds all the joined bluenodes on the network.
@@ -231,10 +231,12 @@ public class BlueNodeTable {
     	while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();            
             try {
-				if (BlueNodeFunctions.checkBnOnline(element)) {
+            	BlueNodeClient cl = new BlueNodeClient(element);
+				if (cl.checkBnOnline()) {
 					System.out.println(pre+"Fetching RNs from BN "+element.getName());
 				    element.updateTimestamp();
-				    LinkedList<RedNodeEntry> rns = BlueNodeFunctions.getRedNodes(element);
+				    cl = new BlueNodeClient(element);
+				    LinkedList<RedNodeEntry> rns = cl.getRedNodes();
 				    LinkedList<RedNodeEntry> in = element.rednodes.getList();
 				    LinkedList<RedNodeEntry> valid = new LinkedList<RedNodeEntry>();
 				    Iterator<RedNodeEntry> rnsIt = rns.iterator();
@@ -266,7 +268,8 @@ public class BlueNodeTable {
     	while (iterator.hasNext()) {
         	BlueNodeEntry element = iterator.next();            
         	try {
-				BlueNodeFunctions.sendkillsig(element);
+        		BlueNodeClient cl = new BlueNodeClient(element);
+				cl.sendkillsig();
 			} catch (Exception e) {
 				
 			}

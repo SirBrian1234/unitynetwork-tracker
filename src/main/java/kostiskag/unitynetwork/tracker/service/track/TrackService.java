@@ -99,19 +99,19 @@ public class TrackService extends Thread {
         }       
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         
-        if (args.length == 3 && args[0].equals("LEASE") && args[1].equals("BN")) {
-            BlueNodeFunctions.BlueLease(BlueNodeHostname, args[2], writer, socket);
-        } else if (args.length == 5 && args[0].equals("LEASE") && args[1].equals("RN")) {
-            BlueNodeFunctions.RedLease(BlueNodeHostname, args[2], args[3], args[4], writer);
-        } else if (args.length == 2 && args[0].equals("RELEASE") && args[1].equals("BN")) {
+        if (args.length == 2 && args[0].equals("LEASE")) {
+            BlueNodeFunctions.BlueLease(BlueNodeHostname, args[1], writer, socket);
+        } else if (args.length == 4 && args[0].equals("LEASE_RN")) {
+            BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer);
+        } else if (args.length == 1 && args[0].equals("RELEASE")) {
             BlueNodeFunctions.BlueRel(BlueNodeHostname, writer);
-        } else if (args.length == 3 && args[0].equals("RELEASE") && args[1].equals("RN")) {
-            BlueNodeFunctions.RedRel(BlueNodeHostname, args[2], writer);
+        } else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
+            BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer);
         } else if (args.length == 2 && args[0].equals("GETPH")) {
             BlueNodeFunctions.GetPh(args[1], writer);
-        } else if (args.length == 2 && args[0].equals("CHECKRN")) {
+        } else if (args.length == 2 && args[0].equals("CHECK_RN")) {
             BlueNodeFunctions.CheckRn(args[1], writer);
-        } else if (args.length == 2 && args[0].equals("CHECKRNA")) {
+        } else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
             BlueNodeFunctions.CheckRnAddr(args[1], writer);
         } else {
             data = "WRONG_COMMAND";
