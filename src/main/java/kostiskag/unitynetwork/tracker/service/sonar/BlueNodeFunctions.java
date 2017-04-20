@@ -34,7 +34,7 @@ public class BlueNodeFunctions {
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
-			socket.setSoTimeout(timeout);
+			//socket.setSoTimeout(timeout);
 			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
@@ -87,7 +87,7 @@ public class BlueNodeFunctions {
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
-			socket.setSoTimeout(timeout);
+			//socket.setSoTimeout(timeout);
 			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);       
@@ -140,7 +140,7 @@ public class BlueNodeFunctions {
         Socket socket = null;
 		try {
 			socket = SocketFunctions.absoluteConnect(addr, bn.getPort());
-			socket.setSoTimeout(timeout);
+			//socket.setSoTimeout(timeout);
 			
 			BufferedReader inputReader = SocketFunctions.makeReadWriter(socket);
 	        PrintWriter writer = SocketFunctions.makeWriteWriter(socket);

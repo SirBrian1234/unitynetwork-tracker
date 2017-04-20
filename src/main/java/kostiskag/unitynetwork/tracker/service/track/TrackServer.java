@@ -29,7 +29,7 @@ public class TrackServer extends Thread{
             ServerSocket welcomeSocket = new ServerSocket(authPort);  
             while (true) {    
                 Socket connectionSocket = welcomeSocket.accept();    
-                connectionSocket.setSoTimeout(timeout);
+                //connectionSocket.setSoTimeout(timeout);
                 TrackService service = new TrackService(connectionSocket);
                 service.start();
             }        
