@@ -113,6 +113,10 @@ public class TrackService extends Thread {
             BlueNodeFunctions.CheckRn(args[1], writer);
         } else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
             BlueNodeFunctions.CheckRnAddr(args[1], writer);
+        } else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
+        	BlueNodeFunctions.LookupByHn(args[1],writer);
+        } else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
+        	BlueNodeFunctions.LookupByAddr(args[1], writer);
         } else {
             data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);

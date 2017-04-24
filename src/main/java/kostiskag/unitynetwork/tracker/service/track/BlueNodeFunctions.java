@@ -288,4 +288,71 @@ public class BlueNodeFunctions {
 			return -1;
 		}
 	}
+
+	public static void LookupByHn(String hostname, PrintWriter writer) {
+		Queries q = null;
+		String vaddress = null;
+		String retrievedHostname = null;
+		try {
+			q = new Queries();
+			ResultSet r = q.selectAllFromHostnames();
+			while (r.next()) {
+				retrievedHostname = r.getString("hostname");
+				if (retrievedHostname.equals(hostname)) {
+					//found!!!
+					int num_addr = r.getInt("address");
+					vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
+					
+					q.closeQueries();
+					writer.println(vaddress);							
+					return;		
+				}
+			}
+			q.closeQueries();
+			writer.println("NOT_FOUND");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			writer.println("NOT_FOUND");
+		}		
+	}
+
+	public static void LookupByAddr(String vaddress, PrintWriter writer) {
+		Queries q = null;
+		String hostname = null;
+		int addr_num  = VAddressFunctions._10ipAddrToNumber(vaddress);
+		int retrieved_addr_num = -1;
+		
+		try {
+			q = new Queries();
+			ResultSet r = q.selectAllFromHostnames();
+			while (r.next()) {
+				retrieved_addr_num = r.getInt("address");
+				if (retrieved_addr_num == addr_num) {
+					//found!!!
+					hostname = r.getString("hostname");
+					
+					q.closeQueries();
+					writer.println(hostname);							
+					return;		
+				}
+			}
+			q.closeQueries();
+			writer.println("NOT_FOUND");
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			writer.println("NOT_FOUND");
+		}		
+	}
 }
