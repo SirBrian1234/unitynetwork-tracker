@@ -8,7 +8,7 @@ public class VAddressFunctionsTest {
 
 	@Test
 	public void test() {
-		assertEquals(VAddressFunctions._10ipAddrToNumber("10.0.0.3"), 1);
-		assertEquals(VAddressFunctions.numberTo10ipAddr(1), "10.0.0.3");
+		assertEquals(VAddressFunctions._10ipAddrToNumber("10.0.0.3"), 2);
+		assertEquals(VAddressFunctions.numberTo10ipAddr(2), "10.0.0.3");
 	}
 }

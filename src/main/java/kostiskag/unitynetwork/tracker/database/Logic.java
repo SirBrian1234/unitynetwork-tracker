@@ -1,9 +1,14 @@
 package kostiskag.unitynetwork.tracker.database;
 
+import java.io.UnsupportedEncodingException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
+
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.functions.HashFunctions;
 
 /**
  * The database upper logic which calls methods from Queries
@@ -24,6 +29,13 @@ public class Logic {
 		//we have to provide a salted and hashed password in the db along with the rest of the updates
 		//to do in the hash branch
 		//pass = hash(salt+pass)
+		try {
+			password = HashFunctions.SHA256(App.SALT + password);
+		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
+			e2.printStackTrace();
+			return;
+		}
+		
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -44,10 +56,17 @@ public class Logic {
 		//we have to provide a salted and hashed password in the db along with the rest of the updates
 		//to do in the hash branch
 		//pass = hash(salt+pass)
+		try {
+			password = HashFunctions.SHA256(App.SALT + password);
+		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
+			e2.printStackTrace();
+			return;
+		}
+		
 		Queries q = null;
 		try {
 			q = new Queries();
-			q.insertEntryUsers(username, password, scope, fullname);
+			q.updateEntryUsersWithUsername(username, password, scope, fullname);
 			q.closeQueries();
 		} catch (SQLException e) {
 			e.printStackTrace();

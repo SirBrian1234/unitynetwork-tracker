@@ -266,7 +266,7 @@ public class BlueNodeFunctions {
 			int i = 0;
 			while (getResults.next()) {				
 				try {
-					data = HashFunctions.SHA256(App.SALT) +  HashFunctions.SHA256(getResults.getString("username")) + HashFunctions.SHA256(App.SALT) +  HashFunctions.SHA256(getResults.getString("password"));
+					data = HashFunctions.SHA256(App.SALT) +  HashFunctions.SHA256(getResults.getString("username")) + getResults.getString("password");
 					data = HashFunctions.SHA256(data);
 				} catch (Exception ex) {
 					ex.printStackTrace();					
