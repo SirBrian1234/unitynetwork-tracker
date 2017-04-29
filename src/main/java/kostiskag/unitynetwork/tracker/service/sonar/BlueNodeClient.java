@@ -1,12 +1,11 @@
 package kostiskag.unitynetwork.tracker.service.sonar;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.LinkedList;
+
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 import kostiskag.unitynetwork.tracker.runData.RedNodeEntry;
@@ -17,10 +16,11 @@ import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
  * 
  *  CHECK
  *  GETREDNODES
+ *  KILLSIG
  *  
  *  Exception handle policy: the task is to provide resilience for the network socket
- *  to keep it alive and block the internal system expeptions such as database
- *  therefore net execptions should be thrown, sys exception should be catched and a
+ *  to keep it alive and block the internal system exceptions such as database
+ *  therefore net exceptions should be thrown, system exception should be cached and a
  *  proper response has to be compiled.
  *
  *  @author Konstantinos Kagiampakis
@@ -73,7 +73,7 @@ public class BlueNodeClient {
 	        	connected = true;
 	        }
 		} catch (Exception e) {
-			e.printStackTrace();
+			//this is a silent exception
 		}        
 	}
     
