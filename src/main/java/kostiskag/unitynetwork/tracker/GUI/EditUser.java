@@ -9,6 +9,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -47,7 +49,7 @@ public class EditUser {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					EditUser window = new EditUser(0,"none");
+					EditUser window = new EditUser(0, "none");
 					window.frmEditUserEntry.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -60,9 +62,9 @@ public class EditUser {
 	 * Create the application.
 	 */
 	public EditUser(int type, String username) {
-		//type is 
-		//0 for new entry
-		//1 for update
+		// type is
+		// 0 for new entry
+		// 1 for update
 		this.type = type;
 		this.username = username;
 		initialize();
@@ -76,13 +78,13 @@ public class EditUser {
 			textField_1.setEditable(false);
 			chckbxSetANew.setSelected(false);
 			passwordField.setEditable(false);
-			
+
 			Queries q = null;
 			try {
 				q = new Queries();
 				ResultSet r = q.selectIdScopeFullnameFromUsersWhereUsername(username);
-				while(r.next()) {
-					textField.setText(""+r.getInt("id"));
+				while (r.next()) {
+					textField.setText("" + r.getInt("id"));
 					comboBox.setSelectedIndex(r.getInt("scope"));
 					textField_3.setText(r.getString("fullname"));
 				}
@@ -107,120 +109,175 @@ public class EditUser {
 		frmEditUserEntry = new JFrame();
 		frmEditUserEntry.setResizable(false);
 		frmEditUserEntry.setTitle("Edit user entry");
-		frmEditUserEntry.setBounds(100, 100, 450, 325);
+		frmEditUserEntry.setBounds(100, 100, 446, 451);
 		frmEditUserEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditUserEntry.getContentPane().setLayout(null);
-		
+
 		JLabel lblId = new JLabel("id");
 		lblId.setBounds(10, 14, 17, 14);
 		frmEditUserEntry.getContentPane().add(lblId);
-		
+
 		textField = new JTextField();
 		textField.setEditable(false);
 		textField.setBounds(76, 11, 75, 20);
 		frmEditUserEntry.getContentPane().add(textField);
 		textField.setColumns(10);
-		
+
 		lblUsername = new JLabel("username");
-		lblUsername.setBounds(10, 58, 56, 14);
+		lblUsername.setBounds(10, 58, 93, 14);
 		frmEditUserEntry.getContentPane().add(lblUsername);
-		
+
 		textField_1 = new JTextField();
-		textField_1.setBounds(76, 55, 128, 20);
+		textField_1.setBounds(115, 55, 279, 20);
 		frmEditUserEntry.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
-		
+
 		lblPassword = new JLabel("password");
-		lblPassword.setBounds(47, 128, 56, 14);
+		lblPassword.setBounds(10, 128, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblPassword);
-		
+
 		lblType = new JLabel("type");
 		lblType.setBounds(10, 169, 46, 14);
 		frmEditUserEntry.getContentPane().add(lblType);
-		
+
 		comboBox = new JComboBox<String>();
-		comboBox.setModel(new DefaultComboBoxModel<String>(new String[] {"system", "user", "robot", "goverment service/organisation/company "}));
+		comboBox.setModel(new DefaultComboBoxModel<String>(
+				new String[] { "system", "user", "robot", "goverment service/organisation/company " }));
 		comboBox.setBounds(76, 166, 257, 20);
 		frmEditUserEntry.getContentPane().add(comboBox);
-		
+
 		JLabel lblFullName = new JLabel("full name");
 		lblFullName.setBounds(10, 211, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblFullName);
-		
+
 		textField_3 = new JTextField();
 		textField_3.setColumns(10);
 		textField_3.setBounds(76, 208, 257, 20);
 		frmEditUserEntry.getContentPane().add(textField_3);
-		
+
 		btnNewButton = new JButton("Add new entry");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String password = new String(passwordField.getPassword());
-				if (!textField_1.getText().isEmpty() && !textField_3.getText().isEmpty()){
-					if (textField_1.getText().length() <= App.max_str_len_small_size && textField_3.getText().length() <= App.max_str_len_large_size) {
-						
-						try {
-							if (type == 0) {
-								if (!password.isEmpty() && password.length() <= App.max_str_len_large_size) {
-									Logic.addNewUser(textField_1.getText(), password, comboBox.getSelectedIndex(), textField_3.getText());																
-								} else {
-									label.setText("Please set a password up to "+App.max_str_len_large_size+" chars.");
-									return;
-								}
-							} else {
-								if (chckbxSetANew.isSelected()) {
-									//we have to provide all the other fields along with a new password
-									if (!password.isEmpty()) {
-										if ( password.length() <= App.max_str_len_large_size ) {
-											Logic.updateUserAndPassword(username, password, comboBox.getSelectedIndex(), textField_3.getText());																					
-										} else {
-											label.setText("Please provide a password up to "+App.max_str_len_large_size+" characters.");
-											return;
-										}
-									} else {
-										label.setText("Please fill in all the fields.");
-										return;
-									}
-								} else {
-									//we have to provide just the other fields without the password
-									Queries q = null;
-									q = new Queries();
-									q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(), textField_3.getText());
-									q.closeQueries();
-								}
-							}							
-						} catch (SQLException ex) {
-							if (ex.getErrorCode() == 19) { 
-								label.setText("The given username is already taken.");
-						    } else { 
-						    	ex.printStackTrace();
-						    }	
-						}										
-						
-						App.window.updateDatabaseGUI();
-						frmEditUserEntry.dispose();
-					
-					} else {
-						label.setText("Please provide a username and a fullname up to "+App.max_str_len_large_size+" characters.");
+
+				String givenFullname = textField_3.getText();
+				if (givenFullname.length() > App.max_str_len_small_size) {
+					label.setText("<html>Please set a fullname not more than " + App.max_str_len_small_size + " characters.</html>");
+					return;
+				}
+
+				if (givenFullname.length() < App.min_username_len) {
+					label.setText("<html>Please set a fullname " + App.min_username_len + " characters or more.</html>");
+					return;
+				}
+
+				Pattern pattern = Pattern.compile("^[a-zA-Z0-9\\.\\ \\-\\_]+$");
+				Matcher matcher = pattern.matcher(givenFullname);
+				if (!matcher.matches()) {
+					label.setText(
+							"<html>In order to define a fullname, you are allowed to enter digit numbers from 0 to 9, lower or upper case letters form aA to zZ, space and upper dash -, lower dash _ or dot . special characters</html>");
+					return;
+				}
+
+				if (type == 0) {
+					String givenUsername = textField_1.getText();
+					if (givenUsername.length() > App.max_str_len_small_size) {
+						label.setText("<html>Please provide one username which is less than " + App.max_str_len_small_size
+								+ " characters.</html>");
+						return;
 					}
+					
+					if (givenUsername.length() < App.min_username_len) {
+						label.setText(
+								"<html>Please provide one username " + App.min_username_len + " characters or more.</html>");
+						return;
+					}
+					
+					pattern = Pattern.compile("^[a-z0-9-_]+$");
+					matcher = pattern.matcher(givenUsername);
+					if (!matcher.matches()) {
+						label.setText(
+								"<html>In order to define a username, you are allowed to enter digit numbers from 0 to 9, lower case letters form a to z and upper dash - or lower dash _ special characters</html>");
+						return;
+					}
+					
+					String givenPassword = new String(passwordField.getPassword());
+					if (givenPassword.length() > App.max_str_len_small_size) {
+						label.setText("<html>Please set a password less than " + App.max_str_len_small_size + " characters.</html>");
+						return;
+					}
+
+					if (givenPassword.length() < App.min_password_len) {
+						label.setText("<html>Please provide a password " + App.min_password_len + " characters or more.</html>");
+						return;
+					}
+					
+					try {
+						Logic.addNewUser(givenUsername, givenPassword, comboBox.getSelectedIndex(), givenFullname);
+					} catch (SQLException ex) {
+						if (ex.getErrorCode() == 19) {
+							label.setText("<html>The given username is already used.</html>");
+						} else {
+							ex.printStackTrace();
+						}
+					}
+				} else if (chckbxSetANew.isSelected()) {
+						// we have to provide all the other fields along with a
+						// new password
+						String givenPassword = new String(passwordField.getPassword());
+						if (givenPassword.length() > App.max_str_len_large_size) {
+							label.setText(
+									"<html>Please set a password less than " + App.max_str_len_large_size + " characters.</html>");
+							return;
+						}
+
+						if (givenPassword.length() < App.min_password_len) {
+							label.setText("<html>Please provide a password " + App.min_password_len + " characters or more.</html>");
+							return;
+						}
+
+						try {
+							Logic.updateUserAndPassword(username, givenPassword, comboBox.getSelectedIndex(),
+									givenFullname);
+						} catch (SQLException ex) {
+							ex.printStackTrace();
+						}
+
 				} else {
-					label.setText("Please fill in all the fields.");
-				}			
+					// we have to provide all the other fields without
+					// username and password
+					Queries q = null;
+					try {
+						q = new Queries();
+						q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(),
+								givenFullname);
+						q.closeQueries();
+					} catch (SQLException ex) {
+						ex.printStackTrace();
+						try {
+							q.closeQueries();
+						} catch (SQLException ex1) {
+
+						}
+					}
+				}
+				
+				App.window.updateDatabaseGUI();
+				frmEditUserEntry.dispose();
 			}
 		});
-		btnNewButton.setBounds(296, 263, 128, 23);
+		btnNewButton.setBounds(253, 380, 175, 23);
 		frmEditUserEntry.getContentPane().add(btnNewButton);
-		
+
 		passwordField = new JPasswordField();
-		passwordField.setBounds(113, 125, 257, 20);
+		passwordField.setBounds(113, 125, 279, 20);
 		frmEditUserEntry.getContentPane().add(passwordField);
-		
+
 		label = new JLabel("");
 		label.setForeground(new Color(204, 0, 0));
 		label.setFont(new Font("Tahoma", Font.BOLD, 14));
-		label.setBounds(10, 238, 414, 14);
+		label.setBounds(10, 241, 414, 126);
 		frmEditUserEntry.getContentPane().add(label);
-		
+
 		chckbxSetANew = new JCheckBox("set a new password");
 		chckbxSetANew.addItemListener(new ItemListener() {
 			@Override
@@ -233,7 +290,7 @@ public class EditUser {
 			}
 		});
 		chckbxSetANew.setSelected(true);
-		chckbxSetANew.setBounds(10, 95, 167, 23);
+		chckbxSetANew.setBounds(22, 96, 167, 23);
 		frmEditUserEntry.getContentPane().add(chckbxSetANew);
 	}
 }

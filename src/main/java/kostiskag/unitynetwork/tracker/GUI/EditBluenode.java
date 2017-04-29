@@ -14,6 +14,8 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
@@ -93,21 +95,21 @@ public class EditBluenode {
 		frmEditBluenodeEntry.getContentPane().setLayout(null);
 		
 		JLabel lblName = new JLabel("name");
-		lblName.setBounds(10, 65, 56, 14);
+		lblName.setBounds(10, 29, 56, 14);
 		frmEditBluenodeEntry.getContentPane().add(lblName);
 		
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
-		textField_1.setBounds(76, 62, 257, 20);
+		textField_1.setBounds(76, 26, 257, 20);
 		frmEditBluenodeEntry.getContentPane().add(textField_1);
 		
 		JLabel label_2 = new JLabel("user id");
-		label_2.setBounds(10, 114, 56, 14);
+		label_2.setBounds(10, 78, 56, 14);
 		frmEditBluenodeEntry.getContentPane().add(label_2);
 		
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
-		textField_2.setBounds(76, 111, 75, 20);
+		textField_2.setBounds(76, 75, 75, 20);
 		frmEditBluenodeEntry.getContentPane().add(textField_2);
 		
 	    button = new JButton("Add new entry");
@@ -115,11 +117,17 @@ public class EditBluenode {
 			public void actionPerformed(ActionEvent arg0) {
 				if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()){
 					if (textField_1.getText().length() <= App.max_str_len_small_size && textField_2.getText().length() <= App.max_int_str_len) {
+						
 						int userid = -1;
 						try {
 							userid = Integer.parseInt(textField_2.getText());
 						} catch (NumberFormatException ex) {
-							lblNewLabel.setText("Please provide a proper number with digits from 0 to 9");
+							lblNewLabel.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
+							return;
+						}
+						
+						if (userid <= 0) {
+							lblNewLabel.setText("<html>Please provide a number greater than 0.</html>");
 							return;
 						}
 						
@@ -127,20 +135,28 @@ public class EditBluenode {
 						try {
 							q = new Queries();
 							if (q.checkIfUserWithIdExists(userid)) {
-								if (type == 0) {			
-									q.insertEntryBluenodes(textField_1.getText(), userid);
+								if (type == 0) {	
+									String givenBluenodeName = textField_1.getText();
+									Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
+								    Matcher matcher = pattern.matcher(givenBluenodeName);
+								    if (!matcher.matches()) {
+								    	lblNewLabel.setText("<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
+								    	q.closeQueries();
+								    	return;
+								    }
+									q.insertEntryBluenodes(givenBluenodeName, userid);
 								} else {
 									q.updateEntryBluenodesWithName(name, userid);
 								}
 							} else {
-								lblNewLabel.setText("The given userid does not exist.");
+								lblNewLabel.setText("<html>The given userid does not exist.</html>");
 								q.closeQueries();
 								return;
 							}	
 							q.closeQueries();
 						} catch (SQLException e) {							
 							if (e.getErrorCode() == 19) { 
-								lblNewLabel.setText("The given bluenode name is already taken.");
+								lblNewLabel.setText("<html>The given bluenode name is already used.</html>");
 								return;
 						    } else { 
 						    	e.printStackTrace();
@@ -156,20 +172,20 @@ public class EditBluenode {
 						frmEditBluenodeEntry.dispose();
 					
 					} else {
-						lblNewLabel.setText("Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.");
+						lblNewLabel.setText("<html>Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.</html>");
 					}
 				} else {
-					lblNewLabel.setText("Please fill in all the fields.");
+					lblNewLabel.setText("<html>Please fill in all the fields.</html>");
 				}
 			}
 		});
-		button.setBounds(281, 228, 143, 23);
+		button.setBounds(249, 228, 175, 23);
 		frmEditBluenodeEntry.getContentPane().add(button);
 		
 		lblNewLabel = new JLabel("Please correct your mistakes");
 		lblNewLabel.setForeground(new Color(204, 0, 0));
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel.setBounds(10, 159, 414, 14);
+		lblNewLabel.setBounds(10, 105, 414, 110);
 		frmEditBluenodeEntry.getContentPane().add(lblNewLabel);
 	}
 }

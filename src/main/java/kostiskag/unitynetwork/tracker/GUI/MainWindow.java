@@ -268,7 +268,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		btnNewButton.setBounds(10, 11, 116, 23);
+		btnNewButton.setBounds(10, 11, 145, 23);
 		panel_3.add(btnNewButton);
 
 		JButton btnNewButton_1 = new JButton("Edit selected entry");
@@ -284,7 +284,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		btnNewButton_1.setBounds(136, 11, 133, 23);
+		btnNewButton_1.setBounds(167, 11, 152, 23);
 		panel_3.add(btnNewButton_1);
 
 		JButton btnNewButton_2 = new JButton("Delete selected entry");
@@ -307,7 +307,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		btnNewButton_2.setBounds(279, 11, 152, 23);
+		btnNewButton_2.setBounds(331, 11, 170, 23);
 		panel_3.add(btnNewButton_2);
 
 		scrollPane = new JScrollPane();
@@ -367,7 +367,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		button_1.setBounds(136, 11, 133, 23);
+		button_1.setBounds(136, 11, 158, 23);
 		panel_5.add(button_1);
 
 		button_2 = new JButton("Delete selected entry");
@@ -389,7 +389,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		button_2.setBounds(279, 11, 152, 23);
+		button_2.setBounds(306, 11, 152, 23);
 		panel_5.add(button_2);
 
 		scrollPane_1 = new JScrollPane();
@@ -440,7 +440,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		button_4.setBounds(136, 11, 133, 23);
+		button_4.setBounds(136, 11, 158, 23);
 		panel_7.add(button_4);
 
 		button_5 = new JButton("Delete selected entry");
@@ -462,7 +462,7 @@ public class MainWindow extends javax.swing.JFrame {
 				}
 			}
 		});
-		button_5.setBounds(279, 11, 152, 23);
+		button_5.setBounds(306, 11, 152, 23);
 		panel_7.add(button_5);
 
 		scrollPane_2 = new JScrollPane();

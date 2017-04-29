@@ -28,6 +28,8 @@ public class App {
 	public static final int max_int_str_len = 32;
 	public static final int max_str_len_small_size = 128;
 	public static final int max_str_len_large_size = 256;
+	public static final int min_password_len = 5;
+	public static final int min_username_len = 4;
 	public static final int max_str_addr_len = "255.255.255.255".length();
 	// file names
 	public static final String configFileName = "tracker.conf";
