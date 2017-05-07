@@ -20,6 +20,10 @@ import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
 
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class EditBluenode {
 
 	private JFrame frmEditBluenodeEntry;

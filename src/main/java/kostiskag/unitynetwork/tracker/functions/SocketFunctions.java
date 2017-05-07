@@ -12,7 +12,7 @@ import kostiskag.unitynetwork.tracker.App;
 /**
  * low-level socket methods here
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class SocketFunctions {
 

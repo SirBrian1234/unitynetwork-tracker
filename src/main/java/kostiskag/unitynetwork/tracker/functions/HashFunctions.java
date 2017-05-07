@@ -3,7 +3,11 @@ package kostiskag.unitynetwork.tracker.functions;
 import java.io.UnsupportedEncodingException; 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
- 
+
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class HashFunctions { 
  
     private static String convertToHex(byte[] data) { 

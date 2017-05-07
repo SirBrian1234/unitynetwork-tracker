@@ -25,6 +25,10 @@ import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Logic;
 import kostiskag.unitynetwork.tracker.database.Queries;
 
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class EditUser {
 
 	private JFrame frmEditUserEntry;

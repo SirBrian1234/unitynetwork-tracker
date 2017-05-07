@@ -13,7 +13,7 @@ import kostiskag.unitynetwork.tracker.functions.HashFunctions;
 /**
  * The database upper logic which calls methods from Queries
  * 
- * @author kosti
+ * @author Konstantinos Kagiampakis
  */
 public class Logic {
 	

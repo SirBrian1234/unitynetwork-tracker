@@ -23,7 +23,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 /**
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class MainWindow extends javax.swing.JFrame {
 

@@ -24,6 +24,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class EditHostname {
 
 	private JFrame frmEditHostnameEntry;

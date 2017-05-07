@@ -12,7 +12,7 @@ import kostiskag.unitynetwork.tracker.App;
  * This is the database low level. An external method 
  * should no call methods from here it should use Queries and Logic instead.
  * 
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class Database {
 

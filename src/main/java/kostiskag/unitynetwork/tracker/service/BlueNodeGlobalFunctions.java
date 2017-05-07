@@ -5,6 +5,10 @@ import java.sql.SQLException;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
 
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class BlueNodeGlobalFunctions {
 	
 	/**

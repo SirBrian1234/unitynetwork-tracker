@@ -11,7 +11,7 @@ import kostiskag.unitynetwork.tracker.App;
 
 /**
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class ReadPreferencesFile {       
 

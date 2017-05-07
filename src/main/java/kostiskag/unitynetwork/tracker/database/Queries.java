@@ -13,7 +13,7 @@ import java.sql.SQLException;
  * as long as it does the database is reserved which ensures that
  * there can be only one active Queries object at a time.
  * 
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class Queries {
 	

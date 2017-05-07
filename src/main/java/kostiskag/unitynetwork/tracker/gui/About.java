@@ -6,6 +6,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import java.awt.Font;
 
+/**
+ * 
+ * @author Konstantinos Kagiampakis
+ */
 public class About {
 
 	private JFrame frmAbout;
