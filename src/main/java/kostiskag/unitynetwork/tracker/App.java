@@ -9,10 +9,11 @@ import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
-import kostiskag.unitynetwork.tracker.GUI.MainWindow;
+
 import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
+import kostiskag.unitynetwork.tracker.gui.MainWindow;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
 import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
 import kostiskag.unitynetwork.tracker.service.sonar.SonarService;

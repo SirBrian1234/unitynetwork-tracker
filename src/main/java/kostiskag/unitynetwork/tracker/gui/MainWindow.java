@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.GUI;
+package kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
