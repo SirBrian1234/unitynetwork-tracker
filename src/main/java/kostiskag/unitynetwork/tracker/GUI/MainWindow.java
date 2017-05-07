@@ -19,6 +19,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Logic;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
 /**
  *
@@ -44,6 +45,8 @@ public class MainWindow extends javax.swing.JFrame {
 	private String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
 	private String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
 	private String[] blunodesDbHead = new String[] { "name", "userid" };
+	
+	private About about;
 
 	public MainWindow() {
 		setTitle("Unity Network Tracker");
@@ -226,20 +229,38 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 		});
 		Console.setLayout(null);
+		
+		btnAbout = new JButton("About");
+		btnAbout.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (about == null) {
+					about = new About();
+				} else if (!about.isVisible()) {
+					about = new About();
+				}
+			}
+		});
 
 		javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-		jPanel6.setLayout(jPanel6Layout);
-		jPanel6Layout.setHorizontalGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+		jPanel6Layout.setHorizontalGroup(
+			jPanel6Layout.createParallelGroup(Alignment.LEADING)
 				.addGroup(jPanel6Layout.createSequentialGroup()
-						.addComponent(jButton4, javax.swing.GroupLayout.PREFERRED_SIZE, 128,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(18, 18, 18).addComponent(jCheckBox1).addContainerGap(361, Short.MAX_VALUE)));
-		jPanel6Layout
-				.setVerticalGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(jPanel6Layout.createSequentialGroup()
-								.addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-										.addComponent(jButton4).addComponent(jCheckBox1))
-								.addGap(0, 40, Short.MAX_VALUE)));
+					.addComponent(jButton4, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE)
+					.addGap(18)
+					.addComponent(jCheckBox1)
+					.addPreferredGap(ComponentPlacement.RELATED, 223, Short.MAX_VALUE)
+					.addComponent(btnAbout, GroupLayout.PREFERRED_SIZE, 128, GroupLayout.PREFERRED_SIZE))
+		);
+		jPanel6Layout.setVerticalGroup(
+			jPanel6Layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(jPanel6Layout.createSequentialGroup()
+					.addGroup(jPanel6Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(jButton4)
+						.addComponent(jCheckBox1)
+						.addComponent(btnAbout))
+					.addGap(0, 8, Short.MAX_VALUE))
+		);
+		jPanel6.setLayout(jPanel6Layout);
 		Console.add(jPanel6);
 		Console.add(jPanel3);
 
@@ -559,4 +580,5 @@ public class MainWindow extends javax.swing.JFrame {
 	private JTable table;
 	private JTable table_1;
 	private JTable table_2;
+	private JButton btnAbout;
 }
