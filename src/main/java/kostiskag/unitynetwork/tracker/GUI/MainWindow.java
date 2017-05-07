@@ -214,7 +214,7 @@ public class MainWindow extends javax.swing.JFrame {
 		jPanel3Layout.setVerticalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel3Layout.createSequentialGroup().addContainerGap().addComponent(jScrollPane3)));
 
-		jButton4.setText("Clean");
+		jButton4.setText("Clear");
 		jButton4.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				jButton4ActionPerformed(evt);
