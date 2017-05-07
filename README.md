@@ -38,16 +38,25 @@ UnityNetwork is composed by three software applications which may be found on th
 # unitynetwork-tracker
 The tracker is responsible to keep the network authentication and identification data but does not forward any network traffic.
 
-## Requirements
+## Option A - Build from source code
 In order to build this project, Java JDK 1.7 or greater and Apache Maven have to already be installed on your system.
-
-## Build
 ```
 git clone https://github.com/kostiskag/unitynetwork-tracker.git
 cd unitynetwork-tracker
 mvn package
 mvn dependency:copy-dependencies
 ```
+
+## Option B - Download and use a pre-built version
+You can download, unzip and use a pre-built version of Unity Network Tracker from this url:
+https://drive.google.com/file/d/0BzPrI7NjFz2Sem1PZVBMT3lPdW8/view?usp=sharing
+
+In order to establish data integrity, you should verify the zip file's signature to be:
+
+| Algorithm | Hash Signature |
+| --- | --- |
+| MD5 | 2a59d76bf83c2d08973cb901bbe38137 |
+| SHA256 | 28efe5ae0ff1fb2cd40a416e9b946e528d57016e4b863e56861dcc39955b09c0 |
 
 ## Run
 ```
@@ -57,6 +66,13 @@ Edit **tracker.conf** file with a text editor to define the virtual network's be
 ```
 java -jar UnityNetwork_Tracker-1.0.jar 
 ```
+
+## Using with an external database
+Unity Network Tracker may be used with an external database such as mysql if needed.
+In which case the database may be linked towards a web interface to let the users create and edit their accounts via web.
+
+## Authorship
+The source code was created by Konstantinos Kagiampakis
 
 ## License
 The project's article and source code are licensed under Creative Commons Atribution 4.0 International: https://creativecommons.org/licenses/by/4.0/
