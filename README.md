@@ -1,5 +1,3 @@
-# under dev
-
 # Unity Network
 Unity Network is a virtual network (VPN) capable to be deployed in any kind of IP network as a LAN network or over the Internet.
 
@@ -9,22 +7,27 @@ Unity Network is a virtual network (VPN) capable to be deployed in any kind of I
 ## key-principles
 The network is based in three key-principles:
 
-* <bold>Identification</bold>: Each registered user or organisation may own multiple host-clients where each host-client may receive the same network address each time the device connects to the network
-* <bold>Freedom</bold>: Each client may host any kind of service and transfer any kind of data towards any other host-client without limitations of any kind
-* <bold>Security</bold>: The network provides authentication and encryption in order to defend its host-client privacy
+* **Identification**: Each registered user or organisation may own multiple host-clients where each host-client may receive the same network address each time the device connects to the network
+* **Freedom**: Each client may host any kind of service and transfer any kind of data towards any other host-client without limitations of any kind
+* **Security**: The network provides authentication and encryption in order to defend its host-client privacy 
+[currently under dev under encryption branch]
 
 ## Reasoning
 This software was build as part of my BSc Thesis in order to demonstare a live and tangible example of a better version of today's Internet. Inside the network, users may experience a much more vivid communication, the ability to share any kind of data or services between them and the ability to know each other. 
 
 In order to learn/study my BSc Thesis please visit its main page found here:
-[...under dev...]
+[currently under dev]
 
 ### Some feasible examples of the network's behaviour are:
-* Bob may send a file to David's Laptop
-* Lucy may connect to an e-learning server
+In general, you may perform any kind of task that is currently being done in an IP network similar to the Inernet
+**plus** that the connected host clients may have a direct cotact between them in the form of:
+
+[someone] uses [one of his devices] to directly exchange data with [someone else's device]
+* Bob may directly send a file from his laptop to David's Laptop
+* Lucy may connect from her mobile phone to a social media server
 * Steve may video-call Jenny from his computer to her mobile phone
 * May may leave a message to her home's noticeboard from her laptop
-* Bill needs to send a file from his home computer to his computer to work
+* Bill calls Dave from his mobile to Dave's mobile
 
 ## Applications
 UnityNetwork is composed by three software applications which may be found on their respective repositories:
