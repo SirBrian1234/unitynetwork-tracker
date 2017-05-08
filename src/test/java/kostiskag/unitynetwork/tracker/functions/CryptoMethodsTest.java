@@ -1,12 +1,14 @@
 package kostiskag.unitynetwork.tracker.functions;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-
+import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class CryptoMethodsTest {
 
@@ -23,6 +25,42 @@ public class CryptoMethodsTest {
 	}
 	
 	@Test
+	public void generateAESkey() {
+		String key = CryptoMethods.generateAESSessionkeyInHex();
+		String key2 = CryptoMethods.generateAESSessionkeyInHex();
+		assertNotEquals(key, key2);
+		assertEquals(key.length(), key2.length());
+		assertEquals(64, key.length());
+		System.out.println(key +" "+key.length());
+		System.out.println(key2 +" "+key2.length());
+	}
+	
+	@Test
+	public void generateKeyPairTest() {		
+			KeyPair kp = CryptoMethods.generateRSAkeyPair();
+			String publicKey = CryptoMethods.publicToString(kp.getPublic());
+			String privateKey = CryptoMethods.privateToString(kp.getPrivate());
+			
+			assertNotEquals(null, publicKey);
+			assertNotEquals(null, privateKey);
+			assertNotEquals(publicKey.length(), privateKey.length());
+			
+			kp = CryptoMethods.generateRSAkeyPair();
+			String newpublicKey = CryptoMethods.publicToString(kp.getPublic());
+			String newprivateKey = CryptoMethods.privateToString(kp.getPrivate());
+			
+			System.out.println(publicKey);
+			System.out.println();
+			System.out.println(privateKey);
+			
+			assertNotEquals(publicKey, newpublicKey);
+			assertNotEquals(privateKey, newprivateKey);			
+	}
+	
+	
+	//the philosphpy is to use ascii safe chars therefore hex to bytes, bytes to hex 
+	
+	@Ignore
 	public void test() {
 		String question = CryptoMethods.generateQuestion();
         System.out.println(question);
@@ -39,7 +77,7 @@ public class CryptoMethodsTest {
                 + "-----END PUBLIC KEY-----";
 
         System.out.println(publicKey);
-        PublicKey pubkey = CryptoMethods.getPublicKeyFromString(publicKey);
+        PublicKey pubkey = CryptoMethods.hexStrToRSAPublic(publicKey);
 
         //byte[] chiperedQuestion = CryptoMethods.RSAAuthenticateChallenge(question, pubkey);
 
@@ -73,7 +111,7 @@ public class CryptoMethodsTest {
                 + "-----END RSA PRIVATE KEY-----";
 
         //make your private key usable            
-        PrivateKey privkey = CryptoMethods.getPrivateKeyFromString(privateKey);
+        PrivateKey privkey = CryptoMethods.hexStrToRSAPrivate(privateKey);
 
         //decrypt the question            
         //String answer = new String(CryptoMethods.RSAAuthenticateResponce(chiperedQuestion, privkey));

@@ -7,6 +7,8 @@ package kostiskag.unitynetwork.tracker.functions;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -31,19 +33,62 @@ import org.bouncycastle.util.encoders.Hex;
  */
 public class CryptoMethods {
 
+	/**
+	 * Generates a random question 
+	 * 
+	 * @return
+	 */
 	public static String generateQuestion() {
 		SecureRandom random = new SecureRandom();
 		return new BigInteger(1024, random).toString(32);
 	}
-
-	public static PublicKey getPublicKeyFromString(String publicKey) {
+	
+	/**
+	 * Generates an AES 256 session key
+	 * 
+	 * @return
+	 */
+	public static String generateAESSessionkeyInHex() {
+		try {
+			KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
+			AES_keygen.init(256, new SecureRandom());
+			SecretKey Session_Key = AES_keygen.generateKey();
+			return HashFunctions.bytesToHexStr(Session_Key.getEncoded());
+		} catch (NoSuchAlgorithmException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	/**
+	 * Generates a 2048 RSA key pair
+	 * 
+	 * @return keypair
+	 */
+	public static KeyPair generateRSAkeyPair() {
+		KeyPairGenerator kpg = null;
+		try {
+			kpg = KeyPairGenerator.getInstance("RSA");
+			kpg.initialize(2048);
+			return kpg.genKeyPair();
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		}	
+		return null;
+	}
+	
+	public static String publicToString(PublicKey pub) {
+		return HashFunctions.bytesToHexStr(pub.getEncoded());
+	}
+	
+	public static String privateToString(PrivateKey priv) {
+		return HashFunctions.bytesToHexStr(priv.getEncoded());
+	}
+	
+	public static PublicKey hexStrToRSAPublic(String hex) {
 		try {
 			// make your public key usable
-			publicKey = publicKey.replace("-----BEGIN PUBLIC KEY-----", "");
-			publicKey = publicKey.replace("-----END PUBLIC KEY-----", "");
-
-			// System.out.println("my key"+publicKey);
-			byte[] encoded = Base64.decode(publicKey);
+			byte[] encoded = HashFunctions.hexStrToBytes(hex);
 
 			X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
 			KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -54,13 +99,10 @@ public class CryptoMethods {
 		}
 		return null;
 	}
-
-	public static PrivateKey getPrivateKeyFromString(String privateKey) {
+	
+	public static PrivateKey hexStrToRSAPrivate(String hex) {
 		try {
-			privateKey = privateKey.replace("-----BEGIN RSA PRIVATE KEY-----", "");
-			privateKey = privateKey.replace("-----END RSA PRIVATE KEY-----", "");
-
-			byte[] encoded = Base64.decode(privateKey);
+			byte[] encoded = HashFunctions.hexStrToBytes(hex);
 
 			PKCS8EncodedKeySpec PrkeySpec = new PKCS8EncodedKeySpec(encoded);
 			KeyFactory kf = KeyFactory.getInstance("RSA");
@@ -95,7 +137,6 @@ public class CryptoMethods {
 			System.out.println("cipher is!!!!!! " + Hex.toHexString(chiperedQuestion));
 			System.out.println("priv key is!!!!!! " + Hex.toHexString(privatekey.getEncoded()));
 			byte[] plainQuestion = c.doFinal(chiperedQuestion);
-
 			return plainQuestion;
 
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException
@@ -105,20 +146,5 @@ public class CryptoMethods {
 		return null;
 	}
 
-	/**
-	 * Generates an AES 256 session key
-	 * 
-	 * @return
-	 */
-	public static byte[] generateAESSessionkey() {
-		try {
-			KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
-			AES_keygen.init(256, new SecureRandom());
-			SecretKey Session_Key = AES_keygen.generateKey();
-			return Session_Key.getEncoded();
-		} catch (NoSuchAlgorithmException ex) {
-			ex.printStackTrace();
-		}
-		return null;
-	}
+	
 }
