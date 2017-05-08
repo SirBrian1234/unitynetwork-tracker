@@ -110,7 +110,7 @@ public class CryptoMethods {
 	 * 
 	 * @return
 	 */
-	public static byte[] generateRSASessionkey() {
+	public static byte[] generateAESSessionkey() {
 		try {
 			KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
 			AES_keygen.init(256, new SecureRandom());

@@ -1,16 +1,27 @@
 package kostiskag.unitynetwork.tracker.functions;
 
-import static org.junit.Assert.*;
-
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 public class CryptoMethodsTest {
 
+	@Test
+	public void generateQuestionTest() {
+		for (int k=0; k<10; k++) {
+			String question = CryptoMethods.generateQuestion();
+			System.out.println(question);
+			//assertEquals(1024, question.length());
+			for (int i=0; i<500; i++) {				
+				assertNotEquals(question, CryptoMethods.generateQuestion());
+			}
+		}
+	}
+	
 	@Test
 	public void test() {
 		String question = CryptoMethods.generateQuestion();
@@ -62,7 +73,7 @@ public class CryptoMethodsTest {
                 + "-----END RSA PRIVATE KEY-----";
 
         //make your private key usable            
-        //PrivateKey privkey = CryptoMethods.getPrivateKeyFromString(privateKey);
+        PrivateKey privkey = CryptoMethods.getPrivateKeyFromString(privateKey);
 
         //decrypt the question            
         //String answer = new String(CryptoMethods.RSAAuthenticateResponce(chiperedQuestion, privkey));
