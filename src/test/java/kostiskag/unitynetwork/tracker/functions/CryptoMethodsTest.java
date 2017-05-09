@@ -3,9 +3,12 @@ package kostiskag.unitynetwork.tracker.functions;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+import java.io.File;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import javax.crypto.SecretKey;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -24,105 +27,126 @@ public class CryptoMethodsTest {
 		}
 	}
 	
+	@Ignore
+	public void generateAESkey() {		
+		SecretKey keyA = CryptoMethods.generateAESSessionkey();
+		SecretKey keyB = CryptoMethods.generateAESSessionkey();
+		assertNotEquals(keyA, keyB);
+		System.out.println(keyA.getEncoded() +" "+keyA.getEncoded().length);
+		System.out.println(keyB.getEncoded() +" "+keyB.getEncoded().length);
+		
+	}
+	
 	@Test
-	public void generateAESkey() {
-		String key = CryptoMethods.generateAESSessionkeyInHex();
-		String key2 = CryptoMethods.generateAESSessionkeyInHex();
-		assertNotEquals(key, key2);
-		assertEquals(key.length(), key2.length());
-		assertEquals(64, key.length());
-		System.out.println(key +" "+key.length());
-		System.out.println(key2 +" "+key2.length());
+	public void aesEncryptDecryptTest() {
+		String plainMessage = "My name is Wapaf!!!";
+		SecretKey key = CryptoMethods.generateAESSessionkey();
+		byte[] chipher = CryptoMethods.aesEncrypt(plainMessage, key);
+		System.out.println(new String(chipher));
+		String dec = CryptoMethods.aesDecrypt(chipher, key);
+		System.out.println(dec);
+		assertEquals(plainMessage, dec);
 	}
 	
 	@Test
 	public void generateKeyPairTest() {		
-			KeyPair kp = CryptoMethods.generateRSAkeyPair();
-			String publicKey = CryptoMethods.publicToString(kp.getPublic());
-			String privateKey = CryptoMethods.privateToString(kp.getPrivate());
-			
-			assertNotEquals(null, publicKey);
-			assertNotEquals(null, privateKey);
-			assertNotEquals(publicKey.length(), privateKey.length());
-			
-			kp = CryptoMethods.generateRSAkeyPair();
-			String newpublicKey = CryptoMethods.publicToString(kp.getPublic());
-			String newprivateKey = CryptoMethods.privateToString(kp.getPrivate());
-			
-			System.out.println(publicKey);
-			System.out.println();
-			System.out.println(privateKey);
-			
-			assertNotEquals(publicKey, newpublicKey);
-			assertNotEquals(privateKey, newprivateKey);			
+		KeyPair kp = CryptoMethods.generateRSAkeyPair();			
+		KeyPair kp2 = CryptoMethods.generateRSAkeyPair();			
+		assertNotEquals(kp.getPublic(), kp2.getPublic());
+		assertNotEquals(kp.getPrivate(), kp2.getPrivate());			
 	}
 	
-	
-	//the philosphpy is to use ascii safe chars therefore hex to bytes, bytes to hex 
-	
-	@Ignore
-	public void test() {
+	@Test
+	public void rsaEncryptDecryptTest() {
 		String question = CryptoMethods.generateQuestion();
         System.out.println(question);
-
-        //get your public key
-        String publicKey = "-----BEGIN PUBLIC KEY-----\n"
-                + "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtk1cGKhieoVArJR6iY94\n"
-                + "iABzPpFdVC3zy3mhHyJmR9m8qSnnrp+ip7n9Zy+ai5YIdd9agj+67hRjTeTGC/Ec\n"
-                + "+x7zDDjnBBrlKYsyvdGfuKlBIrXgdl9uh4lnVkKHfECo9fnje6dVmZCK84qhUANB\n"
-                + "AtRvkZFTByMQNxvBPOm/G8p6L6pOLBiiuhNuzHrSYG/AfGDTyIg4M7GAkU+uUYBv\n"
-                + "e9TDY328vkzBASCdNOXC8vEi6vEIPk/yI2Hnlk07gofhx05cryhO6PbftPykdle+\n"
-                + "DDT0xHvElW/MkQVX9rc0D0yJ9D2rj1K1m+lODQ8HaqX8fW5JSI6AMsWN2WFipmcJ\n"
-                + "6QIDAQAB\n"
-                + "-----END PUBLIC KEY-----";
-
-        System.out.println(publicKey);
-        PublicKey pubkey = CryptoMethods.hexStrToRSAPublic(publicKey);
-
-        //byte[] chiperedQuestion = CryptoMethods.RSAAuthenticateChallenge(question, pubkey);
-
-        //now we reached the other side!!!
-        String privateKey = "-----BEGIN RSA PRIVATE KEY-----\n"
-                + "MIIEowIBAAKCAQEAtk1cGKhieoVArJR6iY94iABzPpFdVC3zy3mhHyJmR9m8qSnn\n"
-                + "rp+ip7n9Zy+ai5YIdd9agj+67hRjTeTGC/Ec+x7zDDjnBBrlKYsyvdGfuKlBIrXg\n"
-                + "dl9uh4lnVkKHfECo9fnje6dVmZCK84qhUANBAtRvkZFTByMQNxvBPOm/G8p6L6pO\n"
-                + "LBiiuhNuzHrSYG/AfGDTyIg4M7GAkU+uUYBve9TDY328vkzBASCdNOXC8vEi6vEI\n"
-                + "Pk/yI2Hnlk07gofhx05cryhO6PbftPykdle+DDT0xHvElW/MkQVX9rc0D0yJ9D2r\n"
-                + "j1K1m+lODQ8HaqX8fW5JSI6AMsWN2WFipmcJ6QIDAQABAoIBAQCogrulo0hcXn4Y\n"
-                + "yKq4KyFL/baJWE8/t7ZKGGTh5adLtS3Z5H1fAfqVNavRzMP7UTUC1/HOweAloDzm\n"
-                + "zJhwg3C5g7NAUfzg44d+rke6BGGyjOlDj4Erii0eJdmad6bLKO3FaTZon5XVfDGk\n"
-                + "yzkvP8LBPeLfWMi5qSSc/A/UIXDg2uiYadFPswd+SdmaJgH59IEd2lfP+bHmSGBS\n"
-                + "dD/YB9En9PTb4OSEIVfLL03ABwsxeV7IHv3hbcqZ31fhfhsdMhCkTjG7Tox1p0fD\n"
-                + "UxnpfjLj5lsbYrJOIV8wUVoQQwkUzp/snMq0NFVoxZ2D5fkQ8KAS8PwNj4GXfcEl\n"
-                + "M8U+cnP9AoGBAO0XkhpFT+THLFAMdoOFWW2/5pVHN3KuvmlZML3tueNqIVlKYNfc\n"
-                + "EisKqLGTHtq6Sz8GTCQOXGsdMs+3U7HIdKe6snfEyrYO2JM/dIF/hITPUWSdFO56\n"
-                + "cJ5ccdEDvFBhVu61bosoM/TONoDmfl3AI/xxwpANwExWkn9WdI1Z379/AoGBAMTX\n"
-                + "NWI3DJijG7DL9fkp1rtTT2Y5EDnUGWmngR4nqNe0fFoXVKHBYbJasYHCZ+qsoRr8\n"
-                + "+Tb2UwHKtHAbs2gmohZ4Tm78W7acIC1r8Ik+uU8PVkiBTdZZ7hkdg2mHt9k0R8v9\n"
-                + "bWfkZGSmLpw1XttKfzlFKNXOnKlv4DWvgjMTHeqXAoGAAqMle+dTeS8B/i31T4c3\n"
-                + "NHJTBUwSgNMSySc11JcFX1M55b1fEGehSBtJPxhs2nACEERoqmoCeyqK+yaF5s9d\n"
-                + "BNSd0Zk9zAKkRBcLm7koZzXLKPxaVEDGaeyLU5DgEmDSz7ry7NdYpJt6nbpyo2ZU\n"
-                + "wCUfzexpPDAmVwZGK6BZTc8CgYACLjgjLGTxU+08miXRass8LAIXKc6qNVVKvFZL\n"
-                + "1TijmxY9kUCYwiGo7iRFQbgQ+3SVbfP8zeHBhVNWYpgsMTFeelq0FAuYDEa2+hki\n"
-                + "DBXVcGAOUZBhLYHbuV35T02UFGYvNlF98yPBka22gUjZuQuLwN5g7/cAUYL0VUtl\n"
-                + "8XJFZQKBgBIeSj9okLRLQmGaWlgEJRhlFeM1oI5OKfhG01mX/9q1Nk8r/42mXHhL\n"
-                + "QYC+GgMG4+lhzsP82WeSbv08aYgA5lx0lJnJrA9aDx/OZGqMvLIyUmL8gbyJO7m2\n"
-                + "zVEej4v/Jf/pKn1DiigFQphTuq8q2CsJtzxWD9FPVNQy+zrIkR2K\n"
-                + "-----END RSA PRIVATE KEY-----";
-
-        //make your private key usable            
-        PrivateKey privkey = CryptoMethods.hexStrToRSAPrivate(privateKey);
-
+        
+        KeyPair kp = CryptoMethods.generateRSAkeyPair();
+		PrivateKey privkey = kp.getPrivate();
+        PublicKey pubkey = kp.getPublic(); 		
+        
+        //encrypt the question
+        byte[] enc = CryptoMethods.encryptWithPublic(question, pubkey);
+        
         //decrypt the question            
-        //String answer = new String(CryptoMethods.RSAAuthenticateResponce(chiperedQuestion, privkey));
+        String dec_q = CryptoMethods.decryptWithPrivate(enc, privkey);
 
         //THE MOMENT WE ALL WAITED FOR
-        //System.out.println(answer);
-        //System.out.println(question);
-        //if (answer.equals(question)) {
-        //    System.out.println("Match!!!!!!!!!");
-        //}
-
+        System.out.println(dec_q);
+        System.out.println(question);
+        if (dec_q.equals(question)) {
+            System.out.println("Match!!!!!!!!!");           
+        }
+        assertEquals(question, dec_q);	
 	}
 
+	@Test
+	public void testSerializeObject () {
+		KeyPair kp = CryptoMethods.generateRSAkeyPair();
+		PrivateKey privkey = kp.getPrivate();
+		byte[] serial = CryptoMethods.objectToBytes(privkey);
+		System.out.println(HashFunctions.bytesToHexStr(serial));
+		PrivateKey npriv = (PrivateKey) CryptoMethods.bytesToObject(serial);		
+		assertEquals(privkey, npriv);		
+	}
+	
+	@Test
+	public void testBase64Object () {
+		KeyPair kp = CryptoMethods.generateRSAkeyPair();
+		PrivateKey privkey = kp.getPrivate();
+		String repr = CryptoMethods.objectToBase64StringRepresentation(privkey);
+		System.out.println(repr);
+		PrivateKey priv = (PrivateKey) CryptoMethods.base64StringRepresentationToObject(repr);
+		assertEquals(privkey, priv);		
+	}
+	
+	@Test
+	public void testObjectToFile () {
+		KeyPair kp = CryptoMethods.generateRSAkeyPair();
+		PrivateKey privkey = kp.getPrivate();
+		CryptoMethods.objectToFile(privkey, new File("pakis"));
+		PrivateKey priv = (PrivateKey) CryptoMethods.fileToObject(new File("pakis"));
+		assertEquals(privkey, priv);	
+	}
+	
+	@Test
+	public void sessionTest() {
+		/* a tcp auth session goes like this...
+		 * client has server's public	
+		 * client generates aes key
+		 * client encrypts aes key with server public
+		 * sends  welcome message plus encrypted aes key to server
+		 * server decrypts with private
+		 * server has AES key
+		 * switch to AES
+		 * server generates secret question
+		 * server encrypts secret q with client's public
+		 * server builds welcome message plus encrypted secret question
+		 * server encrypts build message with AES and sends to client
+		 * client decrypts chiphered with AES key
+		 * client decrypts secret question with his private rsa key
+		 * client encrypts with AES and sends back secret question
+		 * server compares generated and received questions
+		 * if the same, server allows client to give command
+		 */
+
+		//a tcp auth session goes like this...
+		//client has server's public	
+		//client generates aes key
+		//client encrypts aes key with server public
+		//sends  welcome message plus encrypted aes key to server
+		//server decrypts with private
+		//server has AES key
+		//switch to AES
+		//server generates secret question
+		//server encrypts secret q with client's public
+		//server builds welcome message plus encrypted secret question
+		//server encrypts build message and sends to client
+		//client decrypts chiphered with AES key
+		//client decrypts secret question with his private
+		//client encrypts with AES and sends back secret question
+		//server compares generated and received questions
+		//server allows commands
+		
+	}
 }
