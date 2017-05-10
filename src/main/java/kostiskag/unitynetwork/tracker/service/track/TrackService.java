@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
@@ -64,13 +67,18 @@ public class TrackService extends Thread {
 	        
 	        args = SocketFunctions.sendData(data, writer, reader);
 
-	        if (args.length == 2 && args[0].equals("BLUENODE")) {
-	            BlueNodeService(args[1]);
-	        } else if (args.length == 2 && args[0].equals("REDNODE")) {
-	            RedNodeService(args[1]);
+	        if (args.length == 1 && args[0].equals("GETPUB")) {
+	        	//plain data transfer no encryption
+	        	SocketFunctions.sendFinalData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);
 	        } else {
-	            data = "WRONG_COMMAND";
-	            SocketFunctions.sendFinalData(data, writer);            
+		        if (args.length == 2 && args[0].equals("BLUENODE")) {
+		            BlueNodeService(args[1]);
+		        } else if (args.length == 2 && args[0].equals("REDNODE")) {
+		            RedNodeService(args[1]);
+		        } else {
+		            data = "WRONG_COMMAND";
+		            SocketFunctions.sendFinalData(data, writer);            
+		        }
 	        }
 	        SocketFunctions.connectionClose(socket);   
 	        
