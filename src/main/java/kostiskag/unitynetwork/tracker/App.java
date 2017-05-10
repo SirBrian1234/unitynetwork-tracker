@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyPair;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,10 +13,10 @@ import javax.swing.UIManager;
 
 import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import kostiskag.unitynetwork.tracker.gui.MainWindow;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeTable;
-import kostiskag.unitynetwork.tracker.runData.RedNodeTable;
 import kostiskag.unitynetwork.tracker.service.sonar.SonarService;
 import kostiskag.unitynetwork.tracker.service.track.TrackServer;
 
@@ -25,7 +26,7 @@ import kostiskag.unitynetwork.tracker.service.track.TrackServer;
  */
 public class App {
 
-	//user input max sizes
+	// user input max sizes
 	public static final int max_int_str_len = 32;
 	public static final int max_str_len_small_size = 128;
 	public static final int max_str_len_large_size = 256;
@@ -35,6 +36,7 @@ public class App {
 	// file names
 	public static final String configFileName = "tracker.conf";
 	public static final String logFileName = "tracker.log";
+	public static final String keyPairFileName = "public_private.keypair";
 	// data
 	public static TrackServer track;
 	public static MainWindow window;
@@ -53,20 +55,22 @@ public class App {
 	public static boolean log;
 	public static File logFile;
 	public static int pingTime;
-	//objects
+	// objects
 	public static SonarService sonar;
 	// network maths
-	public static final int virtualNetworkAddressCapacity = (int) (Math.pow(2,24) - 2);
-	public static final int systemReservedAddressNumber = 1; 	
+	public static final int virtualNetworkAddressCapacity = (int) (Math.pow(2, 24) - 2);
+	public static final int systemReservedAddressNumber = 1;
 	// salt
 	// you will have to wait for the network branch for this to chage
 	public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
-	
+	// tracker's keypair
+	public static KeyPair trackerKeys;
+
 	public App() {
 
 		// 1. log
 		if (log) {
-			ConsolePrint("initializing log file "+logFileName);
+			ConsolePrint("initializing log file " + logFileName);
 			File logFile = new File(logFileName);
 			FileWriter fw;
 			try {
@@ -75,12 +79,41 @@ public class App {
 				fw.close();
 			} catch (IOException ex) {
 				ex.printStackTrace();
-				ConsolePrint("Log file error! If the error continues disable logging from the "+configFileName+" file.");
+				ConsolePrint(
+						"Log file error! If the error continues disable logging from the " + configFileName + " file.");
 				die();
 			}
 		}
 
-		// 2. database
+		// 2. gui
+		if (gui) {
+			System.out.println("initializing gui...");
+			window = new MainWindow();
+			window.setVisible(true);
+		}
+
+		// 3. rsa key pair
+		File keyPairFile = new File(keyPairFileName);
+		if (keyPairFile.exists()) {
+			// the tracker has key pair
+			ConsolePrint("Loading RSA key pair from file...");
+			trackerKeys = (KeyPair) CryptoMethods.fileToObject(keyPairFile);
+			ConsolePrint(
+					"Your public key is:\n" + CryptoMethods.bytesToBase64String(trackerKeys.getPublic().getEncoded()));
+
+		} else {
+			// the tracker does not have a public private key pair
+			// generating...
+			ConsolePrint("Generating RSA key pair...");
+			trackerKeys = CryptoMethods.generateRSAkeyPair();
+			// and storing
+			ConsolePrint("Generating key file...");
+			CryptoMethods.objectToFile(trackerKeys, keyPairFile);
+			ConsolePrint(
+					"Your public key is:\n" + CryptoMethods.bytesToBase64String(trackerKeys.getPublic().getEncoded()));
+		}
+
+		// 4. database
 		ConsolePrint("Testing Database Connection on " + databaseUrl + " ... ");
 		testDbConnection();
 		try {
@@ -91,34 +124,27 @@ public class App {
 			die();
 		}
 		ConsolePrint("Database validation complete.");
-		
-		// 3. tables
+
+		// 5. tables
 		ConsolePrint("initializing tables...");
 		BNtable = new BlueNodeTable();
-			
-		// 4. gui
-		if (gui) {
-			System.out.println("initializing gui...");
-			window = new MainWindow();
-			window.setVisible(true);
-		}
-		
-		// 5. service
+
+		// 6. service
 		ConsolePrint("initializing AuthService on port " + auth + " ...");
 		if (auth > 0 && auth <= 65535) {
 			track = new TrackServer(auth);
 			track.start();
 		} else {
-			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the "+configFileName);
+			ConsolePrint("wrong tcp port range use from 1 to 65535. Fix the " + configFileName);
 			die();
 		}
 
-		// 6. sonar service
+		// 7. sonar service
 		if (pingTime > 0) {
 			sonar = new SonarService(pingTime);
 			sonar.start();
 		} else {
-			ConsolePrint("Non valid ping time detected. Please correct the "+configFileName+" file");
+			ConsolePrint("Non valid ping time detected. Please correct the " + configFileName + " file");
 			die();
 		}
 	}
@@ -150,7 +176,7 @@ public class App {
 			}
 		}
 	}
-	
+
 	public static void terminate() {
 		App.sonar.kill();
 		App.BNtable.sendKillSigsAndClearTable();
@@ -167,7 +193,7 @@ public class App {
 		System.exit(1);
 	}
 
-	public static void testDbConnection() {		
+	public static void testDbConnection() {
 		Database db = null;
 		try {
 			db = new Database();
@@ -179,13 +205,13 @@ public class App {
 			} catch (SQLException ex) {
 				e.printStackTrace();
 				die();
-			}			
+			}
 			die();
-		}		
-		
+		}
+
 		try {
 			db.close();
-		} catch (SQLException e) {			
+		} catch (SQLException e) {
 			e.printStackTrace();
 			die();
 		}
@@ -211,7 +237,7 @@ public class App {
 				die();
 			}
 		} else {
-			System.out.println("The "+configFileName 
+			System.out.println("The " + configFileName
 					+ " file was not found in the dir. Generating new file with the default settings");
 			try {
 				ReadPreferencesFile.GenerateFile(file);
@@ -237,7 +263,8 @@ public class App {
 						UIManager.setLookAndFeel("com.sun.java.swing.plaf.motif.MotifLookAndFeel");
 					} catch (Exception ex1) {
 						System.err.println(
-								"Although requested for GUI there are no Java GUI libs on the system. If you are unable to solve this error you may disable the GUI from the "+configFileName+" config file.");
+								"Although requested for GUI there are no Java GUI libs on the system. If you are unable to solve this error you may disable the GUI from the "
+										+ configFileName + " config file.");
 						die();
 					}
 				}

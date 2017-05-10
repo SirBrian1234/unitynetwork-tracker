@@ -29,14 +29,11 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 
-//import org.bouncycastle.util.encoders.Base64;
 import javax.xml.bind.DatatypeConverter;
-
-import org.bouncycastle.util.encoders.Base64;
 
 /**
  *
- * @author kostis
+ * @author Konstantinos Kagiampakis
  */
 public class CryptoMethods {
 
@@ -119,52 +116,24 @@ public class CryptoMethods {
 		return null;
 	}
 
-	/**
-	 * Encrypt the plain text using public key.
-	 * 
-	 * @param text
-	 *            : original plain text
-	 * @param key
-	 *            :The public key
-	 * @return Encrypted text
-	 * @throws java.lang.Exception
-	 */
 	public static byte[] encryptWithPublic(String text, PublicKey key) {
 		byte[] cipherText = null;
 		try {
-			// get an RSA cipher object and print the provider
-			final Cipher cipher = Cipher.getInstance("RSA");
-
-			// encrypt the plain text using the public key
+			Cipher cipher = Cipher.getInstance("RSA");
 			cipher.init(Cipher.ENCRYPT_MODE, key);
 			cipherText = cipher.doFinal(text.getBytes());
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return cipherText;
 	}
 
-	/**
-	 * Decrypt text using private key.
-	 * 
-	 * @param text
-	 *            :encrypted text
-	 * @param key
-	 *            :The private key
-	 * @return plain text
-	 * @throws java.lang.Exception
-	 */
 	public static String decryptWithPrivate(byte[] text, PrivateKey key) {
 		byte[] dectyptedText = null;
 		try {
-			// get an RSA cipher object and print the provider
-			final Cipher cipher = Cipher.getInstance("RSA");
-
-			// decrypt the text using the private key
+			Cipher cipher = Cipher.getInstance("RSA");
 			cipher.init(Cipher.DECRYPT_MODE, key);
 			dectyptedText = cipher.doFinal(text);
-
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
