@@ -106,7 +106,13 @@ public class TrackService extends Thread {
         }       
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         
-        if (args.length == 2 && args[0].equals("LEASE")) {
+        if (args.length == 1 && args[0].equals("GETPUB")) {
+        	//collects tracker's public
+        	SocketFunctions.sendFinalData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);
+        } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+        	//bluenode may be compromised and decides to revoke its public
+        	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
+        } else if (args.length == 2 && args[0].equals("LEASE")) {
             BlueNodeFunctions.BlueLease(BlueNodeHostname, args[1], writer, socket);
         } else if (args.length == 4 && args[0].equals("LEASE_RN")) {
             BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer);
@@ -125,6 +131,7 @@ public class TrackService extends Thread {
         } else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
         	BlueNodeFunctions.LookupByAddr(args[1], writer);
         } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
+        	//bluenode offers its pub based on a ticket
         	BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer);
         } else {
             data = "WRONG_COMMAND";

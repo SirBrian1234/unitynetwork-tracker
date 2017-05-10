@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.HashFunctions;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
@@ -373,6 +374,25 @@ public class BlueNodeFunctions {
 					return;
 				}
 			}
+			q.closeQueries();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		writer.println("NOT_SET");
+	}
+
+	public static void revokePublicKey(String blueNodeHostname, PrintWriter writer) {
+		String key = "NOT_SET "+CryptoMethods.generateQuestion();
+		Queries q = null;
+		try {
+			q = new Queries();
+			q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
+			q.closeQueries();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
