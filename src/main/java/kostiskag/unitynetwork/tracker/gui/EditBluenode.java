@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.JTextArea;
 
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
@@ -19,6 +20,7 @@ import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Color;
+import javax.swing.JTextPane;
 
 /**
  * 
@@ -29,10 +31,12 @@ public class EditBluenode {
 	private JFrame frmEditBluenodeEntry;
 	private JTextField textField_1;
 	private JTextField textField_2;
+	private JTextArea textArea;
 	private int type;
 	private String name;
 	private JButton button;
 	private JLabel lblNewLabel;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -58,6 +62,15 @@ public class EditBluenode {
 		this.name = name;
 		initialize();
 		lblNewLabel.setText("");
+		
+		JLabel lblPublicKeyStatus = new JLabel("Public Key Status");
+		lblPublicKeyStatus.setBounds(20, 128, 110, 14);
+		frmEditBluenodeEntry.getContentPane().add(lblPublicKeyStatus);
+		
+		textField = new JTextField();
+		textField.setBounds(140, 122, 126, 20);
+		frmEditBluenodeEntry.getContentPane().add(textField);
+		textField.setColumns(10);
 		
 		//new
 		if (type == 0) {
@@ -94,26 +107,26 @@ public class EditBluenode {
 		frmEditBluenodeEntry = new JFrame();
 		frmEditBluenodeEntry.setResizable(false);
 		frmEditBluenodeEntry.setTitle("Edit bluenode entry");
-		frmEditBluenodeEntry.setBounds(100, 100, 450, 300);
+		frmEditBluenodeEntry.setBounds(100, 100, 450, 401);
 		frmEditBluenodeEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditBluenodeEntry.getContentPane().setLayout(null);
 		
-		JLabel lblName = new JLabel("name");
-		lblName.setBounds(10, 29, 56, 14);
+		JLabel lblName = new JLabel("BlueNode Name");
+		lblName.setBounds(20, 29, 110, 14);
 		frmEditBluenodeEntry.getContentPane().add(lblName);
 		
 		textField_1 = new JTextField();
 		textField_1.setColumns(10);
-		textField_1.setBounds(76, 26, 257, 20);
+		textField_1.setBounds(140, 26, 257, 20);
 		frmEditBluenodeEntry.getContentPane().add(textField_1);
 		
-		JLabel label_2 = new JLabel("user id");
-		label_2.setBounds(10, 78, 56, 14);
-		frmEditBluenodeEntry.getContentPane().add(label_2);
+		JLabel lblUserId = new JLabel("User ID");
+		lblUserId.setBounds(20, 78, 56, 14);
+		frmEditBluenodeEntry.getContentPane().add(lblUserId);
 		
 		textField_2 = new JTextField();
 		textField_2.setColumns(10);
-		textField_2.setBounds(76, 75, 75, 20);
+		textField_2.setBounds(86, 75, 75, 20);
 		frmEditBluenodeEntry.getContentPane().add(textField_2);
 		
 	    button = new JButton("Add new entry");
@@ -183,13 +196,19 @@ public class EditBluenode {
 				}
 			}
 		});
-		button.setBounds(249, 228, 175, 23);
+		button.setBounds(259, 339, 175, 23);
 		frmEditBluenodeEntry.getContentPane().add(button);
+		
+		textArea = new JTextArea();
+		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		textArea.setLineWrap(true);
+		textArea.setBounds(20, 153, 414, 82);
+		frmEditBluenodeEntry.getContentPane().add(textArea);
 		
 		lblNewLabel = new JLabel("Please correct your mistakes");
 		lblNewLabel.setForeground(new Color(204, 0, 0));
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblNewLabel.setBounds(10, 105, 414, 110);
+		lblNewLabel.setBounds(20, 246, 414, 82);
 		frmEditBluenodeEntry.getContentPane().add(lblNewLabel);
 	}
 }

@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.awt.event.ActionEvent;
+import javax.swing.JTextArea;
 
 /**
  * 
@@ -37,6 +38,7 @@ public class EditHostname {
 	String hostname;
 	private JLabel label_1;
 	private JButton btnAddNewEntry;
+	private JTextField textField;
 
 	/**
 	 * Launch the application.
@@ -95,11 +97,11 @@ public class EditHostname {
 		frmEditHostnameEntry = new JFrame();
 		frmEditHostnameEntry.setResizable(false);
 		frmEditHostnameEntry.setTitle("Edit hostname entry");
-		frmEditHostnameEntry.setBounds(100, 100, 450, 300);
+		frmEditHostnameEntry.setBounds(100, 100, 450, 405);
 		frmEditHostnameEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditHostnameEntry.getContentPane().setLayout(null);
 		
-		JLabel lblHostname = new JLabel("hostname");
+		JLabel lblHostname = new JLabel("Hostname");
 		lblHostname.setBounds(10, 33, 56, 14);
 		frmEditHostnameEntry.getContentPane().add(lblHostname);
 		
@@ -163,10 +165,10 @@ public class EditHostname {
 				}			
 			}
 		});
-		btnAddNewEntry.setBounds(249, 228, 175, 23);
+		btnAddNewEntry.setBounds(249, 337, 175, 23);
 		frmEditHostnameEntry.getContentPane().add(btnAddNewEntry);
 		
-		JLabel lblUserId = new JLabel("user id");
+		JLabel lblUserId = new JLabel("User ID");
 		lblUserId.setBounds(10, 82, 56, 14);
 		frmEditHostnameEntry.getContentPane().add(lblUserId);
 		
@@ -178,7 +180,22 @@ public class EditHostname {
 	    label_1 = new JLabel("");
 		label_1.setForeground(new Color(204, 0, 0));
 		label_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		label_1.setBounds(10, 109, 414, 106);
+		label_1.setBounds(10, 244, 414, 82);
 		frmEditHostnameEntry.getContentPane().add(label_1);
+		
+		JLabel label = new JLabel("Public Key Status");
+		label.setBounds(10, 126, 110, 14);
+		frmEditHostnameEntry.getContentPane().add(label);
+		
+		textField = new JTextField();
+		textField.setColumns(10);
+		textField.setBounds(130, 120, 126, 20);
+		frmEditHostnameEntry.getContentPane().add(textField);
+		
+		JTextArea textArea = new JTextArea();
+		textArea.setLineWrap(true);
+		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		textArea.setBounds(10, 151, 414, 82);
+		frmEditHostnameEntry.getContentPane().add(textArea);
 	}
 }
