@@ -58,7 +58,7 @@ public class CryptoMethods {
 	public static SecretKey generateAESSessionkey() {
 		try {
 			KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
-			AES_keygen.init(128);
+			AES_keygen.init(128, new SecureRandom());
 			return AES_keygen.generateKey();
 		} catch (NoSuchAlgorithmException ex) {
 			ex.printStackTrace();
@@ -111,7 +111,7 @@ public class CryptoMethods {
 		KeyPairGenerator kpg = null;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
-			kpg.initialize(2048);
+			kpg.initialize(2048, new SecureRandom());
 			return kpg.genKeyPair();
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
@@ -220,6 +220,14 @@ public class CryptoMethods {
 	public static Object base64StringRepresentationToObject(String base64Str) {
 		byte[] serial = DatatypeConverter.parseBase64Binary(base64Str);
 		return bytesToObject(serial); 
+	}
+	
+	public static String bytesToBase64String(byte[] b) {
+		return DatatypeConverter.printBase64Binary(b);
+	}
+	
+	public static byte[] base64StringTobytes(String base64Str) {
+		return DatatypeConverter.parseBase64Binary(base64Str);
 	}
 
 	public static void objectToFile(Object obj, File file) {
