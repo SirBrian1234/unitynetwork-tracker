@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.HashFunctions;
 
 /**
@@ -120,14 +121,15 @@ public class Logic {
 		try {
 			q = new Queries();
 			if (q.checkIfUserWithIdExists(userid)) {
+				String publicStr = "NOT_SET "+CryptoMethods.generateQuestion();
 				ResultSet r = q.selectAddressFromBurned();
 				if (r.next()) {
 					int address = r.getInt("address");
-					q.deleteEntryAddressFromBurned(address);
-					q.insertEntryHostnamesWithAddr(address, hostname, userid);										
+					q.deleteEntryAddressFromBurned(address);					
+					q.insertEntryHostnamesWithAddr(address, hostname, userid, publicStr);										
 				} else {
 					System.out.println("no address");
-					q.insertEntryHostnamesNoAddr(hostname, userid);
+					q.insertEntryHostnamesNoAddr(hostname, userid, publicStr);
 				}
 			} else {
 				q.closeQueries();

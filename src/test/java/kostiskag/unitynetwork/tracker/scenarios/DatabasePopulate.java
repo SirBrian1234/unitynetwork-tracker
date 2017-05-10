@@ -51,7 +51,7 @@ public class DatabasePopulate {
 				 id = s.getInt("id");
 			}
 			for (int i=0; i<100; i++) {
-				q.insertEntryBluenodes("Pakis"+i, id);
+				q.insertEntryBluenodes("Pakis"+i, id,"");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -71,7 +71,7 @@ public class DatabasePopulate {
 				 id = s.getInt("id");
 			}
 			for (int i=0; i<100; i++) {
-				q.insertEntryHostnamesNoAddr("pakis-laptop"+i, id);
+				q.insertEntryHostnamesNoAddr("pakis-laptop"+i, id,"");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

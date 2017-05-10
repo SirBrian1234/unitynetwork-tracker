@@ -118,9 +118,9 @@ public class DatabaseTest {
     public void test4HostnameQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryHostnamesNoAddr("Pakis", 0);
-			q.insertEntryHostnamesNoAddr("Makis", 0);
-			q.insertEntryHostnamesNoAddr("Lakis", 1);
+			q.insertEntryHostnamesNoAddr("Pakis", 0,"");
+			q.insertEntryHostnamesNoAddr("Makis", 0,"");
+			q.insertEntryHostnamesNoAddr("Lakis", 1,"");
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
 				System.out.println(s.getString("address"));
@@ -139,9 +139,9 @@ public class DatabaseTest {
     public void test5BluenodeQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryBluenodes("3Pakis", 0);
-			q.insertEntryBluenodes("Lakis", 15);
-			q.insertEntryBluenodes("Makis", 2);
+			q.insertEntryBluenodes("3Pakis", 0,"");
+			q.insertEntryBluenodes("Lakis", 15,"");
+			q.insertEntryBluenodes("Makis", 2,"");
 			ResultSet s = q.selectAllFromBluenodes();			
 			while (s.next()) {              
 			    System.out.println(s.getString("name"));
@@ -159,12 +159,12 @@ public class DatabaseTest {
     public void test6HostnameUseridQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryHostnamesNoAddr("Pakis", 0);
-			q.insertEntryHostnamesNoAddr("Makis", 0);
-			q.insertEntryHostnamesNoAddr("Lakis", 1);
-			q.insertEntryHostnamesNoAddr("Lakis2", 2);
-			q.insertEntryHostnamesNoAddr("Lakis3", 4);
-			q.insertEntryHostnamesNoAddr("Bamias", 2);
+			q.insertEntryHostnamesNoAddr("Pakis", 0,"");
+			q.insertEntryHostnamesNoAddr("Makis", 0,"");
+			q.insertEntryHostnamesNoAddr("Lakis", 1,"");
+			q.insertEntryHostnamesNoAddr("Lakis2", 2,"");
+			q.insertEntryHostnamesNoAddr("Lakis3", 4,"");
+			q.insertEntryHostnamesNoAddr("Bamias", 2,"");
 			ResultSet s = q.selectAllFromHostnamesWhereUserid(2);			
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
@@ -182,8 +182,8 @@ public class DatabaseTest {
     	Queries q;
 		try {
 			q = new Queries();
-			q.insertEntryHostnamesNoAddr("Bamias", 22);
-			q.insertEntryHostnamesNoAddr("Pakis", 23);
+			q.insertEntryHostnamesNoAddr("Bamias", 22,"");
+			q.insertEntryHostnamesNoAddr("Pakis", 23,"");
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    

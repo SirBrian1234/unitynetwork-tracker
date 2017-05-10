@@ -114,16 +114,20 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT hostname FROM hostnames WHERE userid = ?", userid);
 	}
 	
-	public void insertEntryHostnamesWithAddr(int address, String hostname, int userid) throws SQLException {		
-		db.executePreparedStatement3ArgsIntStringInt("INSERT INTO hostnames VALUES (?, ?, ?)", address, hostname, userid);
+	public void insertEntryHostnamesWithAddr(int address, String hostname, int userid, String publicText) throws SQLException {		
+		db.executePreparedStatement4ArgsIntStringIntString("INSERT INTO hostnames VALUES (?, ?, ?, ?)", address, hostname, userid, publicText);
 	}
 	
-	public void insertEntryHostnamesNoAddr(String hostname, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO hostnames VALUES (NULL, ?, ?)", hostname, userid);
+	public void insertEntryHostnamesNoAddr(String hostname, int userid, String publicText) throws SQLException {		
+		db.executePreparedStatement3ArgsStringIntString("INSERT INTO hostnames VALUES (NULL, ?, ?, ?)", hostname, userid, publicText);
 	}
 	
 	public void updateEntryHostnamesWithHostname(String hostname, int userid) throws SQLException {		
 		db.executePreparedStatement2ArgsIntString("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
+	}
+	
+	public void updateEntryHostnamesPublicWithHostname(String hostname, String publicText) throws SQLException {		
+		db.executePreparedStatement2ArgsStringString("UPDATE hostnames SET public = ? WHERE hostname = ?", publicText, hostname);
 	}
 	
 	public void deleteEntryHostnamesWithHostname(String hostname) throws SQLException {
@@ -181,12 +185,16 @@ public class Queries {
 		return db.getResultSetFromPreparedStatement1ArgInt("SELECT name FROM bluenodes WHERE userid = ?", userid);		
 	}
 	
-	public void insertEntryBluenodes(String name, int userid) throws SQLException {		
-		db.executePreparedStatement2ArgsStringInt("INSERT INTO bluenodes VALUES (?, ?)", name, userid);
+	public void insertEntryBluenodes(String name, int userid, String publicKey) throws SQLException {		
+		db.executePreparedStatement3ArgsStringIntString("INSERT INTO bluenodes VALUES (?, ?, ?)", name, userid, publicKey);
 	}
 	
 	public void updateEntryBluenodesWithName(String name, int userid) throws SQLException {		
 		db.executePreparedStatement2ArgsIntString("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
+	}
+	
+	public void updateEntryBluenodesPublicWithName(String name, String publicKey) throws SQLException {		
+		db.executePreparedStatement2ArgsStringString("UPDATE bluenodes SET public = ? WHERE name = ?", publicKey, name);
 	}
 	
 	public void deleteEntryBluenodesWitName(String name) throws SQLException {
@@ -217,7 +225,8 @@ public class Queries {
 	    query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
 	    		+ "	address INTEGER PRIMARY KEY AUTOINCREMENT, \n"
                 + "	hostname CHAR(128) UNIQUE, \n"
-                + " userid INTEGER \n"
+                + " userid INTEGER, \n"
+                + "	public TEXT \n"
                 + ");";
         
 	    db.executeStatement(query);
@@ -233,7 +242,8 @@ public class Queries {
     
 	   query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
                 + "	name CHAR(128) PRIMARY KEY, \n"
-                + " userid INTEGER \n"
+                + " userid INTEGER, \n"
+                + "	public TEXT \n"
                 + ");";
 	 
 	   db.executeStatement(query);

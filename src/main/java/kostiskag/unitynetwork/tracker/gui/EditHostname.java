@@ -1,29 +1,26 @@
 package kostiskag.unitynetwork.tracker.gui;
 
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-
-import org.omg.PortableServer.ServantRetentionPolicyValue;
-
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Logic;
-import kostiskag.unitynetwork.tracker.database.Queries;
-
-import javax.swing.JComboBox;
-import javax.swing.JButton;
-import java.awt.Font;
-import java.awt.Button;
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.awt.event.ActionEvent;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
+
+import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Logic;
+import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 /**
  * 
@@ -34,27 +31,14 @@ public class EditHostname {
 	private JFrame frmEditHostnameEntry;
 	private JTextField textField_1;
 	private JTextField textField_2;
-	int type;
-	String hostname;
+	private final int type;
+	private final String hostname;
 	private JLabel label_1;
 	private JButton btnAddNewEntry;
 	private JTextField textField;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					EditHostname window = new EditHostname(0,"none");
-					window.frmEditHostnameEntry.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private JTextArea textArea;
+	private JButton btnNewButton;
+	private JLabel lblNewLabel;
 
 	/**
 	 * Create the application.
@@ -63,8 +47,13 @@ public class EditHostname {
 		this.type = type;
 		this.hostname = hostname;
 		initialize();
+		
 		if (type == 0) { 
 			btnAddNewEntry.setText("Add new hostname entry");
+			textField.setEnabled(false);
+			textArea.setEnabled(false);
+			btnNewButton.setEnabled(false);
+			
 		} else {
 			btnAddNewEntry.setText("Update hostname entry");
 			textField_1.setText(hostname);
@@ -76,6 +65,14 @@ public class EditHostname {
 				ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
 				while(r.next()) {
 					textField_2.setText(""+r.getInt("userid"));
+					String key = r.getString("public");
+					String args[] = key.split("\\s+");
+					textField.setText(args[0]);
+					textArea.setText(args[1]);
+					if (args[0].equals("NOT_SET")) {
+						lblNewLabel.setText("<html>Copy this session ticket in the rednode in order to upload its public key.</html>");
+						btnNewButton.setEnabled(false);
+					}
 				}
 				q.closeQueries();
 			} catch (SQLException e) {
@@ -97,105 +94,155 @@ public class EditHostname {
 		frmEditHostnameEntry = new JFrame();
 		frmEditHostnameEntry.setResizable(false);
 		frmEditHostnameEntry.setTitle("Edit hostname entry");
-		frmEditHostnameEntry.setBounds(100, 100, 450, 405);
+		frmEditHostnameEntry.setBounds(100, 100, 939, 295);
 		frmEditHostnameEntry.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frmEditHostnameEntry.getContentPane().setLayout(null);
 		
-		JLabel lblHostname = new JLabel("Hostname");
-		lblHostname.setBounds(10, 33, 56, 14);
-		frmEditHostnameEntry.getContentPane().add(lblHostname);
-		
-		textField_1 = new JTextField();
-		textField_1.setColumns(10);
-		textField_1.setBounds(76, 30, 257, 20);
-		frmEditHostnameEntry.getContentPane().add(textField_1);
-		
-		btnAddNewEntry = new JButton("Add new entry");
-		btnAddNewEntry.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()){
-					if (textField_1.getText().length() <= App.max_str_len_small_size && textField_2.getText().length() <= App.max_int_str_len) {
-						
-						int userid = -1;
-						try {
-							userid = Integer.parseInt(textField_2.getText());
-						} catch (NumberFormatException ex) {
-							label_1.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
-							return;
-						}
-						
-						if (userid <= 0) {
-							label_1.setText("<html>Please provide a number greater than 0.</html>");
-							return;
-						}
-						
-						try {
-							if (type == 0) {
-								String givenHostname = textField_1.getText();
-								Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
-							    Matcher matcher = pattern.matcher(givenHostname);
-							    if (!matcher.matches()) {
-							    	label_1.setText("<html>In order to define a hostname, you are allowed to enter only digit numbers from 0 to 9, small capital letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
-							    	return;
-							    }
-							    Logic.addNewHostname(givenHostname, userid);
-							} else {
-								Logic.updateHostname(hostname, userid);
-							}
-						} catch (SQLException e) {
-							if (e.getErrorCode() == 19) { 
-								label_1.setText("<html>The given hostname is already used.</html>");
-								return;
-						    } else { 
-						    	e.printStackTrace();
-						    }	
-						} catch (Exception e) {
-							label_1.setText("<html>The given userid does not exist.</html>");
-							return;
-						}
-						
-						App.window.updateDatabaseGUI();
-						frmEditHostnameEntry.dispose();
-					
-					} else {
-						label_1.setText("<html>Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.</html>");
-					}
-				} else {
-					label_1.setText("<html>Please fill in all the fields.</html>");
-				}			
-			}
-		});
-		btnAddNewEntry.setBounds(249, 337, 175, 23);
-		frmEditHostnameEntry.getContentPane().add(btnAddNewEntry);
-		
-		JLabel lblUserId = new JLabel("User ID");
-		lblUserId.setBounds(10, 82, 56, 14);
-		frmEditHostnameEntry.getContentPane().add(lblUserId);
-		
-		textField_2 = new JTextField();
-		textField_2.setColumns(10);
-		textField_2.setBounds(76, 79, 75, 20);
-		frmEditHostnameEntry.getContentPane().add(textField_2);
-		
-	    label_1 = new JLabel("");
-		label_1.setForeground(new Color(204, 0, 0));
-		label_1.setFont(new Font("Tahoma", Font.BOLD, 14));
-		label_1.setBounds(10, 244, 414, 82);
-		frmEditHostnameEntry.getContentPane().add(label_1);
+		JPanel panel = new JPanel();
+		panel.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel.setBounds(486, 11, 437, 241);
+		frmEditHostnameEntry.getContentPane().add(panel);
+		panel.setLayout(null);
 		
 		JLabel label = new JLabel("Public Key Status");
-		label.setBounds(10, 126, 110, 14);
-		frmEditHostnameEntry.getContentPane().add(label);
+		label.setBounds(10, 17, 110, 14);
+		panel.add(label);
 		
 		textField = new JTextField();
+		textField.setEditable(false);
+		textField.setBounds(130, 11, 126, 20);
+		panel.add(textField);
 		textField.setColumns(10);
-		textField.setBounds(130, 120, 126, 20);
-		frmEditHostnameEntry.getContentPane().add(textField);
 		
-		JTextArea textArea = new JTextArea();
+		textArea = new JTextArea();
+		textArea.setBounds(10, 42, 417, 82);
+		panel.add(textArea);
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		textArea.setBounds(10, 151, 414, 82);
-		frmEditHostnameEntry.getContentPane().add(textArea);
+		
+		btnNewButton = new JButton("Reset Key");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				resetKey();
+			}
+		});
+		btnNewButton.setBounds(252, 207, 175, 23);
+		panel.add(btnNewButton);
+		
+		lblNewLabel = new JLabel("");
+		lblNewLabel.setBounds(10, 135, 417, 54);
+		panel.add(lblNewLabel);
+		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
+		panel_1.setBounds(10, 11, 466, 241);
+		frmEditHostnameEntry.getContentPane().add(panel_1);
+		panel_1.setLayout(null);
+		
+		JLabel lblHostname = new JLabel("Hostname");
+		lblHostname.setBounds(10, 14, 56, 14);
+		panel_1.add(lblHostname);
+		
+		textField_1 = new JTextField();
+		textField_1.setBounds(76, 11, 257, 20);
+		panel_1.add(textField_1);
+		textField_1.setColumns(10);
+		
+		JLabel lblUserId = new JLabel("User ID");
+		lblUserId.setBounds(10, 63, 56, 14);
+		panel_1.add(lblUserId);
+		
+		textField_2 = new JTextField();
+		textField_2.setBounds(76, 60, 75, 20);
+		panel_1.add(textField_2);
+		textField_2.setColumns(10);
+		
+	    label_1 = new JLabel("");
+	    label_1.setBounds(10, 91, 446, 105);
+	    panel_1.add(label_1);
+	    label_1.setForeground(new Color(204, 0, 0));
+	    label_1.setFont(new Font("Tahoma", Font.BOLD, 14));
+	    
+	    btnAddNewEntry = new JButton("Add new entry");
+	    btnAddNewEntry.setBounds(281, 207, 175, 23);
+	    panel_1.add(btnAddNewEntry);
+	    btnAddNewEntry.addActionListener(new ActionListener() {
+	    	public void actionPerformed(ActionEvent arg0) {
+	    		updateHostname();
+	    	}			
+	    });
+	}
+	
+	private void updateHostname() {
+		if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()){
+			if (textField_1.getText().length() <= App.max_str_len_small_size && textField_2.getText().length() <= App.max_int_str_len) {
+				
+				int userid = -1;
+				try {
+					userid = Integer.parseInt(textField_2.getText());
+				} catch (NumberFormatException ex) {
+					label_1.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
+					return;
+				}
+				
+				if (userid <= 0) {
+					label_1.setText("<html>Please provide a number greater than 0.</html>");
+					return;
+				}
+				
+				try {
+					if (type == 0) {
+						String givenHostname = textField_1.getText();
+						Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
+					    Matcher matcher = pattern.matcher(givenHostname);
+					    if (!matcher.matches()) {
+					    	label_1.setText("<html>In order to define a hostname, you are allowed to enter only digit numbers from 0 to 9, small capital letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
+					    	return;
+					    }
+					    Logic.addNewHostname(givenHostname, userid);
+					} else {
+						Logic.updateHostname(hostname, userid);
+					}
+				} catch (SQLException e) {
+					if (e.getErrorCode() == 19) { 
+						label_1.setText("<html>The given hostname is already used.</html>");
+						return;
+				    } else { 
+				    	e.printStackTrace();
+				    }	
+				} catch (Exception e) {
+					label_1.setText("<html>The given userid does not exist.</html>");
+					return;
+				}
+				
+				App.window.updateDatabaseGUI();
+				frmEditHostnameEntry.dispose();
+			
+			} else {
+				label_1.setText("<html>Please provide a Hostname up to "+App.max_str_len_small_size+" characters and a number up to "+App.max_int_str_len+" digits.</html>");
+			}
+		} else {
+			label_1.setText("<html>Please fill in all the fields.</html>");
+		}			
+	}
+	
+	private void resetKey() {
+		if (type==1 && textField.getText().equals("KEY_SET")) {			
+			String key = "NOT_SET "+CryptoMethods.generateQuestion();
+			Queries q = null;
+			try {
+				q = new Queries();
+				q.updateEntryHostnamesPublicWithHostname(hostname, key);
+				q.closeQueries();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				try {
+					q.closeQueries();
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+			}
+			frmEditHostnameEntry.dispose();
+		} 
 	}
 }

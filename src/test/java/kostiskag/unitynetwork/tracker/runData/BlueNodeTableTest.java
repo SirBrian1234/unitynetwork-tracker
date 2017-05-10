@@ -35,10 +35,10 @@ public class BlueNodeTableTest {
 			while(r.next()) {
 				id = r.getInt("id");
 			}
-			q.insertEntryBluenodes("pakis1", id);
-			q.insertEntryBluenodes("pakis2", id);
-			q.insertEntryBluenodes("pakis3", id);
-			q.insertEntryBluenodes("pakis4", id);
+			q.insertEntryBluenodes("pakis1", id,"");
+			q.insertEntryBluenodes("pakis2", id,"");
+			q.insertEntryBluenodes("pakis3", id,"");
+			q.insertEntryBluenodes("pakis4", id,"");
 		} catch (SQLException e) {			
 			e.printStackTrace();
 			assertTrue(false);
