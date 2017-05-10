@@ -355,4 +355,32 @@ public class BlueNodeFunctions {
 			writer.println("NOT_FOUND");
 		}		
 	}
+
+	public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, PrintWriter writer) {
+		Queries q = null;
+		try {
+			q = new Queries();
+			ResultSet r = q.selectAllFromBluenodesWhereName(blueNodeHostname);
+			if (r.next()) {
+				String storedKey = r.getString("public");
+				String args[] = storedKey.split("\\s+");
+				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
+					q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET"+" "+publicKey);
+					writer.println("KEY_SET");
+					return;
+				} else if (args[0].equals("KEY_SET")) {
+					writer.println("KEY_IS_SET");
+					return;
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		writer.println("NOT_SET");
+	}
 }

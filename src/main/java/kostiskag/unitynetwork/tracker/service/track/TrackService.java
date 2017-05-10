@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
@@ -117,6 +116,8 @@ public class TrackService extends Thread {
         	BlueNodeFunctions.LookupByHn(args[1],writer);
         } else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
         	BlueNodeFunctions.LookupByAddr(args[1], writer);
+        } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
+        	BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer);
         } else {
             data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);
