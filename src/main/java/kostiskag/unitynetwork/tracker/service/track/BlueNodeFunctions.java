@@ -368,10 +368,8 @@ public class BlueNodeFunctions {
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET"+" "+publicKey);
 					writer.println("KEY_SET");
-					return;
 				} else if (args[0].equals("KEY_SET")) {
 					writer.println("KEY_IS_SET");
-					return;
 				}
 			}
 			q.closeQueries();
@@ -393,6 +391,7 @@ public class BlueNodeFunctions {
 			q = new Queries();
 			q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
 			q.closeQueries();
+			writer.println("KEY_REVOKED");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {

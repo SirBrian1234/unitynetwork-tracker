@@ -64,7 +64,6 @@ public class TrackService extends Thread {
 	        String data;
 	        
 	        data = "UnityTracker";
-	        
 	        args = SocketFunctions.sendData(data, writer, reader);
 
 	        if (args.length == 1 && args[0].equals("GETPUB")) {
@@ -103,16 +102,11 @@ public class TrackService extends Thread {
             SocketFunctions.sendFinalData(data, writer);
             SocketFunctions.connectionClose(socket);
             return;
-        }       
+        } 
+        //here is the place to offer am auth question
         String[] args = SocketFunctions.sendData("OK", writer, reader);
         
-        if (args.length == 1 && args[0].equals("GETPUB")) {
-        	//collects tracker's public
-        	SocketFunctions.sendFinalData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);
-        } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
-        	//bluenode may be compromised and decides to revoke its public
-        	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
-        } else if (args.length == 2 && args[0].equals("LEASE")) {
+        if (args.length == 2 && args[0].equals("LEASE")) {
             BlueNodeFunctions.BlueLease(BlueNodeHostname, args[1], writer, socket);
         } else if (args.length == 4 && args[0].equals("LEASE_RN")) {
             BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer);
@@ -133,6 +127,9 @@ public class TrackService extends Thread {
         } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
         	//bluenode offers its pub based on a ticket
         	BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer);
+        } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+        	//bluenode may be compromised and decides to revoke its public
+        	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
         } else {
             data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);
@@ -141,11 +138,19 @@ public class TrackService extends Thread {
     }
 
     private void RedNodeService(String hostname) throws Exception {
+    	//here is the place to offer an auth question
         String[] args = SocketFunctions.sendData("OK", writer, reader);
+        
         if (args.length == 1 && args[0].equals("GETBNS")) {
              RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);
         } else if (args.length == 1 && args[0].equals("GETRBN")) {
             RedNodeFunctions.getRecomendedBlueNode(reader, writer, socket);
+        } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
+        	//rednode offers its pubkey based on a ticket
+        	RedNodeFunctions.offerPublicKey(hostname, args[1], args[2], writer);
+        } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+        	//rednode may be compromised and decides to revoke its public
+        	RedNodeFunctions.revokePublicKey(hostname, writer);        
         } else {
             String data = "WRONG_COMMAND";
             SocketFunctions.sendFinalData(data, writer);

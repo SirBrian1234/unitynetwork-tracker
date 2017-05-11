@@ -3,8 +3,12 @@ package kostiskag.unitynetwork.tracker.service.track;
 import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
@@ -52,5 +56,51 @@ public class RedNodeFunctions {
 			String data = "NONE";
 			SocketFunctions.sendFinalData(data, writer);
 		}
+	}
+
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, PrintWriter writer) {
+		Queries q = null;
+		try {
+			q = new Queries();
+			ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
+			if (r.next()) {
+				String storedKey = r.getString("public");
+				String args[] = storedKey.split("\\s+");
+				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
+					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
+					writer.println("KEY_SET");
+				} else if (args[0].equals("KEY_SET")) {
+					writer.println("KEY_IS_SET");
+				}
+			}
+			q.closeQueries();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		writer.println("NOT_SET");
+	}
+
+	public static void revokePublicKey(String hostname, PrintWriter writer) {
+		String key = "NOT_SET "+CryptoMethods.generateQuestion();
+		Queries q = null;
+		try {
+			q = new Queries();
+			q.updateEntryHostnamesPublicWithHostname(hostname, key);
+			q.closeQueries();
+			writer.println("KEY_REVOKED");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		}
+		writer.println("NOT_SET");
 	}
 }
