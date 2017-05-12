@@ -94,9 +94,6 @@ public class SocketFunctions {
         if (data == null) {
         	App.ConsolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre + "NO DATA TO SEND");
-        } else if (data.isEmpty()) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre + "NO DATA TO SEND");
         }
         outputWriter.println(data);
     }
