@@ -1,15 +1,55 @@
 package kostiskag.unitynetwork.tracker.service;
 
+import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 /**
  * 
  * @author Konstantinos Kagiampakis
  */
 public class BlueNodeGlobalFunctions {
+	
+	/**
+	 * Collects a bluenode's public key.
+	 * 
+	 * @returns the public key
+	 */
+	public static PublicKey fetchBluenodePubKey(String BlueNodeHostname) {
+		Queries q = null;
+		ResultSet getResults;
+		try {
+			q = new Queries();
+			getResults = q.selectAllFromBluenodes();
+
+			while (getResults.next()) {
+				if (getResults.getString("name").equals(BlueNodeHostname)) {									
+					String key = getResults.getString("public");
+					q.closeQueries();
+					String[] parts = key.split("\\s+");
+					if (parts[0].equals("NOT_SET")) {
+						return null;
+					} else {
+						return (PublicKey) CryptoMethods.base64StringRepresentationToObject(parts[1]);
+					}				
+				}
+			}
+			q.closeQueries();
+			return null;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();				
+			}
+			return null;
+		}
+	}
 	
 	/**
 	 * Provides the level of authorization for a bluenode.

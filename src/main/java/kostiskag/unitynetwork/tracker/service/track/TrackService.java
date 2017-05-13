@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.security.PublicKey;
 
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
@@ -92,19 +93,37 @@ public class TrackService extends Thread {
     }    
     
     public void BlueNodeService(String BlueNodeHostname) throws Exception {        
-        String data;
         
-        int auth = BlueNodeGlobalFunctions.authBluenode(BlueNodeHostname);
-        if (auth > -1) {
-            data = "OK";
-        } else if (auth == -1) {
-            data = "NOT_REGISTERED";
-            SocketFunctions.sendFinalData(data, writer);
+    	PublicKey pub = BlueNodeGlobalFunctions.fetchBluenodePubKey(BlueNodeHostname);
+        if (pub == null) {
+            SocketFunctions.sendFinalData("NOT_ALLOWED", writer);
             SocketFunctions.connectionClose(socket);
             return;
         } 
-        //here is the place to offer am auth question
-        String[] args = SocketFunctions.sendData("OK", writer, reader);
+        
+        //here is the place to offer an auth question
+        //generate a random question
+        String question = CryptoMethods.generateQuestion();
+		
+        //encrypt with target bluenode's public
+        byte[] questionb = CryptoMethods.encryptWithPublic(question, pub);
+        
+        //encode to base 64
+		String encq = CryptoMethods.bytesToBase64String(questionb);
+		
+		//send
+		writer.println(encq);
+		String returnedQ = reader.readLine();
+		
+		String args[];
+		if (returnedQ.equals(question)) {
+			//now this is a proper RSA authentication
+			args = SocketFunctions.sendData("OK", writer, reader);
+		} else {
+			 SocketFunctions.sendFinalData("NOT_ALLOWED", writer);
+			 SocketFunctions.connectionClose(socket);
+			 return;
+		}
         
         if (args.length == 2 && args[0].equals("LEASE")) {
             BlueNodeFunctions.BlueLease(BlueNodeHostname, args[1], writer, socket);
@@ -131,8 +150,7 @@ public class TrackService extends Thread {
         	//bluenode may be compromised and decides to revoke its public
         	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
         } else {
-            data = "WRONG_COMMAND";
-            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.sendFinalData("WRONG_COMMAND", writer);
         }
         SocketFunctions.connectionClose(socket);
     }

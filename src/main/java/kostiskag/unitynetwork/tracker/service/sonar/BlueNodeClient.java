@@ -74,7 +74,8 @@ public class BlueNodeClient {
 	        }
 		} catch (Exception e) {
 			//this is a silent exception
-		}        
+		} 
+		       
 	}
     
     public boolean isConnected() {
