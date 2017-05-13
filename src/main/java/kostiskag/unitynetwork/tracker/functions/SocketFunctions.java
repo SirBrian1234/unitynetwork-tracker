@@ -1,12 +1,12 @@
 package kostiskag.unitynetwork.tracker.functions;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 import kostiskag.unitynetwork.tracker.App;
 
 /**
@@ -50,72 +50,67 @@ public class SocketFunctions {
         return socket;
     }
 
-    public static BufferedReader makeReadWriter(Socket socket) throws IOException {
-        BufferedReader inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        return inputReader;
+    public static DataInputStream makeBufferedDataReader(Socket socket) throws IOException {
+    	//BufferedInputStream bin = new BufferedInputStream();
+		DataInputStream dataStream = new DataInputStream(socket.getInputStream());
+		return dataStream;
     }
 
-    public static PrintWriter makeWriteWriter(Socket socket) throws IOException {
-        PrintWriter outputWriter = new PrintWriter(socket.getOutputStream(), true);
-        return outputWriter;
+    public static DataOutputStream makeBufferedDataWriter(Socket socket) throws IOException {
+        DataOutputStream dataStream = new DataOutputStream(socket.getOutputStream());
+        return dataStream;
+    }
+    
+    public static void sendData(byte[] toSend, DataOutputStream writer) throws IOException {
+    	writer.write(toSend);
+    }
+    
+    public static byte[] receiveData(DataInputStream reader) throws IOException {
+    	byte[] byteT = null;
+    	while (true) {
+	    	byte[] bytes = new byte[2048];
+			int read = reader.read(bytes);
+			byteT = new byte[read];
+			System.arraycopy(bytes, 0, byteT, 0, read);
+		
+			if (byteT[0] != (int)13 && byteT[0] != (int)10) {
+				break;
+			}
+    	}
+		return byteT;		
+    }
+    
+    public static byte[] sendReceiveData(byte[] toSend, DataInputStream reader, DataOutputStream writer) throws Exception  {
+    	sendData(toSend, writer);
+    	byte[] received = receiveData(reader);
+    	return received;
     }
 
-    public static String[] sendData(String data,PrintWriter outputWriter,BufferedReader inputReader) throws Exception  {
-        if (outputWriter==null) {
-        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
-        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
-        } else if (inputReader==null){ 
-        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
-        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
-        } else if (data == null) {
+    public static void sendStringlData(String data, DataOutputStream writer) throws Exception {
+    	if (data == null) {
         	App.ConsolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (data.isEmpty()) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
-        }
-        
-        outputWriter.println(data);
-        String receivedMessage = null;
-        String[] args = null;
-        
-        try {
-			receivedMessage = inputReader.readLine();
-		} catch (IOException e) {
-			throw e;
-		}
-        
-        App.ConsolePrint(pre + receivedMessage);
-        args = receivedMessage.split("\\s+");
+        	//line feed
+        	data = "\n";
+        }        
+    	//include a line feed and a return char
+    	data += "\n\r";
+    	byte[] toSend = data.getBytes();        
+        sendData(toSend, writer);
+    }
+    
+    public static String[] receiveStringData(DataInputStream reader) throws IOException {
+    	byte[] received = receiveData(reader);
+    	String receivedMessage = new String(received, "utf-8");
+        String[] args = receivedMessage.split("\\s+");
         return args;
     }
-
-    public static void sendFinalData(String data,PrintWriter outputWriter) throws Exception {
-        if (data == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre + "NO DATA TO SEND");
-        }
-        outputWriter.println(data);
-    }
-
-    public static String[] readData(BufferedReader inputReader) throws Exception  {
-    	if (inputReader == null){
-    		App.ConsolePrint(pre + "READ DATA FAILED, NO CONNECTION");            
-            throw new Exception(pre + "READ DATA FAILED, NO CONNECTION");
-    	}
-        
-        String receivedMessage = null;
-        String[] args = null;
-        
-        try {
-			receivedMessage = inputReader.readLine();
-		} catch (IOException e) {
-			throw e;
-		}
-               
-        System.out.println(pre + receivedMessage);
-        args = receivedMessage.split("\\s+");
-        return args;
+    
+    public static String[] sendReceiveStringData(String data, DataInputStream reader, DataOutputStream writer) throws Exception  {
+    	sendStringlData(data, writer);
+    	String[] args = receiveStringData(reader);
+    	return args;
     }
 
     public static void connectionClose(Socket socket) throws IOException {

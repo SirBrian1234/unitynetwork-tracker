@@ -1,8 +1,8 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.PublicKey;
 
@@ -10,7 +10,6 @@ import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
-import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
 
 /**
  * CENTRAL TRACK SERVICE 
@@ -46,8 +45,8 @@ import kostiskag.unitynetwork.tracker.service.track.BlueNodeFunctions;
 public class TrackService extends Thread {
 
     private Socket socket;    
-    private BufferedReader reader;
-    private PrintWriter writer;
+    private DataInputStream reader;
+    private DataOutputStream writer;
 
     TrackService(Socket connectionSocket) {
         socket = connectionSocket;        
@@ -58,26 +57,23 @@ public class TrackService extends Thread {
         System.out.println("@Started auth service at " + Thread.currentThread().getName());
         
         try {
-			reader = SocketFunctions.makeReadWriter(socket);
-			writer = SocketFunctions.makeWriteWriter(socket);
+			reader = SocketFunctions.makeBufferedDataReader(socket);
+			writer = SocketFunctions.makeBufferedDataWriter(socket);
 		        
-	        String[] args;
 	        String data;
+	        String[] args = SocketFunctions.sendReceiveStringData("UnityTracker", reader, writer);
 	        
-	        data = "UnityTracker";
-	        args = SocketFunctions.sendData(data, writer, reader);
-
 	        if (args.length == 1 && args[0].equals("GETPUB")) {
 	        	//plain data transfer no encryption
-	        	SocketFunctions.sendFinalData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);
-	        } else {
+	        	SocketFunctions.sendStringlData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);	        	
+	        } else {	        	
 		        if (args.length == 2 && args[0].equals("BLUENODE")) {
 		            BlueNodeService(args[1]);
 		        } else if (args.length == 2 && args[0].equals("REDNODE")) {
 		            RedNodeService(args[1]);
 		        } else {
 		            data = "WRONG_COMMAND";
-		            SocketFunctions.sendFinalData(data, writer);            
+		            SocketFunctions.sendStringlData(data, writer);            
 		        }
 	        }
 	        SocketFunctions.connectionClose(socket);   
@@ -96,7 +92,7 @@ public class TrackService extends Thread {
         
     	PublicKey pub = BlueNodeGlobalFunctions.fetchBluenodePubKey(BlueNodeHostname);
         if (pub == null) {
-            SocketFunctions.sendFinalData("NOT_ALLOWED", writer);
+            SocketFunctions.sendStringlData("NOT_ALLOWED", writer);
             SocketFunctions.connectionClose(socket);
             return;
         } 
@@ -112,15 +108,15 @@ public class TrackService extends Thread {
 		String encq = CryptoMethods.bytesToBase64String(questionb);
 		
 		//send
-		writer.println(encq);
-		String returnedQ = reader.readLine();
+		SocketFunctions.sendStringlData(encq, writer);
+		String args[] = SocketFunctions.receiveStringData(reader);
 		
-		String args[];
-		if (returnedQ.equals(question)) {
+		
+		if (args.length == 1 && args[0].equals(question)) {
 			//now this is a proper RSA authentication
-			args = SocketFunctions.sendData("OK", writer, reader);
+			args = SocketFunctions.sendReceiveStringData("OK", reader, writer);
 		} else {
-			 SocketFunctions.sendFinalData("NOT_ALLOWED", writer);
+			 SocketFunctions.sendStringlData("NOT_ALLOWED", writer);
 			 SocketFunctions.connectionClose(socket);
 			 return;
 		}
@@ -150,14 +146,14 @@ public class TrackService extends Thread {
         	//bluenode may be compromised and decides to revoke its public
         	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
         } else {
-            SocketFunctions.sendFinalData("WRONG_COMMAND", writer);
+            SocketFunctions.sendStringlData("WRONG_COMMAND", writer);
         }
         SocketFunctions.connectionClose(socket);
     }
 
     private void RedNodeService(String hostname) throws Exception {
     	//here is the place to offer an auth question
-        String[] args = SocketFunctions.sendData("OK", writer, reader);
+        String[] args = SocketFunctions.sendReceiveStringData("OK", reader, writer);
         
         if (args.length == 1 && args[0].equals("GETBNS")) {
              RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);
@@ -171,7 +167,7 @@ public class TrackService extends Thread {
         	RedNodeFunctions.revokePublicKey(hostname, writer);        
         } else {
             String data = "WRONG_COMMAND";
-            SocketFunctions.sendFinalData(data, writer);
+            SocketFunctions.sendStringlData(data, writer);
         }
         SocketFunctions.connectionClose(socket);
     }    

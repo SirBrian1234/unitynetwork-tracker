@@ -1,16 +1,11 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
+import java.io.DataOutputStream;
 import java.net.Socket;
-import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Database;
 import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.HashFunctions;
@@ -37,7 +32,7 @@ public class BlueNodeFunctions {
 	 * lease a bluenode on the network
 	 * @throws Exception 
 	 */
-	public static void BlueLease(String bluenodeHostname, String givenPort, PrintWriter writer, Socket socket) throws Exception {
+	public static void BlueLease(String bluenodeHostname, String givenPort, DataOutputStream writer, Socket socket) throws Exception {
 
 		String data = null;
 		Queries q = null;
@@ -79,7 +74,7 @@ public class BlueNodeFunctions {
 				e.printStackTrace();
 			}
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 
 	/**
@@ -88,7 +83,7 @@ public class BlueNodeFunctions {
 	 * @throws Exception 
 	 */
 	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
-			PrintWriter writer) throws Exception {
+			DataOutputStream writer) throws Exception {
 		int userauth = checkUser(password);
 
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
@@ -138,20 +133,20 @@ public class BlueNodeFunctions {
 						}
 					}
 					q.closeQueries();
-					SocketFunctions.sendFinalData(data, writer);					
+					SocketFunctions.sendStringlData(data, writer);					
 				} catch (SQLException ex) {					
 					try {
 						q.closeQueries();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
-					SocketFunctions.sendFinalData("SYSTEM_ERROR", writer);
+					SocketFunctions.sendStringlData("SYSTEM_ERROR", writer);
 				}
 			} else {
-				SocketFunctions.sendFinalData("AUTH_FAILED", writer);
+				SocketFunctions.sendStringlData("AUTH_FAILED", writer);
 			}
 		} else {
-			SocketFunctions.sendFinalData("AUTH_FAILED", writer);
+			SocketFunctions.sendStringlData("AUTH_FAILED", writer);
 		}
 	}
 
@@ -159,7 +154,7 @@ public class BlueNodeFunctions {
 	 * releases a bluenode from the network
 	 * @throws Exception 
 	 */
-	public static void BlueRel(String hostname, PrintWriter writer) throws Exception {
+	public static void BlueRel(String hostname, DataOutputStream writer) throws Exception {
 		String data = null;
 		if (App.BNtable.checkOnlineByName(hostname)) {
 			try {
@@ -172,14 +167,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "RELEASE_FAILED";
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 
 	/**
 	 * releases a rednode from a bluenode
 	 * @throws Exception 
 	 */
-	public static void RedRel(String bluenodeName, String hostname, PrintWriter writer) throws Exception {
+	public static void RedRel(String bluenodeName, String hostname, DataOutputStream writer) throws Exception {
 		String data = null;
 		boolean found = false;
 
@@ -195,14 +190,14 @@ public class BlueNodeFunctions {
 			data = "NOT_AUTHORIZED";
 		}
 		
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 
 	/** 
 	 * provides the physical address and port of a known bluenode
 	 * @throws Exception 
 	 */
-	public static void GetPh(String BNTargetHostname, PrintWriter writer) throws Exception {
+	public static void GetPh(String BNTargetHostname, DataOutputStream writer) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
 		if (bn != null) {			
@@ -210,14 +205,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 
 	/**
 	 *  checks whether a RN is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRn(String hostname, PrintWriter writer) throws Exception {
+	public static void CheckRn(String hostname, DataOutputStream writer) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
@@ -225,14 +220,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 	
 	/**
 	 * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRnAddr(String vaddress, PrintWriter writer) throws Exception {
+	public static void CheckRnAddr(String vaddress, DataOutputStream writer) throws Exception {
 		Queries q = null;
 		String data = null;
 		String hostname = null;
@@ -243,7 +238,7 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}						
-		SocketFunctions.sendFinalData(data, writer);				
+		SocketFunctions.sendStringlData(data, writer);				
 	}
 	
 	
@@ -290,7 +285,7 @@ public class BlueNodeFunctions {
 		}
 	}
 
-	public static void LookupByHn(String hostname, PrintWriter writer) {
+	public static void LookupByHn(String hostname, DataOutputStream writer) {
 		Queries q = null;
 		String vaddress = null;
 		String retrievedHostname = null;
@@ -305,12 +300,20 @@ public class BlueNodeFunctions {
 					vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
 					
 					q.closeQueries();
-					writer.println(vaddress);							
+					try {
+						SocketFunctions.sendStringlData(vaddress, writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}							
 					return;		
 				}
 			}
 			q.closeQueries();
-			writer.println("NOT_FOUND");
+			try {
+				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -319,11 +322,15 @@ public class BlueNodeFunctions {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			writer.println("NOT_FOUND");
+			try {
+				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}		
 	}
 
-	public static void LookupByAddr(String vaddress, PrintWriter writer) {
+	public static void LookupByAddr(String vaddress, DataOutputStream writer) {
 		Queries q = null;
 		String hostname = null;
 		int addr_num  = VAddressFunctions._10ipAddrToNumber(vaddress);
@@ -339,12 +346,20 @@ public class BlueNodeFunctions {
 					hostname = r.getString("hostname");
 					
 					q.closeQueries();
-					writer.println(hostname);							
+					try {
+						SocketFunctions.sendStringlData(hostname, writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}							
 					return;		
 				}
 			}
 			q.closeQueries();
-			writer.println("NOT_FOUND");
+			try {
+				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -353,11 +368,15 @@ public class BlueNodeFunctions {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
-			writer.println("NOT_FOUND");
+			try {
+				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}		
 	}
 
-	public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, PrintWriter writer) {
+	public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer) {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -367,9 +386,17 @@ public class BlueNodeFunctions {
 				String args[] = storedKey.split("\\s+");
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET"+" "+publicKey);
-					writer.println("KEY_SET");
+					try {
+						SocketFunctions.sendStringlData("KEY_SET", writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				} else if (args[0].equals("KEY_SET")) {
-					writer.println("KEY_IS_SET");
+					try {
+						SocketFunctions.sendStringlData("KEY_IS_SET", writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			q.closeQueries();
@@ -381,17 +408,25 @@ public class BlueNodeFunctions {
 				e1.printStackTrace();
 			}
 		}
-		writer.println("NOT_SET");
+		try {
+			SocketFunctions.sendStringlData("NOT_SET", writer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public static void revokePublicKey(String blueNodeHostname, PrintWriter writer) {
+	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer) {
 		String key = "NOT_SET "+CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
 			q = new Queries();
 			q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
 			q.closeQueries();
-			writer.println("KEY_REVOKED");
+			try {
+				SocketFunctions.sendStringlData("KEY_REVOKED", writer);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -400,6 +435,10 @@ public class BlueNodeFunctions {
 				e1.printStackTrace();
 			}
 		}
-		writer.println("NOT_SET");
+		try {
+			SocketFunctions.sendStringlData("NOT_SET", writer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

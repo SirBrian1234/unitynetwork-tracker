@@ -1,7 +1,7 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
-import java.io.BufferedReader;
-import java.io.PrintWriter;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +22,7 @@ import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 */
 public class RedNodeFunctions {
 
-	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
+	public static void getRecomendedBlueNode(DataInputStream reader, DataOutputStream writer, Socket socket) throws Exception {
 		String data;
 		if (App.BNtable.getSize() > 0) {
 			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
@@ -34,31 +34,31 @@ public class RedNodeFunctions {
 		} else {
 			data = "NONE";
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendStringlData(data, writer);
 	}
 
-	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
+	static void getAllConnectedBlueNodes(DataInputStream reader, DataOutputStream writer, Socket socket) throws Exception {
 		int size = App.BNtable.getSize();
 		if (App.BNtable.getSize() > 0) {
-			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
+			SocketFunctions.sendStringlData("SENDING_BLUENODES " + size, writer);
 			String fetched[][] = App.BNtable.buildStringInstanceObject();
 			int i = 0;
 			try {
 				while(fetched[i] != null) {			
-					SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
+					SocketFunctions.sendStringlData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
 					i++;
 				}	
 			} catch (ArrayIndexOutOfBoundsException ex) {
 				
 			}
-			SocketFunctions.sendFinalData("", writer);
+			SocketFunctions.sendStringlData("", writer);
 		} else {
 			String data = "NONE";
-			SocketFunctions.sendFinalData(data, writer);
+			SocketFunctions.sendStringlData(data, writer);
 		}
 	}
 
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, PrintWriter writer) {
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer) {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -68,9 +68,17 @@ public class RedNodeFunctions {
 				String args[] = storedKey.split("\\s+");
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
-					writer.println("KEY_SET");
+					try {
+						SocketFunctions.sendStringlData("KEY_SET", writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				} else if (args[0].equals("KEY_SET")) {
-					writer.println("KEY_IS_SET");
+					try {
+						SocketFunctions.sendStringlData("KEY_IS_SET", writer);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			q.closeQueries();
@@ -82,17 +90,25 @@ public class RedNodeFunctions {
 				e1.printStackTrace();
 			}
 		}
-		writer.println("NOT_SET");
+		try {
+			SocketFunctions.sendStringlData("NOT_SET",writer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public static void revokePublicKey(String hostname, PrintWriter writer) {
+	public static void revokePublicKey(String hostname, DataOutputStream writer) {
 		String key = "NOT_SET "+CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
 			q = new Queries();
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
 			q.closeQueries();
-			writer.println("KEY_REVOKED");
+			try {
+				SocketFunctions.sendStringlData("KEY_REVOKED", writer);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -101,6 +117,10 @@ public class RedNodeFunctions {
 				e1.printStackTrace();
 			}
 		}
-		writer.println("NOT_SET");
+		try {
+			SocketFunctions.sendStringlData("NOT_SET", writer);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
