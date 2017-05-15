@@ -1,7 +1,7 @@
 package kostiskag.unitynetwork.tracker.service.sonar;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.BufferedReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
@@ -32,8 +32,8 @@ public class BlueNodeClient {
     public final BlueNodeEntry bn;
     public boolean connected = false;
     private Socket socket;
-    private DataInputStream socketReader;
-    private DataOutputStream socketWriter;
+    private BufferedReader socketReader;
+    private PrintWriter socketWriter;
     
     public BlueNodeClient(BlueNodeEntry bn) {
     	this.bn = bn;
@@ -43,9 +43,9 @@ public class BlueNodeClient {
 			socket = SocketFunctions.absoluteConnect(address, bn.getPort());
 			//socket.setSoTimeout(timeout);
 			
-			socketReader = SocketFunctions.makeBufferedDataReader(socket);
-	        socketWriter = SocketFunctions.makeBufferedDataWriter(socket);       
-	        String args[] = SocketFunctions.receiveStringData(socketReader);   
+			socketReader = SocketFunctions.makeReadWriter(socket);
+	        socketWriter = SocketFunctions.makeWriteWriter(socket);       
+	        String args[] = SocketFunctions.readData(socketReader);   
 	        
 	        String data = null;
 	        String BlueNodeHostname = args[1];
@@ -53,29 +53,28 @@ public class BlueNodeClient {
 	        
 	        if (auth <= -2) {
 	        	data = "SYSTEM_ERROR";
-	            SocketFunctions.sendStringlData(data, socketWriter);
+	            SocketFunctions.sendFinalData(data, socketWriter);
 	            SocketFunctions.connectionClose(socket);
 	            return;
 	        } if (auth == -1) {
 	            data = "NOT_REGISTERED";
-	            SocketFunctions.sendStringlData(data, socketWriter);
+	            SocketFunctions.sendFinalData(data, socketWriter);
 	            SocketFunctions.connectionClose(socket);
 	            return;
 	        } else if (auth == 0){
 	            data = "OFFLINE";
-	            SocketFunctions.sendStringlData(data, socketWriter);
+	            SocketFunctions.sendFinalData(data, socketWriter);
 	            SocketFunctions.connectionClose(socket);
 	            return;
 	        }               
-	        args = SocketFunctions.sendReceiveStringData("TRACKER",  socketReader, socketWriter);
+	        args = SocketFunctions.sendData("TRACKER", socketWriter, socketReader);
 
 	        if (args[0].equals("OK")) {
 	        	connected = true;
 	        }
 		} catch (Exception e) {
 			//this is a silent exception
-		} 
-		       
+		}        
 	}
     
     public boolean isConnected() {
@@ -84,7 +83,7 @@ public class BlueNodeClient {
     
     public boolean checkBnOnline() throws Exception {
     	if (connected) {
-	    	String[] args = SocketFunctions.sendReceiveStringData("CHECK", socketReader, socketWriter);    
+	    	String[] args = SocketFunctions.sendData("CHECK", socketWriter, socketReader);    
 	        SocketFunctions.connectionClose(socket);
 	        if (args[0].equals("OK")) {
 	        	SocketFunctions.connectionClose(socket);
@@ -96,7 +95,7 @@ public class BlueNodeClient {
     
     public boolean sendkillsig() throws Exception  {
     	if (connected) {   
-	    	String[] args = SocketFunctions.sendReceiveStringData("KILLSIG", socketReader, socketWriter); 
+	    	String[] args = SocketFunctions.sendData("KILLSIG", socketWriter, socketReader); 
 	    	SocketFunctions.connectionClose(socket);
 	        if (args[0].equals("OK")) {
 	        	SocketFunctions.connectionClose(socket);
@@ -109,10 +108,10 @@ public class BlueNodeClient {
     public LinkedList<RedNodeEntry> getRedNodes() throws Exception  {  
     	LinkedList<RedNodeEntry> list = new LinkedList<>();
     	if (connected) {    	
-	    	String[] args = SocketFunctions.sendReceiveStringData("GETREDNODES", socketReader, socketWriter);        
+	    	String[] args = SocketFunctions.sendData("GETREDNODES", socketWriter, socketReader);        
 	        int count = Integer.parseInt(args[1]);
 	        for (int i = 0; i < count; i++) {
-	            args = SocketFunctions.receiveStringData(socketReader);
+	            args = SocketFunctions.readData(socketReader);
 	            RedNodeEntry r =  new RedNodeEntry(bn, args[0], args[1]);                    
 	            list.add(r); 
 	        }

@@ -1,11 +1,18 @@
 package kostiskag.unitynetwork.tracker.functions;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.SecretKey;
 
 import kostiskag.unitynetwork.tracker.App;
 
@@ -50,13 +57,13 @@ public class SocketFunctions {
         return socket;
     }
 
-    public static DataInputStream makeBufferedDataReader(Socket socket) throws IOException {
+    public static DataInputStream makeDataReader(Socket socket) throws IOException {
     	//BufferedInputStream bin = new BufferedInputStream();
 		DataInputStream dataStream = new DataInputStream(socket.getInputStream());
 		return dataStream;
     }
 
-    public static DataOutputStream makeBufferedDataWriter(Socket socket) throws IOException {
+    public static DataOutputStream makeDataWriter(Socket socket) throws IOException {
         DataOutputStream dataStream = new DataOutputStream(socket.getOutputStream());
         return dataStream;
     }
@@ -86,36 +93,155 @@ public class SocketFunctions {
     	return received;
     }
 
-    public static void sendStringlData(String data, DataOutputStream writer) throws Exception {
-    	if (data == null) {
+    public static void sendPlainStringData(String message, DataOutputStream writer) throws Exception {
+    	if (message == null) {
         	App.ConsolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
-        } else if (data.isEmpty()) {
+        } else if (message.isEmpty()) {
         	//line feed
-        	data = "\n";
+        	message = "\n\r";
         }        
     	//include a line feed and a return char
-    	data += "\n\r";
-    	byte[] toSend = data.getBytes();        
+    	message += "\n\r";
+    	byte[] toSend = message.getBytes();        
         sendData(toSend, writer);
     }
     
-    public static String[] receiveStringData(DataInputStream reader) throws IOException {
+    public static String[] receivePlainStringData(DataInputStream reader) throws IOException {
     	byte[] received = receiveData(reader);
     	String receivedMessage = new String(received, "utf-8");
         String[] args = receivedMessage.split("\\s+");
         return args;
     }
     
-    public static String[] sendReceiveStringData(String data, DataInputStream reader, DataOutputStream writer) throws Exception  {
-    	sendStringlData(data, writer);
-    	String[] args = receiveStringData(reader);
+    public static String[] sendReceivePlainStringData(String data, DataInputStream reader, DataOutputStream writer) throws Exception  {
+    	sendPlainStringData(data, writer);
+    	String[] args = receivePlainStringData(reader);
     	return args;
     }
-
+    
+    public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    	if (message == null) {
+        	App.ConsolePrint(pre + "NO DATA TO SEND");
+            throw new Exception(pre+"NO DATA TO SEND");
+        } else if (message.isEmpty()) {
+        	//line feed
+        	message = "\n";
+        }        
+    	//include a line feed and a return char
+    	message += "\n\r";
+    	byte[] chiphered = CryptoMethods.aesEncrypt(message, sessionKey);
+        sendData(chiphered, writer);
+    }
+    
+    public static String[] receiveAESEncryptedStringData(DataInputStream reader, SecretKey sessionKey) throws IOException {
+    	byte[] received = receiveData(reader);
+    	String decrypted = CryptoMethods.aesDecrypt(received, sessionKey);
+    	String[] args = decrypted.split("\\s+");
+        return args;
+    }
+    
+    public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws Exception  {
+    	sendAESEncryptedStringData(message, writer, sessionKey);
+    	return receiveAESEncryptedStringData(reader, sessionKey);
+    }
+    
+    public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws Exception {
+    	if (message == null) {
+        	App.ConsolePrint(pre + "NO DATA TO SEND");
+            throw new Exception(pre+"NO DATA TO SEND");
+        } else if (message.isEmpty()) {
+        	//line feed
+        	message = "\n";
+        }        
+    	//include a line feed and a return char
+    	message += "\n\r";
+    	byte[] chiphered = CryptoMethods.encryptWithPublic(message, key);
+        sendData(chiphered, writer);
+    }
+    
+    public static String[] receiveRSAEncryptedStringData(DataInputStream reader, PrivateKey priv) throws IOException {
+    	byte[] received = receiveData(reader);
+    	String decrypted = CryptoMethods.decryptWithPrivate(received, priv);
+    	return decrypted.split("\\s+");
+    }
+    
     public static void connectionClose(Socket socket) throws IOException {
         if (!socket.isClosed()) {
             socket.close();
         }
+    }
+    
+    /*
+     * Deprecated
+     */
+    
+
+    public static BufferedReader makeReadWriter(Socket socket) throws IOException {
+        BufferedReader inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        return inputReader;
+    }
+
+    public static PrintWriter makeWriteWriter(Socket socket) throws IOException {
+        PrintWriter outputWriter = new PrintWriter(socket.getOutputStream(), true);
+        return outputWriter;
+    }
+
+    public static String[] sendData(String data,PrintWriter outputWriter,BufferedReader inputReader) throws Exception  {
+        if (outputWriter==null) {
+        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
+        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
+        } else if (inputReader==null){ 
+        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
+        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
+        } else if (data == null) {
+        	App.ConsolePrint(pre + "NO DATA TO SEND");
+            throw new Exception(pre+"NO DATA TO SEND");
+        } else if (data.isEmpty()) {
+        	App.ConsolePrint(pre + "NO DATA TO SEND");
+            throw new Exception(pre+"NO DATA TO SEND");
+        }
+        
+        outputWriter.println(data);
+        String receivedMessage = null;
+        String[] args = null;
+        
+        try {
+			receivedMessage = inputReader.readLine();
+		} catch (IOException e) {
+			throw e;
+		}
+        
+        App.ConsolePrint(pre + receivedMessage);
+        args = receivedMessage.split("\\s+");
+        return args;
+    }
+
+    public static void sendFinalData(String data,PrintWriter outputWriter) throws Exception {
+        if (data == null) {
+        	App.ConsolePrint(pre + "NO DATA TO SEND");
+            throw new Exception(pre + "NO DATA TO SEND");
+        }
+        outputWriter.println(data);
+    }
+
+    public static String[] readData(BufferedReader inputReader) throws Exception  {
+    	if (inputReader == null){
+    		App.ConsolePrint(pre + "READ DATA FAILED, NO CONNECTION");            
+            throw new Exception(pre + "READ DATA FAILED, NO CONNECTION");
+    	}
+        
+        String receivedMessage = null;
+        String[] args = null;
+        
+        try {
+			receivedMessage = inputReader.readLine();
+		} catch (IOException e) {
+			throw e;
+		}
+               
+        System.out.println(pre + receivedMessage);
+        args = receivedMessage.split("\\s+");
+        return args;
     }
 }

@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
@@ -86,7 +87,7 @@ public class CryptoMethods {
 		try {
 			AesCipher = Cipher.getInstance("AES");
 			AesCipher.init(Cipher.DECRYPT_MODE, key);
-	        return new String(AesCipher.doFinal(chiphered));
+	        return new String(AesCipher.doFinal(chiphered), "utf-8");
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
@@ -94,6 +95,8 @@ public class CryptoMethods {
 		} catch (IllegalBlockSizeException e) {
 			e.printStackTrace();
 		} catch (BadPaddingException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		return null;

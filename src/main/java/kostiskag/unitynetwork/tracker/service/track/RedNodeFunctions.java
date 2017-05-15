@@ -1,7 +1,8 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.DataOutputStream;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +23,10 @@ import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 */
 public class RedNodeFunctions {
 
-	public static void getRecomendedBlueNode(DataInputStream reader, DataOutputStream writer, Socket socket) throws Exception {
+	/*
+	 * To be changed from deprecated methods
+	 */
+	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
 		String data;
 		if (App.BNtable.getSize() > 0) {
 			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
@@ -34,30 +38,33 @@ public class RedNodeFunctions {
 		} else {
 			data = "NONE";
 		}
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendFinalData(data, writer);
 	}
 
-	static void getAllConnectedBlueNodes(DataInputStream reader, DataOutputStream writer, Socket socket) throws Exception {
+	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
 		int size = App.BNtable.getSize();
 		if (App.BNtable.getSize() > 0) {
-			SocketFunctions.sendStringlData("SENDING_BLUENODES " + size, writer);
+			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
 			String fetched[][] = App.BNtable.buildStringInstanceObject();
 			int i = 0;
 			try {
 				while(fetched[i] != null) {			
-					SocketFunctions.sendStringlData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
+					SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
 					i++;
 				}	
 			} catch (ArrayIndexOutOfBoundsException ex) {
 				
 			}
-			SocketFunctions.sendStringlData("", writer);
+			SocketFunctions.sendFinalData("", writer);
 		} else {
 			String data = "NONE";
-			SocketFunctions.sendStringlData(data, writer);
+			SocketFunctions.sendFinalData(data, writer);
 		}
 	}
-
+	
+	/*
+	 * To be changed from send plain string data into AES
+	 */
 	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer) {
 		Queries q = null;
 		try {
@@ -69,13 +76,13 @@ public class RedNodeFunctions {
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
 					try {
-						SocketFunctions.sendStringlData("KEY_SET", writer);
+						SocketFunctions.sendPlainStringData("KEY_SET", writer);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else if (args[0].equals("KEY_SET")) {
 					try {
-						SocketFunctions.sendStringlData("KEY_IS_SET", writer);
+						SocketFunctions.sendPlainStringData("KEY_IS_SET", writer);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -91,7 +98,7 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendStringlData("NOT_SET",writer);
+			SocketFunctions.sendPlainStringData("NOT_SET",writer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -105,7 +112,7 @@ public class RedNodeFunctions {
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
 			q.closeQueries();
 			try {
-				SocketFunctions.sendStringlData("KEY_REVOKED", writer);
+				SocketFunctions.sendPlainStringData("KEY_REVOKED", writer);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -118,7 +125,7 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendStringlData("NOT_SET", writer);
+			SocketFunctions.sendPlainStringData("NOT_SET", writer);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

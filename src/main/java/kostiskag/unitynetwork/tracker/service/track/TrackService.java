@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.Socket;
 import java.security.PublicKey;
 
+import javax.crypto.SecretKey;
+
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
@@ -47,118 +49,153 @@ public class TrackService extends Thread {
     private Socket socket;    
     private DataInputStream reader;
     private DataOutputStream writer;
+    private SecretKey sessionKey;
 
     TrackService(Socket connectionSocket) {
         socket = connectionSocket;        
+    }
+    
+    private void close() {
+    	try {
+			SocketFunctions.connectionClose(socket);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
     }
 
     @Override
     public void run() {
         System.out.println("@Started auth service at " + Thread.currentThread().getName());
-        
         try {
-			reader = SocketFunctions.makeBufferedDataReader(socket);
-			writer = SocketFunctions.makeBufferedDataWriter(socket);
-		        
-	        String data;
-	        String[] args = SocketFunctions.sendReceiveStringData("UnityTracker", reader, writer);
+			reader = SocketFunctions.makeDataReader(socket);
+			writer = SocketFunctions.makeDataWriter(socket);
+		    
+			byte[] received = SocketFunctions.receiveData(reader);
+			String receivedStr =  new String(received, "utf-8");
+			String[] args = receivedStr.split("\\s+");
+	        System.out.println(receivedStr);
 	        
-	        if (args.length == 1 && args[0].equals("GETPUB")) {
+	        if (args[0].equals("GETPUB")) {
+	        	System.out.println("case 1");
 	        	//plain data transfer no encryption
-	        	SocketFunctions.sendStringlData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);	        	
+	        	SocketFunctions.sendPlainStringData(CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);	        	
 	        } else {	        	
+	        	System.out.println("case 2");
+	        	String decrypted = CryptoMethods.decryptWithPrivate(received, App.trackerKeys.getPrivate());
+	        	sessionKey = (SecretKey) CryptoMethods.base64StringRepresentationToObject(decrypted);
+	        	
+	        	System.out.println("I have collected a key "+sessionKey.getEncoded());
+	        	args = SocketFunctions.sendReceiveAESEncryptedStringData("UnityTracker", reader, writer, sessionKey);
+	        	
+	        	System.out.println(args[0]+" "+args[1]);
+	        	
 		        if (args.length == 2 && args[0].equals("BLUENODE")) {
 		            BlueNodeService(args[1]);
 		        } else if (args.length == 2 && args[0].equals("REDNODE")) {
 		            RedNodeService(args[1]);
 		        } else {
-		            data = "WRONG_COMMAND";
-		            SocketFunctions.sendStringlData(data, writer);            
-		        }
+		            SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);            
+		        }		        
 	        }
-	        SocketFunctions.connectionClose(socket);   
 	        
 		} catch (Exception e) {
 			e.printStackTrace();
-			try {
-				SocketFunctions.connectionClose(socket);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}   
-		}                         
+		}   
+        close();
     }    
     
     public void BlueNodeService(String BlueNodeHostname) throws Exception {        
-        
-    	PublicKey pub = BlueNodeGlobalFunctions.fetchBluenodePubKey(BlueNodeHostname);
+        PublicKey pub = BlueNodeGlobalFunctions.fetchBluenodePubKey(BlueNodeHostname);
         if (pub == null) {
-            SocketFunctions.sendStringlData("NOT_ALLOWED", writer);
-            SocketFunctions.connectionClose(socket);
-            return;
-        } 
-        
-        //here is the place to offer an auth question
-        //generate a random question
-        String question = CryptoMethods.generateQuestion();
-		
-        //encrypt with target bluenode's public
-        byte[] questionb = CryptoMethods.encryptWithPublic(question, pub);
-        
-        //encode to base 64
-		String encq = CryptoMethods.bytesToBase64String(questionb);
-		
-		//send
-		SocketFunctions.sendStringlData(encq, writer);
-		String args[] = SocketFunctions.receiveStringData(reader);
-		
-		
-		if (args.length == 1 && args[0].equals(question)) {
-			//now this is a proper RSA authentication
-			args = SocketFunctions.sendReceiveStringData("OK", reader, writer);
-		} else {
-			 SocketFunctions.sendStringlData("NOT_ALLOWED", writer);
-			 SocketFunctions.connectionClose(socket);
-			 return;
-		}
-        
-        if (args.length == 2 && args[0].equals("LEASE")) {
-            BlueNodeFunctions.BlueLease(BlueNodeHostname, args[1], writer, socket);
-        } else if (args.length == 4 && args[0].equals("LEASE_RN")) {
-            BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer);
-        } else if (args.length == 1 && args[0].equals("RELEASE")) {
-            BlueNodeFunctions.BlueRel(BlueNodeHostname, writer);
-        } else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
-            BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer);
-        } else if (args.length == 2 && args[0].equals("GETPH")) {
-            BlueNodeFunctions.GetPh(args[1], writer);
-        } else if (args.length == 2 && args[0].equals("CHECK_RN")) {
-            BlueNodeFunctions.CheckRn(args[1], writer);
-        } else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
-            BlueNodeFunctions.CheckRnAddr(args[1], writer);
-        } else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
-        	BlueNodeFunctions.LookupByHn(args[1],writer);
-        } else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
-        	BlueNodeFunctions.LookupByAddr(args[1], writer);
-        } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
-        	//bluenode offers its pub based on a ticket
-        	BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer);
-        } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
-        	//bluenode may be compromised and decides to revoke its public
-        	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer);        
+        	System.out.println("key not set");
+        	/*
+        	 * the bn is a member however he has not set a public key
+        	 * this allows only to set key based on session key
+        	 */
+        	
+        	//this is a pub key offer
+        	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("PUBLIC_NOT_SET", reader, writer, sessionKey);
+        	if (args[0].equals("EXIT")) {
+        		return;
+        	} else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
+            	//bluenode offers its pub based on a ticket
+            	BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer, sessionKey);
+            } else {
+            	SocketFunctions.sendAESEncryptedStringData("NOT_ALLOWED", writer, sessionKey);
+            }
+            
         } else {
-            SocketFunctions.sendStringlData("WRONG_COMMAND", writer);
-        }
-        SocketFunctions.connectionClose(socket);
+        	System.out.println("key set");
+        	/*
+        	 * The Bn has a public key set
+        	 * authentication will follow based on its public key
+        	 */
+        	
+        	//generate a random question
+            String question = CryptoMethods.generateQuestion();
+    		
+            //encrypt question with target bluenode's public
+            byte[] questionb = CryptoMethods.encryptWithPublic(question, pub);
+            
+            //encode it to base 64
+    		String encq = CryptoMethods.bytesToBase64String(questionb);
+    		System.out.println("sending base64 question "+encq);
+    		
+    		//send it, wait for response
+    		String args[] = SocketFunctions.sendReceiveAESEncryptedStringData(encq, reader, writer, sessionKey);
+    		
+    		System.out.println("received "+args[0]);
+    		if (args[0].equals("EXIT")) {
+    			return;
+        	} else if (args[0].equals(question)) {
+    			//now this is a proper RSA authentication
+    			SocketFunctions.sendAESEncryptedStringData("OK", writer, sessionKey);
+    		} else {
+    			 SocketFunctions.sendAESEncryptedStringData("NOT_ALLOWED", writer, sessionKey);
+    			 throw new Exception("RSA auth for BlueNode "+BlueNodeHostname+" failed.");
+    		}
+            
+    		args = SocketFunctions.receiveAESEncryptedStringData(reader, sessionKey);
+    		System.out.println(args[0]);
+    		//OPTIONS
+            if (args.length == 2 && args[0].equals("LEASE")) {
+                BlueNodeFunctions.BlueLease(BlueNodeHostname, socket, args[1], writer, sessionKey);
+            } else if (args.length == 4 && args[0].equals("LEASE_RN")) {
+                BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
+            } else if (args.length == 1 && args[0].equals("RELEASE")) {
+                BlueNodeFunctions.BlueRel(BlueNodeHostname, writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
+                BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("GETPH")) {
+                BlueNodeFunctions.GetPh(args[1], writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("CHECK_RN")) {
+                BlueNodeFunctions.CheckRn(args[1], writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
+                BlueNodeFunctions.CheckRnAddr(args[1], writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
+            	BlueNodeFunctions.LookupByHn(args[1],writer, sessionKey);
+            } else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
+            	BlueNodeFunctions.LookupByAddr(args[1], writer, sessionKey);
+            } else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+            	//bluenode may be compromised and decides to revoke its public
+            	BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);        
+            } else {
+                SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
+            }
+        }        	
     }
 
     private void RedNodeService(String hostname) throws Exception {
-    	//here is the place to offer an auth question
-        String[] args = SocketFunctions.sendReceiveStringData("OK", reader, writer);
+    	//TODO rednode service
+    	SocketFunctions.connectionClose(socket);
+    	
+    	
+        String[] args = SocketFunctions.sendReceivePlainStringData("OK", reader, writer);
         
         if (args.length == 1 && args[0].equals("GETBNS")) {
-             RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);
+             //RedNodeFunctions.getAllConnectedBlueNodes(reader, writer, socket);
         } else if (args.length == 1 && args[0].equals("GETRBN")) {
-            RedNodeFunctions.getRecomendedBlueNode(reader, writer, socket);
+            //RedNodeFunctions.getRecomendedBlueNode(reader, writer, socket);
         } else if (args.length == 3 && args[0].equals("OFFERPUB")) { 
         	//rednode offers its pubkey based on a ticket
         	RedNodeFunctions.offerPublicKey(hostname, args[1], args[2], writer);
@@ -167,7 +204,7 @@ public class TrackService extends Thread {
         	RedNodeFunctions.revokePublicKey(hostname, writer);        
         } else {
             String data = "WRONG_COMMAND";
-            SocketFunctions.sendStringlData(data, writer);
+            SocketFunctions.sendPlainStringData(data, writer);
         }
         SocketFunctions.connectionClose(socket);
     }    

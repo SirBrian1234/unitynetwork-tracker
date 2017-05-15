@@ -5,6 +5,8 @@ import java.net.Socket;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.crypto.SecretKey;
+
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
 import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
@@ -32,7 +34,7 @@ public class BlueNodeFunctions {
 	 * lease a bluenode on the network
 	 * @throws Exception 
 	 */
-	public static void BlueLease(String bluenodeHostname, String givenPort, DataOutputStream writer, Socket socket) throws Exception {
+	public static void BlueLease(String bluenodeHostname, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 
 		String data = null;
 		Queries q = null;
@@ -74,7 +76,7 @@ public class BlueNodeFunctions {
 				e.printStackTrace();
 			}
 		}
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
 	/**
@@ -83,7 +85,7 @@ public class BlueNodeFunctions {
 	 * @throws Exception 
 	 */
 	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
-			DataOutputStream writer) throws Exception {
+			DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		int userauth = checkUser(password);
 
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
@@ -133,20 +135,20 @@ public class BlueNodeFunctions {
 						}
 					}
 					q.closeQueries();
-					SocketFunctions.sendStringlData(data, writer);					
+					SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);					
 				} catch (SQLException ex) {					
 					try {
 						q.closeQueries();
 					} catch (SQLException e) {
 						e.printStackTrace();
 					}
-					SocketFunctions.sendStringlData("SYSTEM_ERROR", writer);
+					SocketFunctions.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
 				}
 			} else {
-				SocketFunctions.sendStringlData("AUTH_FAILED", writer);
+				SocketFunctions.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
 			}
 		} else {
-			SocketFunctions.sendStringlData("AUTH_FAILED", writer);
+			SocketFunctions.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
 		}
 	}
 
@@ -154,7 +156,7 @@ public class BlueNodeFunctions {
 	 * releases a bluenode from the network
 	 * @throws Exception 
 	 */
-	public static void BlueRel(String hostname, DataOutputStream writer) throws Exception {
+	public static void BlueRel(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data = null;
 		if (App.BNtable.checkOnlineByName(hostname)) {
 			try {
@@ -167,14 +169,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "RELEASE_FAILED";
 		}
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
 	/**
 	 * releases a rednode from a bluenode
 	 * @throws Exception 
 	 */
-	public static void RedRel(String bluenodeName, String hostname, DataOutputStream writer) throws Exception {
+	public static void RedRel(String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data = null;
 		boolean found = false;
 
@@ -190,14 +192,14 @@ public class BlueNodeFunctions {
 			data = "NOT_AUTHORIZED";
 		}
 		
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
 	/** 
 	 * provides the physical address and port of a known bluenode
 	 * @throws Exception 
 	 */
-	public static void GetPh(String BNTargetHostname, DataOutputStream writer) throws Exception {
+	public static void GetPh(String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
 		if (bn != null) {			
@@ -205,14 +207,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
 	/**
 	 *  checks whether a RN is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRn(String hostname, DataOutputStream writer) throws Exception {
+	public static void CheckRn(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
 		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
@@ -220,14 +222,14 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}
-		SocketFunctions.sendStringlData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 	
 	/**
 	 * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRnAddr(String vaddress, DataOutputStream writer) throws Exception {
+	public static void CheckRnAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		Queries q = null;
 		String data = null;
 		String hostname = null;
@@ -238,7 +240,7 @@ public class BlueNodeFunctions {
 		} else {
 			data = "OFFLINE";
 		}						
-		SocketFunctions.sendStringlData(data, writer);				
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);				
 	}
 	
 	
@@ -285,7 +287,7 @@ public class BlueNodeFunctions {
 		}
 	}
 
-	public static void LookupByHn(String hostname, DataOutputStream writer) {
+	public static void LookupByHn(String hostname, DataOutputStream writer, SecretKey sessionKey) {
 		Queries q = null;
 		String vaddress = null;
 		String retrievedHostname = null;
@@ -301,7 +303,7 @@ public class BlueNodeFunctions {
 					
 					q.closeQueries();
 					try {
-						SocketFunctions.sendStringlData(vaddress, writer);
+						SocketFunctions.sendAESEncryptedStringData(vaddress, writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}							
@@ -310,7 +312,7 @@ public class BlueNodeFunctions {
 			}
 			q.closeQueries();
 			try {
-				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+				SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -323,14 +325,14 @@ public class BlueNodeFunctions {
 				e1.printStackTrace();
 			}
 			try {
-				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+				SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}		
 	}
 
-	public static void LookupByAddr(String vaddress, DataOutputStream writer) {
+	public static void LookupByAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) {
 		Queries q = null;
 		String hostname = null;
 		int addr_num  = VAddressFunctions._10ipAddrToNumber(vaddress);
@@ -347,7 +349,7 @@ public class BlueNodeFunctions {
 					
 					q.closeQueries();
 					try {
-						SocketFunctions.sendStringlData(hostname, writer);
+						SocketFunctions.sendAESEncryptedStringData(hostname, writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}							
@@ -356,7 +358,7 @@ public class BlueNodeFunctions {
 			}
 			q.closeQueries();
 			try {
-				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+				SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -369,14 +371,14 @@ public class BlueNodeFunctions {
 				e1.printStackTrace();
 			}
 			try {
-				SocketFunctions.sendStringlData("NOT_FOUND", writer);
+				SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}		
 	}
 
-	public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer) {
+	public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -387,19 +389,26 @@ public class BlueNodeFunctions {
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET"+" "+publicKey);
 					try {
-						SocketFunctions.sendStringlData("KEY_SET", writer);
+						SocketFunctions.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else if (args[0].equals("KEY_SET")) {
 					try {
-						SocketFunctions.sendStringlData("KEY_IS_SET", writer);
+						SocketFunctions.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						SocketFunctions.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
-			}
+			} 
 			q.closeQueries();
+			return;
 		} catch (SQLException e) {
 			e.printStackTrace();
 			try {
@@ -408,14 +417,9 @@ public class BlueNodeFunctions {
 				e1.printStackTrace();
 			}
 		}
-		try {
-			SocketFunctions.sendStringlData("NOT_SET", writer);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
-	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer) {
+	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) {
 		String key = "NOT_SET "+CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
@@ -423,7 +427,7 @@ public class BlueNodeFunctions {
 			q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
 			q.closeQueries();
 			try {
-				SocketFunctions.sendStringlData("KEY_REVOKED", writer);
+				SocketFunctions.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -436,7 +440,7 @@ public class BlueNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendStringlData("NOT_SET", writer);
+			SocketFunctions.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

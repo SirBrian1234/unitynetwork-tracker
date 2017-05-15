@@ -206,45 +206,4 @@ public class CryptoMethodsTest {
 		// are the same
 		System.out.println("Allowed " + args[0]);
 	}
-
-	@Ignore
-	public void testStreams() {
-		
-		try {
-
-			InetAddress IPaddress = null;
-			try {
-				IPaddress = InetAddress.getByName("127.0.0.1");
-			} catch (UnknownHostException ex) {
-				ex.printStackTrace();
-			}
-
-			ServerSocket servocket = new ServerSocket(8000);  
-			Socket socket = servocket.accept();
-			socket.setSoTimeout(8000);
-			
-            BufferedInputStream bin = new BufferedInputStream(socket.getInputStream());
-			DataInputStream d = new DataInputStream(bin);
-			
-	        BufferedOutputStream bout = new BufferedOutputStream(socket.getOutputStream());
-	    	DataOutputStream dataStream = new DataOutputStream(socket.getOutputStream());
-			
-	    	dataStream.write("hello            \n\n\n\n".getBytes());
-	    	
-			byte[] bytes = new byte[2048];
-			int read = d.read(bytes);
-			byte[] byteT = new byte[read];
-			System.arraycopy(bytes, 0, byteT, 0, read);
-			
-			System.out.println("bytes read"+new String(byteT));
-			
-			dataStream.write("hello            \n\n\n\n".getBytes());
-			
-			
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
 }

@@ -16,9 +16,10 @@ public class BlueNodeGlobalFunctions {
 	/**
 	 * Collects a bluenode's public key.
 	 * 
-	 * @returns the public key
+	 * @returns the public key if its set OR null for a not set key
+	 * @throws exception when fetch bn key is called for a non member
 	 */
-	public static PublicKey fetchBluenodePubKey(String BlueNodeHostname) {
+	public static PublicKey fetchBluenodePubKey(String BlueNodeHostname) throws Exception {
 		Queries q = null;
 		ResultSet getResults;
 		try {
@@ -38,7 +39,7 @@ public class BlueNodeGlobalFunctions {
 				}
 			}
 			q.closeQueries();
-			return null;
+			throw new Exception("The Bn "+BlueNodeHostname+" is not a network member.");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -47,7 +48,7 @@ public class BlueNodeGlobalFunctions {
 			} catch (SQLException e1) {
 				e1.printStackTrace();				
 			}
-			return null;
+			throw e;
 		}
 	}
 	
