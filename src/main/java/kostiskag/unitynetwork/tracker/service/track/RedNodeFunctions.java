@@ -1,11 +1,11 @@
 package kostiskag.unitynetwork.tracker.service.track;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
+import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import javax.crypto.SecretKey;
 
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
@@ -14,10 +14,12 @@ import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
 
 /**
-* (unregistered) Rednode queries:
+* Rednode queries:
 *
 * GETBNS
 * GETRBN
+* REVOKEPUB
+* OFFERPUB
 * 
 * @author Konstantinos Kagiampakis
 */
@@ -26,7 +28,7 @@ public class RedNodeFunctions {
 	/*
 	 * To be changed from deprecated methods
 	 */
-	public static void getRecomendedBlueNode(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
+	public static void getRecomendedBlueNode(DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
 		if (App.BNtable.getSize() > 0) {
 			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
@@ -38,34 +40,33 @@ public class RedNodeFunctions {
 		} else {
 			data = "NONE";
 		}
-		SocketFunctions.sendFinalData(data, writer);
+		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
-	static void getAllConnectedBlueNodes(BufferedReader reader, PrintWriter writer, Socket socket) throws Exception {
+	static void getAllConnectedBlueNodes(DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		int size = App.BNtable.getSize();
 		if (App.BNtable.getSize() > 0) {
-			SocketFunctions.sendFinalData("SENDING_BLUENODES " + size, writer);
+			SocketFunctions.sendAESEncryptedStringData("SENDING_BLUENODES " + size, writer, sessionKey);
 			String fetched[][] = App.BNtable.buildStringInstanceObject();
 			int i = 0;
 			try {
 				while(fetched[i] != null) {			
-					SocketFunctions.sendFinalData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer);
+					SocketFunctions.sendAESEncryptedStringData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer, sessionKey);
 					i++;
 				}	
 			} catch (ArrayIndexOutOfBoundsException ex) {
 				
 			}
-			SocketFunctions.sendFinalData("", writer);
+			SocketFunctions.sendAESEncryptedStringData("", writer, sessionKey);
 		} else {
-			String data = "NONE";
-			SocketFunctions.sendFinalData(data, writer);
+			SocketFunctions.sendAESEncryptedStringData("NONE", writer, sessionKey);
 		}
 	}
 	
 	/*
 	 * To be changed from send plain string data into AES
 	 */
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer) {
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -76,13 +77,19 @@ public class RedNodeFunctions {
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
 					try {
-						SocketFunctions.sendPlainStringData("KEY_SET", writer);
+						SocketFunctions.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else if (args[0].equals("KEY_SET")) {
 					try {
-						SocketFunctions.sendPlainStringData("KEY_IS_SET", writer);
+						SocketFunctions.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						SocketFunctions.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -98,13 +105,13 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendPlainStringData("NOT_SET",writer);
+			SocketFunctions.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void revokePublicKey(String hostname, DataOutputStream writer) {
+	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) {
 		String key = "NOT_SET "+CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
@@ -112,7 +119,7 @@ public class RedNodeFunctions {
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
 			q.closeQueries();
 			try {
-				SocketFunctions.sendPlainStringData("KEY_REVOKED", writer);
+				SocketFunctions.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -125,9 +132,41 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendPlainStringData("NOT_SET", writer);
+			SocketFunctions.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static PublicKey fetchPubKey(String hostname) throws Exception {
+		Queries q = null;
+		ResultSet getResults;
+		try {
+			q = new Queries();
+			getResults = q.selectAllFromHostnames();
+
+			while (getResults.next()) {
+				if (getResults.getString("hostname").equals(hostname)) {									
+					String key = getResults.getString("public");
+					q.closeQueries();
+					String[] parts = key.split("\\s+");
+					if (parts[0].equals("NOT_SET")) {
+						return null;
+					} else {
+						return (PublicKey) CryptoMethods.base64StringRepresentationToObject(parts[1]);
+					}				
+				}
+			}
+			q.closeQueries();
+			throw new Exception("The RN "+hostname+" is not a network member.");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			try {
+				q.closeQueries();
+			} catch (SQLException e1) {
+				e1.printStackTrace();				
+			}
+			throw e;
 		}
 	}
 }

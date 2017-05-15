@@ -19,7 +19,7 @@ public class BlueNodeGlobalFunctions {
 	 * @returns the public key if its set OR null for a not set key
 	 * @throws exception when fetch bn key is called for a non member
 	 */
-	public static PublicKey fetchBluenodePubKey(String BlueNodeHostname) throws Exception {
+	public static PublicKey fetchPubKey(String BlueNodeHostname) throws Exception {
 		Queries q = null;
 		ResultSet getResults;
 		try {
