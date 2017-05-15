@@ -420,6 +420,15 @@ public class BlueNodeFunctions {
 	}
 
 	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) {
+		//first check whether the bn is a member and release from the network
+		if (App.BNtable.checkOnlineByName(blueNodeHostname)) {
+			try {
+				App.BNtable.release(blueNodeHostname);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}			
+		}
+		
 		String key = "NOT_SET "+CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
