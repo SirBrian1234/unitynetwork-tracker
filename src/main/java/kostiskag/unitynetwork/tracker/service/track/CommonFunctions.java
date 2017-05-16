@@ -10,6 +10,17 @@ import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 public class CommonFunctions {
+	
+	/**
+	 * For speed and for security the public keys should be retrieved from the active network table.
+	 * In order from the one hand, to limit the queries in the database only for the login process and thus
+	 * limit the level of its exposure. From the other hand, to offer pub keys only for online bluenodes. 
+	 * Finally, its faster to retrieve from the active table. 
+	 * 
+	 * @param BlueNodeName
+	 * @param writer
+	 * @param sessionKey
+	 */
 	public static void getBlueNodesPublic(String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) {
 		if (App.BNtable.checkOnlineByName(BlueNodeName)) {
 			try {
