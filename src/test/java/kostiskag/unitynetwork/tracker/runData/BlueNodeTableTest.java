@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
@@ -15,6 +16,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import kostiskag.unitynetwork.tracker.App;
 import kostiskag.unitynetwork.tracker.database.Queries;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeTableTest {
 	
@@ -67,8 +69,9 @@ public class BlueNodeTableTest {
 		BlueNodeTable bns = new BlueNodeTable();
 		assertEquals(bns.getSize(), 0);
 		try {
-			bns.lease("pakis", "192.168.1.1", 1234);
-			bns.lease("pakis2", "192.168.1.2", 1234);
+			PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+			bns.lease("pakis", pub, "192.168.1.1", 1234);
+			bns.lease("pakis2", pub, "192.168.1.2", 1234);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -82,11 +85,12 @@ public class BlueNodeTableTest {
 		App.bncap = 2;
 		BlueNodeTable bns = new BlueNodeTable();
 		assertEquals(bns.getSize(), 0);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
-			bns.lease("pakis", "192.168.1.1", 1234);
-			bns.lease("pakis2", "192.168.1.2", 1234);
-			bns.lease("pakis3", "192.168.1.3", 1234);
-			bns.lease("pakis4", "192.168.1.4", 1234);
+			bns.lease("pakis", pub, "192.168.1.1", 1234);
+			bns.lease("pakis2", pub, "192.168.1.2", 1234);
+			bns.lease("pakis3", pub, "192.168.1.3", 1234);
+			bns.lease("pakis4", pub, "192.168.1.4", 1234);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		
@@ -99,9 +103,10 @@ public class BlueNodeTableTest {
 		App.gui = false;
 		BlueNodeTable bns = new BlueNodeTable();
 		assertEquals(bns.getSize(), 0);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
-			bns.lease("pakis", "192.168.1.1", 1234);
-			bns.lease("pakis", "192.168.1.2", 1234);
+			bns.lease("pakis", pub, "192.168.1.1", 1234);
+			bns.lease("pakis", pub, "192.168.1.2", 1234);
 		} catch (Exception e) {
 			assertEquals(bns.getSize(), 1);
 			return;
@@ -114,9 +119,10 @@ public class BlueNodeTableTest {
 		App.gui = false;
 		BlueNodeTable bns = new BlueNodeTable();
 		assertEquals(bns.getSize(), 0);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
-			bns.lease("pakis", "192.168.1.1", 1234);
-			bns.lease("pakis2", "192.168.1.1", 1234);
+			bns.lease("pakis", pub, "192.168.1.1", 1234);
+			bns.lease("pakis2", pub, "192.168.1.1", 1234);
 		} catch (Exception e) {
 			assertEquals(bns.getSize(), 1);
 			return;
@@ -129,11 +135,12 @@ public class BlueNodeTableTest {
 		App.gui = false;
 		BlueNodeTable bns = new BlueNodeTable();
 		assertEquals(bns.getSize(), 0);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
-			bns.lease("pakis", "192.168.1.1", 1234);
-			bns.lease("pakis2", "192.168.1.2", 1234);
-			bns.lease("pakis3", "192.168.1.2", 1235);
-			bns.lease("pakis4", "192.168.1.4", 1234);
+			bns.lease("pakis", pub, "192.168.1.1", 1234);
+			bns.lease("pakis2", pub, "192.168.1.2", 1234);
+			bns.lease("pakis3", pub, "192.168.1.2", 1235);
+			bns.lease("pakis4", pub, "192.168.1.4", 1234);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}		

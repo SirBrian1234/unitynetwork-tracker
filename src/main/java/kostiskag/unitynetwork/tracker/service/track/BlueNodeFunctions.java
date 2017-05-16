@@ -2,6 +2,7 @@ package kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -34,7 +35,7 @@ public class BlueNodeFunctions {
 	 * lease a bluenode on the network
 	 * @throws Exception 
 	 */
-	public static void BlueLease(String bluenodeHostname, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void BlueLease(String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 
 		String data = null;
 		Queries q = null;
@@ -52,7 +53,7 @@ public class BlueNodeFunctions {
 					if (!App.BNtable.checkOnlineByName(bluenodeHostname)) {
 						// normal connect for a non associated BN
 						try {
-							App.BNtable.lease(bluenodeHostname, address, port);
+							App.BNtable.lease(bluenodeHostname, pub, address, port);
 							data = "LEASED " + address;
 							found = true;
 							break;

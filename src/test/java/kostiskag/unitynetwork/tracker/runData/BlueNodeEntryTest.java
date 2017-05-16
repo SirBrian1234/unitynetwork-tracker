@@ -1,17 +1,14 @@
 package kostiskag.unitynetwork.tracker.runData;
 
-
 import static org.junit.Assert.assertTrue;
 
+import java.security.PublicKey;
 import java.util.LinkedList;
 
-import static org.junit.Assert.assertEquals;
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
+
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeEntryTest {
 	@BeforeClass
@@ -20,7 +17,8 @@ public class BlueNodeEntryTest {
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		LinkedList<BlueNodeEntry> li= new LinkedList<>();
 		li.add(bn);
 		System.out.println("size "+li.size());
@@ -32,7 +30,8 @@ public class BlueNodeEntryTest {
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertTrue(bn.getName().equals(hostname));
 	}
 	
@@ -41,7 +40,8 @@ public class BlueNodeEntryTest {
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertTrue(bn.getPhaddress().equals(address));
 	}
 	
@@ -50,7 +50,8 @@ public class BlueNodeEntryTest {
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertTrue(bn.getPort() == port);
 	}
 	
@@ -61,6 +62,7 @@ public class BlueNodeEntryTest {
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, address, port);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 	}
 }

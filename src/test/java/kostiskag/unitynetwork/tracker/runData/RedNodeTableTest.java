@@ -2,11 +2,14 @@ package kostiskag.unitynetwork.tracker.runData;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.security.PublicKey;
 import java.sql.Time;
 import java.util.LinkedList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import kostiskag.unitynetwork.tracker.App;
+import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class RedNodeTableTest {
 
@@ -30,7 +33,8 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueHosnameTest() {
 		App.gui = false;
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", "192.168.1.1", 33);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
 			rns.lease("pakis", "192.168.1.1");
@@ -45,7 +49,8 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueAddressTest() {
 		App.gui = false;
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", "192.168.1.1", 33);
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
 			rns.lease("pakis", "192.168.1.1");

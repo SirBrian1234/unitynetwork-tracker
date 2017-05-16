@@ -144,7 +144,7 @@ public class TrackService extends Thread {
 			args = SocketFunctions.receiveAESEncryptedStringData(reader, sessionKey);
 			// OPTIONS
 			if (args.length == 2 && args[0].equals("LEASE")) {
-				BlueNodeFunctions.BlueLease(BlueNodeHostname, socket, args[1], writer, sessionKey);
+				BlueNodeFunctions.BlueLease(BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
 			} else if (args.length == 4 && args[0].equals("LEASE_RN")) {
 				BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("RELEASE")) {

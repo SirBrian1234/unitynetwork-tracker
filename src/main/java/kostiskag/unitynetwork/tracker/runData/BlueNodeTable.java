@@ -1,5 +1,6 @@
 package kostiskag.unitynetwork.tracker.runData;
 
+import java.security.PublicKey;
 import java.sql.Time;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -140,7 +141,7 @@ public class BlueNodeTable {
         return list.size();
     }
 
-    public synchronized void lease(String name, String phAddress, int port) throws Exception {     
+    public synchronized void lease(String name, PublicKey pub, String phAddress, int port) throws Exception {     
     	if (
 				!name.isEmpty() && 
 				name.length() <= App.max_str_len_small_size && 
@@ -158,7 +159,7 @@ public class BlueNodeTable {
 		        	}
 		        }
 		    	
-		    	BlueNodeEntry bn = new BlueNodeEntry(name, phAddress, port);
+		    	BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
 		        list.add(bn);
 		        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
 		        notifyGUI();
