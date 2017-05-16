@@ -36,7 +36,8 @@ public class RedNodeFunctions {
 			String phaddress = recomended.getPhaddress();
 			int port = recomended.getPort();
 			int load = recomended.getLoad();
-			data = hostname + " " + phaddress + " " + port + " " + load;
+			String pubkey = CryptoMethods.objectToBase64StringRepresentation(recomended.getPub());
+			data = hostname+" "+phaddress+" "+port+" "+load+" "+pubkey;
 		} else {
 			data = "NONE";
 		}
