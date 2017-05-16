@@ -238,13 +238,13 @@ public class TrackService extends Thread {
 			} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
 				//collects a network bns public
 				CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
+			} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+				//rn may be compromised and decides to revoke its public
+				RedNodeFunctions.revokePublicKey(hostname, writer, sessionKey);
 			} else if (App.BNtable.checkOnlineRnByHn(hostname)) {
 				if (args.length == 2 && args[0].equals("GETRNPUB")) {
 					//collects a network rns public
 					CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
-				} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
-					//rn may be compromised and decides to revoke its public
-					RedNodeFunctions.revokePublicKey(hostname, writer, sessionKey);
 				} else {
 					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 				}
