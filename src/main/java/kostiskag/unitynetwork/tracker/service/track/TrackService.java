@@ -145,29 +145,34 @@ public class TrackService extends Thread {
 			// OPTIONS
 			if (args.length == 2 && args[0].equals("LEASE")) {
 				BlueNodeFunctions.BlueLease(BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
-			} else if (args.length == 4 && args[0].equals("LEASE_RN")) {
-				BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
-			} else if (args.length == 1 && args[0].equals("RELEASE")) {
-				BlueNodeFunctions.BlueRel(BlueNodeHostname, writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
-				BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("GETPH")) {
-				BlueNodeFunctions.GetPh(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("CHECK_RN")) {
-				BlueNodeFunctions.CheckRn(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
-				BlueNodeFunctions.CheckRnAddr(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
-				BlueNodeFunctions.LookupByHn(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
-				BlueNodeFunctions.LookupByAddr(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
-				CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
-			} else if (args.length == 2 && args[0].equals("GETRNPUB")) {
-				CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
-			} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
-				// bluenode may be compromised and decides to revoke its public
-				BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);
+			} else if (App.BNtable.checkOnlineByName(BlueNodeHostname)) {
+				//in other words in order to execute extensive queries you have to be logged in
+				if (args.length == 4 && args[0].equals("LEASE_RN")) {
+					BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
+				} else if (args.length == 1 && args[0].equals("RELEASE")) {
+					BlueNodeFunctions.BlueRel(BlueNodeHostname, writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
+					BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("GETPH")) {
+					BlueNodeFunctions.GetPh(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("CHECK_RN")) {
+					BlueNodeFunctions.CheckRn(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
+					BlueNodeFunctions.CheckRnAddr(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
+					BlueNodeFunctions.LookupByHn(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
+					BlueNodeFunctions.LookupByAddr(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
+					CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
+				} else if (args.length == 2 && args[0].equals("GETRNPUB")) {
+					CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
+				} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
+					// bluenode may be compromised and decides to revoke its public
+					BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);
+				} else {
+					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
+				}
 			} else {
 				SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 			}
