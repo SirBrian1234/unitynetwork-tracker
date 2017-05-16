@@ -161,6 +161,10 @@ public class TrackService extends Thread {
 				BlueNodeFunctions.LookupByHn(args[1], writer, sessionKey);
 			} else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
 				BlueNodeFunctions.LookupByAddr(args[1], writer, sessionKey);
+			} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
+				CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
+			} else if (args.length == 2 && args[0].equals("GETRNPUB")) {
+				CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
 				// bluenode may be compromised and decides to revoke its public
 				BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);
@@ -224,8 +228,14 @@ public class TrackService extends Thread {
 				//rn collects a list of all the availlable bns
 				RedNodeFunctions.getAllConnectedBlueNodes(writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("GETRBN")) {
-				//rn collects a recomended bn based on the lowes load
+				//rn collects a recommended bn based on the lowest load
 				RedNodeFunctions.getRecomendedBlueNode(writer, sessionKey);
+			} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
+				//collects a network bns public
+				CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
+			} else if (args.length == 2 && args[0].equals("GETRNPUB")) {
+				//collects a network rns public
+				CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
 				//rn may be compromised and decides to revoke its public
 				RedNodeFunctions.revokePublicKey(hostname, writer, sessionKey);
