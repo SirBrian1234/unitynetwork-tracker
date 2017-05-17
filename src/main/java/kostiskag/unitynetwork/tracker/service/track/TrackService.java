@@ -130,7 +130,6 @@ public class TrackService extends Thread {
 			// send it, wait for response
 			String args[] = SocketFunctions.sendReceiveAESEncryptedStringData(encq, reader, writer, sessionKey);
 
-			System.out.println("received " + args[0]);
 			if (args[0].equals("EXIT")) {
 				return;
 			} else if (args[0].equals(question)) {
