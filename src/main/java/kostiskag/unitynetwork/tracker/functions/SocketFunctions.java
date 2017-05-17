@@ -135,7 +135,7 @@ public class SocketFunctions {
         	message = "\n";
         }        
     	//include a line feed and a return char
-    	message += "\n\r";
+    	//message += "\n\r";
     	byte[] chiphered = CryptoMethods.aesEncrypt(message, sessionKey);
         sendData(chiphered, writer);
     }
@@ -158,7 +158,7 @@ public class SocketFunctions {
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
-        	message = "\n\r";
+        	//message = "\n\r";
         }        
     	//include a line feed and a return char
     	//message += "\n\r";
