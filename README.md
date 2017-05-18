@@ -9,8 +9,8 @@ The network is based in three key-principles:
 
 * **Identification**: Each registered user or organisation may own multiple host-clients where each host-client may receive the same network address each time the device connects to the network
 * **Freedom**: Each client may host any kind of service and transfer any kind of data towards any other host-client without limitations of any kind
-* **Security**: The network provides authentication and encryption in order to defend its host-client privacy 
-[currently under dev under encryption branch]
+* **Security**: In order to defend its host-client privacy, the network provides RSA and AES algorithms for encryption and authentication and public key distribution to all blue and red nodes.
+(If you do not want to use the encrypted version you may use the non_encrypted version from the respective branch)
 
 ## Reasoning
 This software was build as part of my BSc Thesis in order to demonstare a live and tangible example of a better version of today's Internet. Inside the network, users may experience a much more vivid communication, the ability to share any kind of data or services between them and the ability to know each other. 
@@ -26,7 +26,7 @@ In general, you may perform any kind of task that is currently being done in an 
 * Bob may directly send a file from his laptop to David's Laptop
 * Lucy may connect from her mobile phone to a social media server
 * Steve may video-call Jenny from his computer to her mobile phone
-* May may leave a message to her home's noticeboard from her laptop
+* May leaves a message from her laptop to her home's noticeboard
 * Bill calls Dave from his mobile to Dave's mobile
 
 ## Applications
@@ -49,14 +49,14 @@ mvn dependency:copy-dependencies
 
 ## Option B - Download and use a pre-built version
 You can download, unzip and use a pre-built version of Unity Network Tracker from this url:
-https://drive.google.com/file/d/0BzPrI7NjFz2Sem1PZVBMT3lPdW8/view?usp=sharing
+
 
 In order to establish data integrity, you should verify the zip file's signature to be:
 
 | Algorithm | Hash Signature |
 | --- | --- |
-| MD5 | 2a59d76bf83c2d08973cb901bbe38137 |
-| SHA256 | 28efe5ae0ff1fb2cd40a416e9b946e528d57016e4b863e56861dcc39955b09c0 |
+| MD5 | 00 |
+| SHA256 | 00 |
 
 ## Run
 ```
