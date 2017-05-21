@@ -80,10 +80,12 @@ public class SocketFunctions {
 	    	byteT = new byte[read];
 			System.arraycopy(bytes, 0, byteT, 0, read);
 		
-			if (byteT[0] == (int)13) {
-				App.ConsolePrint(pre + "RECEIVED new line");
+			if (byteT[0] == (int)0) {
+				App.ConsolePrint(pre + "RECEIVED a zero char");
+		    } else if (byteT[0] == (int)13) {
+				App.ConsolePrint(pre + "RECEIVED a new line char");
 			} else if (byteT[0] == (int)10) {
-				App.ConsolePrint(pre+ "received return char");
+				App.ConsolePrint(pre+ "received a return char");
 			}
 		} else if (read == 0){
 			App.ConsolePrint(pre + "RECEIVED zero");
@@ -105,7 +107,7 @@ public class SocketFunctions {
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
-        	message = "\n\r";
+        	message = "\n";
         }        
     	//include a line feed and a return char
     	//message += "\n\r";
@@ -158,7 +160,7 @@ public class SocketFunctions {
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
-        	//message = "\n\r";
+        	message = "\n";
         }        
     	//include a line feed and a return char
     	//message += "\n\r";

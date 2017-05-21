@@ -18,11 +18,11 @@ import kostiskag.unitynetwork.tracker.runData.RedNodeEntry;
  * These functions are being used from the sonar service - the tracker client
  * 
  *  CHECK
- *  GETREDNODES
  *  KILLSIG
+ *  GETREDNODES
  *  
- *  Exception handle policy: the task is to provide resilience for the network socket
- *  to keep it alive and block the internal system exceptions such as database
+ *  Exception handle policy: the task is to provide resilience and protect the network socket,
+ *  keep it alive and block the internal system exceptions such as database
  *  therefore net exceptions should be thrown, system exception should be cached and a
  *  proper response has to be compiled.
  *
@@ -62,7 +62,7 @@ public class BlueNodeClient {
 			System.out.println(args[0]);
 			
 			if(!args[0].equals("BLUENODE") || !args[1].equals(bn.getName())) {
-				throw new Exception();
+				throw new Exception("Wrong header message");
 			}
 			
 			//tracker is to be authenticated by the bn
@@ -79,7 +79,9 @@ public class BlueNodeClient {
 			
 			if (args[0].equals("OK")) {
 				connected = true;
-			} 
+			} else {
+				throw new Exception("Tracker authentication was not allowed from target bluenode.");
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}        
