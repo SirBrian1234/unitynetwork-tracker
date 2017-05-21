@@ -187,11 +187,11 @@ public class TrackService extends Thread {
 					App.ConsolePrint(pre+prebn+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);
 				} else {
-					App.ConsolePrint(pre+prebn+"WRONG_COMMAND for leased bn "+BlueNodeHostname+" from "+socket.getInetAddress().getHostAddress());
+					App.ConsolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" for leased bn "+BlueNodeHostname+" from "+socket.getInetAddress().getHostAddress());
 					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 				}
 			} else {
-				App.ConsolePrint(pre+prebn+"WRONG_COMMAND"+" from "+socket.getInetAddress().getHostAddress());
+				App.ConsolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" from "+socket.getInetAddress().getHostAddress());
 				SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 			}
 		}
@@ -270,11 +270,11 @@ public class TrackService extends Thread {
 					App.ConsolePrint(pre+prern+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
 					CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
 				} else {
-					App.ConsolePrint(pre+prern+"WRONG_COMMAND for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
+					App.ConsolePrint(pre+prern+"WRONG_COMMAND: "+args[0]+" for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
 					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 				}
 			} else {
-				App.ConsolePrint(pre+prern+"WRONG_COMMAND"+" from "+socket.getInetAddress().getHostAddress());
+				App.ConsolePrint(pre+prern+"WRONG_COMMAND "+args[0]+" from "+socket.getInetAddress().getHostAddress());
 				SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 			}
 		}
