@@ -83,16 +83,18 @@ public class BlueNodeClient {
 				throw new Exception("Tracker authentication was not allowed from target bluenode.");
 			}
 		} catch (Exception e) {
+			App.ConsolePrint(pre+" dropped for "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 			e.printStackTrace();
 		}        
 	}
     
     public boolean isConnected() {
-		return connected;
+    	return connected;
 	}
     
     public boolean checkBnOnline() throws Exception {
     	if (connected) {
+    		App.ConsolePrint(pre+"CHECK"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);    
 	        SocketFunctions.connectionClose(socket);
 	        if (args[0].equals("OK")) {
@@ -102,20 +104,18 @@ public class BlueNodeClient {
         return false;
 	}
     
-    public boolean sendkillsig() throws Exception  {
+    public void sendkillsig() throws Exception  {
     	if (connected) {   
-	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("KILLSIG", socketReader, socketWriter, sessionKey); 
+    		App.ConsolePrint(pre+"KILLSIG"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+	    	SocketFunctions.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey); 
 	    	SocketFunctions.connectionClose(socket);
-	        if (args[0].equals("OK")) {
-	        	return true;
-	        }                 	        		
-    	}
-    	return false;
+	    }
     }
     
     public LinkedList<RedNodeEntry> getRedNodes() throws Exception  {  
     	LinkedList<RedNodeEntry> list = new LinkedList<>();
     	if (connected) {    	
+    		App.ConsolePrint(pre+"GETREDNODES"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("GETREDNODES", socketReader, socketWriter, sessionKey);        
 	        int count = Integer.parseInt(args[1]);
 	        for (int i = 0; i < count; i++) {

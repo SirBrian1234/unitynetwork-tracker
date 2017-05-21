@@ -75,24 +75,27 @@ public class SocketFunctions {
     public static byte[] receiveData(DataInputStream reader) throws IOException {
     	byte[] byteT = new byte[]{0x00};
     	byte[] bytes = new byte[2048];
-    	int read = reader.read(bytes);
-		if (read > 0) {
-	    	byteT = new byte[read];
-			System.arraycopy(bytes, 0, byteT, 0, read);
-		
-			if (byteT[0] == (int)0) {
-				App.ConsolePrint(pre + "RECEIVED a zero char");
-		    } else if (byteT[0] == (int)13) {
-				App.ConsolePrint(pre + "RECEIVED a new line char");
-			} else if (byteT[0] == (int)10) {
-				App.ConsolePrint(pre+ "received a return char");
+    	for (int i=0; i<2; i++) {
+	    	int read = reader.read(bytes);
+			if (read > 0) {
+		    	byteT = new byte[read];
+				System.arraycopy(bytes, 0, byteT, 0, read);
+			
+				if (byteT[0] == (int)0) {
+					App.ConsolePrint(pre + "RECEIVED a zero char");
+			    } else if (byteT[0] == (int)13) {
+					App.ConsolePrint(pre + "RECEIVED a new line char");
+				} else if (byteT[0] == (int)10) {
+					App.ConsolePrint(pre+ "received a return char");
+				}
+				return byteT;
+			} else if (read == 0){
+				App.ConsolePrint(pre + "RECEIVED zero");
+			} else {
+				App.ConsolePrint(pre + "RECEIVED "+read);
 			}
-		} else if (read == 0){
-			App.ConsolePrint(pre + "RECEIVED zero");
-		} else {
-			App.ConsolePrint(pre + "RECEIVED "+read);
-		}
-    	return byteT;		
+    	}
+    	return byteT; 		
     }
     
     public static byte[] sendReceiveData(byte[] toSend, DataInputStream reader, DataOutputStream writer) throws Exception  {

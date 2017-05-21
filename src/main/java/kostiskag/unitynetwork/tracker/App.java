@@ -184,12 +184,7 @@ public class App {
 	}
 
 	public static void die() {
-		ConsolePrint("Tracker will die in 3 secs");
-		try {
-			Thread.sleep(3000);
-		} catch (InterruptedException ex) {
-			Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
-		}
+		ConsolePrint("Tracker is going to die.");
 		System.exit(1);
 	}
 
