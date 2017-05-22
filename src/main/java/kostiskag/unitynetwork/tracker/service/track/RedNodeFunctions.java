@@ -46,22 +46,14 @@ public class RedNodeFunctions {
 
 	static void getAllConnectedBlueNodes(DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		int size = App.BNtable.getSize();
-		if (App.BNtable.getSize() > 0) {
-			SocketFunctions.sendAESEncryptedStringData("SENDING_BLUENODES " + size, writer, sessionKey);
-			String fetched[][] = App.BNtable.buildStringInstanceObject();
-			int i = 0;
-			try {
-				while(fetched[i] != null) {			
-					SocketFunctions.sendAESEncryptedStringData(fetched[i][0] + " " + fetched[i][1] + " " + fetched[i][2] + " " + fetched[i][3], writer, sessionKey);
-					i++;
-				}	
-			} catch (ArrayIndexOutOfBoundsException ex) {
-				
-			}
-			SocketFunctions.sendAESEncryptedStringData("", writer, sessionKey);
-		} else {
-			SocketFunctions.sendAESEncryptedStringData("NONE", writer, sessionKey);
-		}
+		StringBuilder str = new StringBuilder();
+		str.append("SENDING_BLUENODES " + size+"\n");
+		
+		String fetched[][] = App.BNtable.buildStringInstanceObject();
+		for(int i=0; i<fetched.length; i++) {			
+			str.append(fetched[i][0]+" "+fetched[i][1]+" "+fetched[i][2]+" "+fetched[i][3]+"\n");
+		}	
+		SocketFunctions.sendAESEncryptedStringData(str.toString(), writer, sessionKey);
 	}
 	
 	/*
