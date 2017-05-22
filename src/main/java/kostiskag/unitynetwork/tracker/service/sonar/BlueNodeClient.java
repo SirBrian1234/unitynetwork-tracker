@@ -116,14 +116,24 @@ public class BlueNodeClient {
     	LinkedList<RedNodeEntry> list = new LinkedList<>();
     	if (connected) {    	
     		App.ConsolePrint(pre+"GETREDNODES"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
-	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("GETREDNODES", socketReader, socketWriter, sessionKey);        
-	        int count = Integer.parseInt(args[1]);
-	        for (int i = 0; i < count; i++) {
-	            args = SocketFunctions.receiveAESEncryptedStringData(socketReader, sessionKey);
-	            RedNodeEntry r =  new RedNodeEntry(bn, args[0], args[1]);                    
-	            list.add(r); 
-	        }
-	        SocketFunctions.connectionClose(socket);	        
+	    	SocketFunctions.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
+	    	String received = SocketFunctions.receiveAESEncryptedString(socketReader, sessionKey);
+	    	SocketFunctions.connectionClose(socket);	 
+	    	
+	    	System.out.println("received:"+received);
+			String[] lines = received.split("\n+"); //split into sentences
+			String[] args = lines[0].split("\\s+"); //the first sentence contains the number
+			int count = Integer.parseInt(args[1]);  //for the given number read the rest sentences
+	        for (int i = 1; i < count+1; i++) {        	
+				args = lines[i].split("\\s+");
+	            try {
+	            	System.out.println("getrns "+args[0]+" "+args[1]);
+	            	RedNodeEntry r =  new RedNodeEntry(bn, args[0], args[1]);                    
+	 	            list.add(r); 
+				} catch (Exception e) {
+					e.printStackTrace();
+				}				
+	        }	    	      
     	}
     	return list;
 	}    

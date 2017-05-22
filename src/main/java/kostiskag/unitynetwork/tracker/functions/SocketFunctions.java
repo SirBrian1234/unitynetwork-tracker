@@ -152,6 +152,12 @@ public class SocketFunctions {
         return args;
     }
     
+    public static String receiveAESEncryptedString(DataInputStream reader, SecretKey sessionKey) throws IOException {
+    	byte[] received = receiveData(reader);
+    	String decrypted = CryptoMethods.aesDecrypt(received, sessionKey);
+    	return decrypted;
+    }
+    
     public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws Exception  {
     	sendAESEncryptedStringData(message, writer, sessionKey);
     	return receiveAESEncryptedStringData(reader, sessionKey);
