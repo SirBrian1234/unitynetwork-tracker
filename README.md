@@ -15,7 +15,7 @@ The network is based in three key-principles:
 ## Reasoning
 This software was build as part of my BSc Thesis in order to demonstare a live and tangible example of a better version of today's Internet. Inside the network, users may experience a much more vivid communication, the ability to share any kind of data or services between them and the ability to know each other. 
 
-In order to learn more about the Thesis please visit its article from the following url:
+In order to learn more about the Thesis please visit the following url:
 https://kostiskag.wordpress.com/2017/05/25/unity-network/
 
 ### Some feasible examples of the network's behaviour are:
