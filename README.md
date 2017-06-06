@@ -84,4 +84,5 @@ In order for the platform to be fully operational it needs the following todo li
 * improve the control flow algorithm
 * fix minor bugs
 * deploy and test on the Internet
+
 If you are interested in joining the project please send me an email.
