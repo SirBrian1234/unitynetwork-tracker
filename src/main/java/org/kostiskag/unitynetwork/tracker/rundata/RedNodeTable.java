@@ -1,9 +1,13 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 
 
 /**
@@ -15,18 +19,18 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
 public class RedNodeTable {
 
     private final static String pre = "^RNTABLE ";
-    private BlueNodeEntry bluenode;
-    private LinkedList<RedNodeEntry> list = new LinkedList<>();
+    private final BlueNodeEntry bluenode;
+    private final List<RedNodeEntry> list;
     
     public RedNodeTable(BlueNodeEntry bluenode) {
-    	this.bluenode = bluenode;
-        list = new LinkedList<RedNodeEntry>();
+        this.bluenode = bluenode;
+        this.list = new ArrayList<>();
         AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
     
-    public RedNodeTable(BlueNodeEntry bluenode, LinkedList<RedNodeEntry> builtList) {
-    	this.bluenode = bluenode;
-        list = builtList;
+    public RedNodeTable(BlueNodeEntry bluenode, List<RedNodeEntry> builtList) {
+        this.bluenode = bluenode;
+        this.list = builtList;
         AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
 
@@ -56,7 +60,7 @@ public class RedNodeTable {
         return list.size();
     }
     
-    public synchronized LinkedList<RedNodeEntry> getList() {
+    public synchronized List<RedNodeEntry> getList() {
         return list;
     }
     
@@ -143,8 +147,8 @@ public class RedNodeTable {
     }
    
 	private void notifyGUI () {
-    	if (App.TRACKER_APP.gui) {
-    		App.TRACKER_APP.window.updateRedNodeTable();
+    	if (MainWindow.isInstance()) {
+    		MainWindow.getInstance().updateRedNodeTable();
     	}
     }
 }

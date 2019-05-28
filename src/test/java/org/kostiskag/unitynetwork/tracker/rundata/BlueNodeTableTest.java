@@ -13,22 +13,24 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeTableTest {
 
-	/*
 	@BeforeClass
 	public static void beforeClass() {
 		System.out.println("Before");
+		AppLogger.newInstance(null,null);
 		File file = new File("bn_test.db");
     	if (file.exists()) {
     		file.delete();
     	}
     	try {
-			Database db = new Database("jdbc:sqlite:bn_test.db","","");
+			Database db = Database.newInstance("jdbc:sqlite:bn_test.db","","");
+			db.connect();
 			Queries.validateDatabase(db);
 			Queries q = new Queries();
 			q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
@@ -41,14 +43,12 @@ public class BlueNodeTableTest {
 			q.insertEntryBluenodes("pakis2", id,"");
 			q.insertEntryBluenodes("pakis3", id,"");
 			q.insertEntryBluenodes("pakis4", id,"");
-		} catch (SQLException e) {			
+		    //q.closeQueries();
+    	} catch (SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	
-		App.bncap = 0;
-		App.gui = false;
-	}
+    }
 	
 	@AfterClass
 	public static void afterClass() {
@@ -60,13 +60,12 @@ public class BlueNodeTableTest {
 	
 	@Before
 	public void before() {
-		App.bncap = 0;
+
 	}
 	
 	@Test
 	public void initTest(){
-		
-		BlueNodeTable bns = new BlueNodeTable();
+		BlueNodeTable bns = new BlueNodeTable(0);
 		assertEquals(bns.getSize(), 0);
 		try {
 			PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
@@ -81,9 +80,7 @@ public class BlueNodeTableTest {
 	@Test
 	public void maxCapacityTest(){
 		System.out.println("cap test");
-		App.gui = false;
-		App.bncap = 2;
-		BlueNodeTable bns = new BlueNodeTable();
+		BlueNodeTable bns = new BlueNodeTable(2);
 		assertEquals(bns.getSize(), 0);
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
@@ -100,8 +97,7 @@ public class BlueNodeTableTest {
 	
 	@Test
 	public void uniqueHnTest(){
-		App.gui = false;
-		BlueNodeTable bns = new BlueNodeTable();
+		BlueNodeTable bns = new BlueNodeTable(0);
 		assertEquals(bns.getSize(), 0);
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
@@ -116,8 +112,7 @@ public class BlueNodeTableTest {
 	
 	@Test
 	public void uniqueAddrTest(){
-		App.gui = false;
-		BlueNodeTable bns = new BlueNodeTable();
+		BlueNodeTable bns = new BlueNodeTable(0);
 		assertEquals(bns.getSize(), 0);
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
@@ -130,10 +125,9 @@ public class BlueNodeTableTest {
 		assertTrue(false);
 	}
 	
-	@Test
-	public void loadTest(){
-		App.gui = false;
-		BlueNodeTable bns = new BlueNodeTable();
+	//@Test
+	public void leaseRedNodeTest(){
+		BlueNodeTable bns = new BlueNodeTable(0);
 		assertEquals(bns.getSize(), 0);
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		try {
@@ -168,5 +162,5 @@ public class BlueNodeTableTest {
 		assertEquals(bns.getBlueNodeEntryByHn("pakis4").getLoad(), 0);
 		assertEquals(bns.getBlueNodeEntryByLowestLoad().getName(), "pakis4");
 	}
-	*/
+
 }

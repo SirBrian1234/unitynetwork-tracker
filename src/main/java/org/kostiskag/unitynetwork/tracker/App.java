@@ -117,7 +117,7 @@ public class App {
 			}
 
 			System.out.println("initializing gui...");
-			window = MainWindow.instanceOf();
+			window = MainWindow.newInstance();
 			window.showWindow();
 		}
 		
@@ -167,9 +167,9 @@ public class App {
 		}
 		AppLogger.getLogger().consolePrint("Database validation complete.");
 
-		// 5. tables
+		// 5. table
 		AppLogger.getLogger().consolePrint("initializing tables...");
-		BNtable = new BlueNodeTable();
+		BNtable = new BlueNodeTable(this.bncap);
 
 		// 6. service
 		AppLogger.getLogger().consolePrint("initializing AuthService on port " + auth + " ...");

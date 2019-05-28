@@ -8,12 +8,14 @@ import java.util.LinkedList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeEntryTest {
 	@BeforeClass
 	public static void linkedTest() {
 		//counting starts from zero - an id may never exceed size - no excuses here!!!
+		AppLogger.newInstance(null,null);
 		String hostname = "ouiou";
 		String address = "10.0.0.1";
 		int port = 4440;
@@ -57,7 +59,7 @@ public class BlueNodeEntryTest {
 	
 	@Test
 	public void testBnTable() {
-		BlueNodeTable bnt = new BlueNodeTable();
+		BlueNodeTable bnt = new BlueNodeTable(0);
 		System.out.println(bnt.getSize());
 		String hostname = "ouiou";
 		String address = "10.0.0.1";

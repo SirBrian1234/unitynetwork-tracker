@@ -14,9 +14,9 @@ public class BlueNodeEntry {
     private final String Phaddress;
     private final int port;
     private final PublicKey pub;
+    //should become final
+    public  RedNodeTable rednodes;
     private Time regTimestamp;
-    public RedNodeTable rednodes;
-    
     private Object timeLock = new Object();
 
     public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port, Time regTimestamp) {

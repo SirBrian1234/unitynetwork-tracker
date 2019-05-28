@@ -52,11 +52,19 @@ public class MainWindow extends javax.swing.JFrame {
 	private About about;
 
 	//enforce singleton obj
-	public static MainWindow instanceOf() {
+	public static MainWindow newInstance() {
 		if (MainWindow.WINDOW == null){
 			MainWindow.WINDOW = new MainWindow();
 		}
 		return MainWindow.WINDOW;
+	}
+
+	public static MainWindow getInstance() {
+		return MainWindow.WINDOW;
+	}
+
+	public static boolean isInstance() {
+		return MainWindow.WINDOW != null;
 	}
 
 	private MainWindow() {

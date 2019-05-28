@@ -5,17 +5,23 @@ import static org.junit.Assert.assertTrue;
 
 import java.security.PublicKey;
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class RedNodeTableTest {
 
-	/*
+    @BeforeClass
+    public static void init() {
+        AppLogger.newInstance(null,null);
+    }
+
 	@Test
 	public void initTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -32,7 +38,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void uniqueHosnameTest() {
-		App.gui = false;
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -48,7 +53,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void uniqueAddressTest() {
-		App.gui = false;
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -64,7 +68,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void getByHostnameTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -83,7 +86,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void getByVAddressTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -102,7 +104,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void getStringListTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -126,7 +127,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void checkOnlineByHnTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -149,7 +149,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void checkOnlineByVaddressTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -172,7 +171,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void releaseByHostnameTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -199,7 +197,6 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void releaseByVaddressTest() {
-		App.gui = false;
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
@@ -222,5 +219,5 @@ public class RedNodeTableTest {
 		assertTrue(rns.checkOnlineByHn("pakis5"));
 		assertEquals(rns.getSize(), 3);
 	}
-	*/
+
 }

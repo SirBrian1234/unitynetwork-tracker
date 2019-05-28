@@ -14,7 +14,6 @@ public class RedNodeEntry {
     private final String vAddress;
     private final BlueNodeEntry bn;
     private Time regTimestamp;
-    
     private Object timeLock = new Object();
 
     public RedNodeEntry(BlueNodeEntry bn, String hostname, String Vaddress) {

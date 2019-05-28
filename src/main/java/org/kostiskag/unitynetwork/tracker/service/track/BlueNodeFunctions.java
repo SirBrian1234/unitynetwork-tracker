@@ -115,7 +115,7 @@ public class BlueNodeFunctions {
 									if (userauth == inuserid) {
 										try {
 											String vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
-											bn.rednodes.lease(hostname, vaddress);
+											bn.getRedNodes().lease(hostname, vaddress);
 											data = "LEASED " + vaddress;
 										} catch (Exception e) {
 											e.printStackTrace();

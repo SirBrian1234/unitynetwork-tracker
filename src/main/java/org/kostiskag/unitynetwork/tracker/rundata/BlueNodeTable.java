@@ -3,8 +3,11 @@ package org.kostiskag.unitynetwork.tracker.rundata;
 import java.security.PublicKey;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
+
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
@@ -18,9 +21,15 @@ import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 public class BlueNodeTable {
 
     private final static String pre = "^BNTABLE ";
-    private LinkedList<BlueNodeEntry> list;
+    private final int bncap;
+	private final LinkedList<BlueNodeEntry> list;
 
-    public BlueNodeTable() {
+	public BlueNodeTable() {
+		this(0);
+	}
+
+	public BlueNodeTable(int bncap) {
+        this.bncap = bncap;
         list = new LinkedList<BlueNodeEntry>();
         AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
@@ -147,10 +156,10 @@ public class BlueNodeTable {
 				name.length() <= App.MAX_STR_LEN_SMALL_SIZE &&
 				!phAddress.isEmpty() && 
 				phAddress.length() <= App.MAX_STR_ADDR_LEN &&
-				port > 0 && port <= 65535
+				port > 0 && port <= App.MAX_ALLOWED_PORT_NUM
     		) {
 	    	
-    		if (App.TRACKER_APP.bncap == 0 || App.TRACKER_APP.bncap > list.size()) {
+    		if (this.bncap == 0 || this.bncap > list.size()) {
 		    	Iterator<BlueNodeEntry> iterator = list.listIterator();
 		        while (iterator.hasNext()) {
 		        	BlueNodeEntry element = iterator.next();
@@ -237,9 +246,9 @@ public class BlueNodeTable {
 					System.out.println(pre+"Fetching RNs from BN "+element.getName());
 				    element.updateTimestamp();
 				    cl = new BlueNodeClient(element);
-				    LinkedList<RedNodeEntry> rns = cl.getRedNodes();
-				    LinkedList<RedNodeEntry> in = element.rednodes.getList();
-				    LinkedList<RedNodeEntry> valid = new LinkedList<RedNodeEntry>();
+				    List<RedNodeEntry> rns = cl.getRedNodes();
+				    List<RedNodeEntry> in = element.rednodes.getList();
+				    List<RedNodeEntry> valid = new LinkedList<RedNodeEntry>();
 				    Iterator<RedNodeEntry> rnsIt = rns.iterator();
 				    
 				    while (rnsIt.hasNext()) {
@@ -318,9 +327,9 @@ public class BlueNodeTable {
     }
     
     private void notifyGUI () {
-    	if (App.TRACKER_APP.gui) {
-    		App.TRACKER_APP.window.updateBlueNodeTable();
-    		App.TRACKER_APP.window.updateRedNodeTable();
+    	if (MainWindow.isInstance()) {
+    		MainWindow.getInstance().updateBlueNodeTable();
+			MainWindow.getInstance().updateRedNodeTable();
     	}
     }
 }
