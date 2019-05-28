@@ -1,11 +1,11 @@
-package kostiskag.unitynetwork.tracker.service;
+package org.kostiskag.unitynetwork.tracker.service;
 
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 /**
  * 
@@ -71,7 +71,7 @@ public class BlueNodeGlobalFunctions {
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
 					q.closeQueries();
-					if (App.BNtable.checkOnlineByName(BlueNodeHostname)) {						
+					if (App.TRACKER_APP.BNtable.checkOnlineByName(BlueNodeHostname)) {
 						return 1;
 					} else {						
 						return 0;

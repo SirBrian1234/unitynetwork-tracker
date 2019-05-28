@@ -1,11 +1,11 @@
-package kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.functions;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.App;
 
 /**
  *
@@ -21,7 +21,7 @@ public class VAddressFunctions {
 	 */
     public static String numberTo10ipAddr(int num_addr) {
         byte[] networkpart = new byte[]{0x0a};
-        int hostnum = num_addr + App.systemReservedAddressNumber;
+        int hostnum = num_addr + App.SYSTEM_RESERVED_ADDRESS_NUMBER;
 
         byte[] hostpart = new byte[]{
             (byte) ((hostnum) >>> 16),
@@ -53,7 +53,7 @@ public class VAddressFunctions {
         for (int i = 0; i < hostpart.length; i++) {
             hostnum = (hostnum << 8) + (hostpart[i] & 0xff);
         }
-        hostnum = hostnum - App.systemReservedAddressNumber;
+        hostnum = hostnum - App.SYSTEM_RESERVED_ADDRESS_NUMBER;
         return hostnum;
     }
 }

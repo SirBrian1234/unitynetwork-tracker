@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.gui;
+package org.kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -17,8 +17,8 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 /**
@@ -30,35 +30,46 @@ public class MainWindow extends javax.swing.JFrame {
 	/**
 	 * Creates new form MainWindow
 	 */
-	public static boolean lockDbEdit = false;
-	
-	private static DefaultTableModel bluenodes;
-	private static DefaultTableModel rednodes;
+	private static MainWindow WINDOW;
+
+	private final String[] bluenodesTableHead = new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
+	private final String[] rednodesTableHead = new String[] { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" };
+
+	private final String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
+	private final String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
+	private final String[] blunodesDbHead = new String[] { "name", "userid" };
+
+	private DefaultTableModel bluenodes;
+	private DefaultTableModel rednodes;
 
 	private DefaultTableModel modelBluenodesDb;
 	private DefaultTableModel modelUsersDb;
 	private DefaultTableModel modelHostnamesDb;
-	
-	private String[] bluenodesTableHead = new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
-	private String[] rednodesTableHead = new String[] { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" };
-	
-	private String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
-	private String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
-	private String[] blunodesDbHead = new String[] { "name", "userid" };
-	
+
+	private int messageCount = 0;
+	private boolean lockDbEdit = false;
+	public boolean autoScrollDown = true;
 	private About about;
 
-	public MainWindow() {
-		setTitle("Unity Network Tracker");
-		bluenodes = new DefaultTableModel(new String[][] {}, bluenodesTableHead);
-		rednodes = new DefaultTableModel(new String[][] {}, rednodesTableHead);
+	//enforce singleton obj
+	public static MainWindow instanceOf() {
+		if (MainWindow.WINDOW == null){
+			MainWindow.WINDOW = new MainWindow();
+		}
+		return MainWindow.WINDOW;
+	}
 
-		modelUsersDb = new DefaultTableModel(new String[][] {}, usersDbHead);
-		modelHostnamesDb = new DefaultTableModel(new String[][] {}, hostnamesDbHead);
-		modelBluenodesDb = new DefaultTableModel(new String[][] {}, blunodesDbHead);
+	private MainWindow() {
+		setTitle("Unity Network Tracker");
+		bluenodes = new DefaultTableModel(new String[][]{}, bluenodesTableHead);
+		rednodes = new DefaultTableModel(new String[][]{}, rednodesTableHead);
+
+		modelUsersDb = new DefaultTableModel(new String[][]{}, usersDbHead);
+		modelHostnamesDb = new DefaultTableModel(new String[][]{}, hostnamesDbHead);
+		modelBluenodesDb = new DefaultTableModel(new String[][]{}, blunodesDbHead);
 
 		initComponents();
-		
+
 		table.setModel(modelUsersDb);
 		table_1.setModel(modelHostnamesDb);
 		table_2.setModel(modelBluenodesDb);
@@ -68,6 +79,22 @@ public class MainWindow extends javax.swing.JFrame {
 		table_2.setDefaultEditor(Object.class, null);
 
 		updateDatabaseGUI();
+	}
+
+	public void showWindow() {
+		this.setVisible(true);
+	}
+
+	public void verboseInfo(String message) {
+		jTextArea1.append(message + "\n");
+		messageCount++;
+		if (messageCount > 10000) {
+			messageCount = 0;
+			jTextArea1.setText("");
+		}
+		if (autoScrollDown) {
+			jTextArea1.select(jTextArea1.getHeight() + 10000, 0);
+		}
 	}
 
 	private void initComponents() {
@@ -80,7 +107,7 @@ public class MainWindow extends javax.swing.JFrame {
 						"Are you sure you wish to terminate the Tracker?\nThis may result in the overall network termination.\nIf you decide to close the Tracker, it will send the appropriate kill signals to the connected BlueNodes.",
 						"", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
-					App.terminate();
+					App.TRACKER_APP.terminate();
 				}
 			}
 		});
@@ -234,9 +261,9 @@ public class MainWindow extends javax.swing.JFrame {
 		btnAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if (about == null) {
-					about = new About();
+					about = About.instanceOf();
 				} else if (!about.isVisible()) {
-					about = new About();
+					about.show();
 				}
 			}
 		});
@@ -512,7 +539,7 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 
 	private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jCheckBox1ActionPerformed
-		App.autoScrollDown = jCheckBox1.isSelected();
+		autoScrollDown = jCheckBox1.isSelected();
 	}
 
 	public synchronized void updateDatabaseGUI() {
@@ -527,14 +554,14 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 	
 	public synchronized void updateBlueNodeTable() {
-		String[][] data = App.BNtable.buildStringInstanceObject();
+		String[][] data = App.TRACKER_APP.BNtable.buildStringInstanceObject();
         bluenodes = new DefaultTableModel(data, bluenodesTableHead);
         jTable2.setModel(bluenodes);
         repaint();
 	}
 	
 	public synchronized void updateRedNodeTable() {
-		String[][] data = App.BNtable.buildRednodeStringInstanceObject();
+		String[][] data = App.TRACKER_APP.BNtable.buildRednodeStringInstanceObject();
         rednodes = new DefaultTableModel(data, rednodesTableHead);
         jTable1.setModel(rednodes);
         repaint();
@@ -558,7 +585,7 @@ public class MainWindow extends javax.swing.JFrame {
 	private javax.swing.JScrollPane jScrollPane3;
 	private javax.swing.JTable jTable1;
 	private javax.swing.JTable jTable2;
-	public javax.swing.JTextArea jTextArea1;
+	private javax.swing.JTextArea jTextArea1;
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
 	private JPanel panel_1;

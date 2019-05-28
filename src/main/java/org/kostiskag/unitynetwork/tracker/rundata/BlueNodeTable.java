@@ -1,11 +1,11 @@
-package kostiskag.unitynetwork.tracker.runData;
+package org.kostiskag.unitynetwork.tracker.rundata;
 
 import java.security.PublicKey;
-import java.sql.Time;
 import java.util.Iterator;
 import java.util.LinkedList;
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
  * A bluenode table holds all the joined bluenodes on the network.
@@ -22,7 +22,7 @@ public class BlueNodeTable {
 
     public BlueNodeTable() {
         list = new LinkedList<BlueNodeEntry>();
-        App.ConsolePrint(pre + "INITIALIZED ");
+        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
 
     public synchronized BlueNodeEntry getBlueNodeEntryByHn(String Hostname) {
@@ -33,7 +33,7 @@ public class BlueNodeTable {
                 return element;
             }
         }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
+        AppLogger.getLogger().consolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
         return null;
     }
     
@@ -133,7 +133,7 @@ public class BlueNodeTable {
                 found.add(element);
             }
         }
-        App.ConsolePrint(pre + "NO ENTRY FOR " + Phaddress + " IN TABLE");
+        AppLogger.getLogger().consolePrint(pre + "NO ENTRY FOR " + Phaddress + " IN TABLE");
         return found;
     }
     
@@ -144,13 +144,13 @@ public class BlueNodeTable {
     public synchronized void lease(String name, PublicKey pub, String phAddress, int port) throws Exception {     
     	if (
 				!name.isEmpty() && 
-				name.length() <= App.max_str_len_small_size && 
+				name.length() <= App.MAX_STR_LEN_SMALL_SIZE &&
 				!phAddress.isEmpty() && 
-				phAddress.length() <= App.max_str_addr_len && 
+				phAddress.length() <= App.MAX_STR_ADDR_LEN &&
 				port > 0 && port <= 65535
     		) {
 	    	
-    		if (App.bncap == 0 || App.bncap > list.size()) {
+    		if (App.TRACKER_APP.bncap == 0 || App.TRACKER_APP.bncap > list.size()) {
 		    	Iterator<BlueNodeEntry> iterator = list.listIterator();
 		        while (iterator.hasNext()) {
 		        	BlueNodeEntry element = iterator.next();
@@ -161,7 +161,7 @@ public class BlueNodeTable {
 		    	
 		    	BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
 		        list.add(bn);
-		        App.ConsolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
+		        AppLogger.getLogger().consolePrint(pre + " LEASED " + name + " WITH " + phAddress + ":" + port);
 		        notifyGUI();
 	    	} else {
 	    		throw new Exception(pre + "Maximum Blue Node upper limit reached.");
@@ -198,7 +198,7 @@ public class BlueNodeTable {
         }
         
         element.rednodes.lease(hostname, vAddress);
-        App.ConsolePrint(pre + " LEASED RN " + hostname + " OVER "+bluenodeName);
+        AppLogger.getLogger().consolePrint(pre + " LEASED RN " + hostname + " OVER "+bluenodeName);
     }
     
     public synchronized void release(String name) throws Exception {
@@ -207,7 +207,7 @@ public class BlueNodeTable {
         	BlueNodeEntry element = iterator.next();
             if (name.equals(element.getName())) {                
                     iterator.remove();              
-                    App.ConsolePrint(pre +name+" RELEASED ENTRY");
+                    AppLogger.getLogger().consolePrint(pre +name+" RELEASED ENTRY");
                     notifyGUI();
                     return;
             }
@@ -318,9 +318,9 @@ public class BlueNodeTable {
     }
     
     private void notifyGUI () {
-    	if (App.gui) {
-    		App.window.updateBlueNodeTable();
-    		App.window.updateRedNodeTable();
+    	if (App.TRACKER_APP.gui) {
+    		App.TRACKER_APP.window.updateBlueNodeTable();
+    		App.TRACKER_APP.window.updateRedNodeTable();
     	}
     }
 }

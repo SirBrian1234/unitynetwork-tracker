@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.scenarios;
+package org.kostiskag.unitynetwork.tracker.scenarios;
 
 import static org.junit.Assert.assertTrue;
 
@@ -6,17 +6,14 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.junit.FixMethodOrder;
 import org.junit.Ignore;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Database;
-import kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Database;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabasePopulate {
@@ -30,8 +27,8 @@ public class DatabasePopulate {
     		file.delete();
     	}
     	try {
-    		App.databaseUrl = "jdbc:sqlite:unity.db";    		
-    		Queries.validateDatabase();    		
+			Database db = Database.newInstance("jdbc:sqlite:unity.db","","");
+    		Queries.validateDatabase(db);
 		} catch (SQLException e) {			
 			e.printStackTrace();
 			assertTrue(false);

@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.runData;
+package org.kostiskag.unitynetwork.tracker.rundata;
 
 import static org.junit.Assert.assertTrue;
 
@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeEntryTest {
 	@BeforeClass

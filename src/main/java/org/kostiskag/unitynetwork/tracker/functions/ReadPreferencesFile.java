@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.functions;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,15 +7,31 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.App;
 
 /**
  *
  * @author Konstantinos Kagiampakis
  */
-public class ReadPreferencesFile {       
+public class ReadPreferencesFile {
 
-    public static void ParseFile(InputStream file) throws IOException {
+	//These are the imported settings from file
+	public static String netName;
+	public static int auth;
+	// database
+	public static String databaseUrl;
+	public static String user;
+	public static String password;
+	// capacity
+	public static int bncap;
+	public static int pingTime;
+	public static boolean gui = true;
+	public static boolean log;
+
+	public ReadPreferencesFile() {
+	}
+
+	public static ReadPreferencesFile ParseFile(InputStream file) throws IOException {
         
         Properties cfg = new java.util.Properties();
         cfg.load(file);
@@ -29,26 +45,20 @@ public class ReadPreferencesFile {
         String ping = cfg.getProperty("Ping").replaceAll("\\s+","");        
         String useGUI = cfg.getProperty("UseGUI").replaceAll("\\s+","");
         String log = cfg.getProperty("Log").replaceAll("\\s+","");  
-        
-        App.netName = networkName; 
-        App.auth = Integer.parseInt(authPort);        
-        App.databaseUrl = databaseUrl;
-        App.user = databaseUser;
-        App.password = databsePassword;        
-        App.bncap = Integer.parseInt(blueNodeCapacity);
-        App.pingTime = Integer.parseInt(ping);
-        App.gui = Boolean.parseBoolean(useGUI);        
-        App.log = Boolean.parseBoolean(log);        
-        
-        System.out.println("");
-        System.out.println("NetworkName is "+App.netName);        
-        System.out.println("AuthPort is "+App.auth);                
-        System.out.println("Database URL is "+App.databaseUrl);
-        System.out.println("BlueNodeLimit is "+App.bncap);        
-        System.out.println("ping time is "+App.pingTime+" sec");
-        System.out.println("gui is "+App.gui);
-        System.out.println("logging is "+App.log);                        
-        System.out.println("");                
+
+        ReadPreferencesFile pref = new ReadPreferencesFile();
+
+		pref.netName = networkName;
+		pref.auth = Integer.parseInt(authPort);
+		pref.databaseUrl = databaseUrl;
+		pref.user = databaseUser;
+		pref.password = databsePassword;
+		pref.bncap = Integer.parseInt(blueNodeCapacity);
+		pref.pingTime = Integer.parseInt(ping);
+		pref.gui = Boolean.parseBoolean(useGUI);
+		pref.log = Boolean.parseBoolean(log);
+
+        return pref;
     }
 
 	public static void GenerateFile(File file) throws FileNotFoundException, UnsupportedEncodingException {

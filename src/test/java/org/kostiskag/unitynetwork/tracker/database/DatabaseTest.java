@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.database;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import static org.junit.Assert.assertTrue;
 
@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 import org.junit.FixMethodOrder;
 
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.App;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -27,9 +27,9 @@ public class DatabaseTest {
     		file.delete();
     	}
     	try {
-    		App.databaseUrl = "jdbc:sqlite:local_database_file.db";    		
-			Database db = new Database();
-			db.close();
+    		Database db = Database.newInstance("jdbc:sqlite:local_database_file.db","","");
+			db.connect();
+    		db.close();
 		} catch (SQLException e) {			
 			e.printStackTrace();
 			assertTrue(false);
@@ -44,9 +44,10 @@ public class DatabaseTest {
     	if (file.exists()) {
     		file.delete();
     	}
-    	App.databaseUrl = "jdbc:sqlite:local_database_file.db";    		
 		try {
-			Queries.validateDatabase();
+			Database db = Database.newInstance("jdbc:sqlite:local_database_file.db","","");
+			db.connect();
+			Queries.validateDatabase(db);
 		} catch (SQLException e) {			
 			e.printStackTrace();
 			assertTrue(false);

@@ -1,8 +1,7 @@
-package kostiskag.unitynetwork.tracker.service.sonar;
+package org.kostiskag.unitynetwork.tracker.service.sonar;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.App;
 
 /**
  * Works like the java garbage collector but for killed bluenodes and redonodes. The sonar
@@ -25,16 +24,16 @@ public class SonarService extends Thread {
 
     @Override
     public void run() {
-        App.ConsolePrint(pre+"started in thread "+Thread.currentThread()+" with time "+time+" sec");
+        AppLogger.getLogger().consolePrint(pre+"started in thread "+Thread.currentThread()+" with time "+time+" sec");
         while (!kill) {
             try {
                 sleep(time*1000);
             } catch (InterruptedException ex) {
-                Logger.getLogger(SonarService.class.getName()).log(Level.SEVERE, null, ex);
+                AppLogger.getLogger().consolePrint(ex.getMessage());
             }
             if (kill) break;
-            App.ConsolePrint(pre+"Updating BN Tables via ping");
-            App.BNtable.rebuildTableViaAuthClient();
+            AppLogger.getLogger().consolePrint(pre+"Updating BN Tables via ping");
+            App.TRACKER_APP.BNtable.rebuildTableViaAuthClient();
         }
     }
     

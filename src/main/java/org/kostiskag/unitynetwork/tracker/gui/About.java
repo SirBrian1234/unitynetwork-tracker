@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.gui;
+package org.kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.EventQueue;
 
@@ -7,38 +7,42 @@ import javax.swing.JLabel;
 import java.awt.Font;
 
 /**
- * 
+ * This class builds a gui window to show the about page
+ * of the project
+ *
  * @author Konstantinos Kagiampakis
  */
 public class About {
 
+	private static About ABOUT;
+
 	private JFrame frmAbout;
 
 	/**
-	 * Launch the application.
+	 * This class is a singleton
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					About window = new About();					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
+	public static About instanceOf() {
+		if (About.ABOUT == null) {
+			About.ABOUT = new About();
+		}
+		return About.ABOUT;
 	}
 
-	/**
-	 * Create the application.
-	 */
-	public About() {
+	private About() {
 		initialize();
 		frmAbout.setVisible(true);
 	}
 	
 	public boolean isVisible() {
 		return frmAbout.isVisible();
+	}
+
+	public void hide() {
+		frmAbout.setVisible(false);
+	}
+
+	public void show() {
+		frmAbout.setVisible(true);
 	}
 
 	/**
@@ -85,5 +89,19 @@ public class About {
 				+ "<html>");
 		lblNewLabel_2.setBounds(10, 470, 534, 49);
 		frmAbout.getContentPane().add(lblNewLabel_2);
+	}
+
+	//  launch the application
+	//  I should move this in a test
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					About window = new About();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

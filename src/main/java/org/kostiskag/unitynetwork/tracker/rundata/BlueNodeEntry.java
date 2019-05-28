@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.runData;
+package org.kostiskag.unitynetwork.tracker.rundata;
 
 import java.security.PublicKey;
 import java.sql.Time;

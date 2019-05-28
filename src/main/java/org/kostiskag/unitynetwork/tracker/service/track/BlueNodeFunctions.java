@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
@@ -8,13 +8,13 @@ import java.sql.SQLException;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.HashFunctions;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
-import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
+import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
 
 /**
  *  Bluenode queries:
@@ -50,10 +50,10 @@ public class BlueNodeFunctions {
 				if (getResults.getString("name").equals(bluenodeHostname)) {
 					String address = socket.getInetAddress().getHostAddress();
 					int port = Integer.parseInt(givenPort);
-					if (!App.BNtable.checkOnlineByName(bluenodeHostname)) {
+					if (!App.TRACKER_APP.BNtable.checkOnlineByName(bluenodeHostname)) {
 						// normal connect for a non associated BN
 						try {
-							App.BNtable.lease(bluenodeHostname, pub, address, port);
+							App.TRACKER_APP.BNtable.lease(bluenodeHostname, pub, address, port);
 							data = "LEASED " + address;
 							found = true;
 							break;
@@ -89,7 +89,7 @@ public class BlueNodeFunctions {
 			DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		int userauth = checkUser(password);
 
-		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
 		if (bn != null) {				
 			String data = null;
 			Queries q = null;
@@ -108,7 +108,7 @@ public class BlueNodeFunctions {
 							String hostname = getResults.getString("hostname");
 							if (hostname.equals(givenHostname)) {
 								found = true;
-								if (!App.BNtable.checkOnlineRnByHn(hostname)) {
+								if (!App.TRACKER_APP.BNtable.checkOnlineRnByHn(hostname)) {
 									//the id from hostnames is the hostname's virtual address
 									int num_addr = getResults.getInt("address");
 									int inuserid = getResults.getInt("userid");
@@ -159,9 +159,9 @@ public class BlueNodeFunctions {
 	 */
 	public static void BlueRel(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data = null;
-		if (App.BNtable.checkOnlineByName(hostname)) {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(hostname)) {
 			try {
-				App.BNtable.release(hostname);
+				App.TRACKER_APP.BNtable.release(hostname);
 			} catch (Exception e) {
 				e.printStackTrace();
 				data = "RELEASE_FAILED";
@@ -181,7 +181,7 @@ public class BlueNodeFunctions {
 		String data = null;
 		boolean found = false;
 
-		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
 		if (bn != null) {
 			if (bn.rednodes.checkOnlineByHn(hostname)) {
 				bn.rednodes.release(hostname);
@@ -202,7 +202,7 @@ public class BlueNodeFunctions {
 	 */
 	public static void GetPh(String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
-		BlueNodeEntry bn = App.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
 		if (bn != null) {			
 			data = bn.getPhaddress()+" "+ bn.getPort();
 		} else {
@@ -217,7 +217,7 @@ public class BlueNodeFunctions {
 	 */
 	public static void CheckRn(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
-		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRn(hostname);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
 			data = "ONLINE " +bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
 		} else {
@@ -235,7 +235,7 @@ public class BlueNodeFunctions {
 		String data = null;
 		String hostname = null;
 		
-		BlueNodeEntry bn = App.BNtable.reverseLookupBnBasedOnRnVaddr(vaddress);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRnVaddr(vaddress);
 		if (bn!=null) {
 			data = "ONLINE "+bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
 		} else {
@@ -422,15 +422,15 @@ public class BlueNodeFunctions {
 
 	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) {
 		//first check whether the bn is a member and release from the network
-		if (App.BNtable.checkOnlineByName(blueNodeHostname)) {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(blueNodeHostname)) {
 			try {
-				App.BNtable.release(blueNodeHostname);
+				App.TRACKER_APP.BNtable.release(blueNodeHostname);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}			
 		}
 		
-		String key = "NOT_SET "+CryptoMethods.generateQuestion();
+		String key = "NOT_SET "+ CryptoMethods.generateQuestion();
 		Queries q = null;
 		try {
 			q = new Queries();

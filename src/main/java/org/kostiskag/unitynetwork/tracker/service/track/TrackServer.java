@@ -1,9 +1,10 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 /**
  * The auth server listens for bluenode and rednode clients
@@ -24,7 +25,7 @@ public class TrackServer extends Thread{
 
     @Override
     public void run() {  
-        App.ConsolePrint("@Started blue auth server at " + Thread.currentThread().getName());
+        AppLogger.getLogger().consolePrint("@Started blue auth server at " + Thread.currentThread().getName());
         try {
             ServerSocket welcomeSocket = new ServerSocket(authPort);  
             while (true) {    
@@ -34,10 +35,10 @@ public class TrackServer extends Thread{
                 service.start();
             }        
         } catch (java.net.BindException e){
-            App.ConsolePrint(pre +"PORT ALREADY IN USE");  
+            AppLogger.getLogger().consolePrint(pre +"PORT ALREADY IN USE");
             App.die();
         } catch (IOException e) {
-            App.ConsolePrint(e.getMessage());
+            AppLogger.getLogger().consolePrint(e.getMessage());
             App.die();
         }        
     }

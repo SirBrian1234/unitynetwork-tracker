@@ -53,7 +53,7 @@
 						<archive>
 							<manifest>
 								<addClasspath>true</addClasspath>
-								<mainClass>kostiskag.unitynetwork.tracker.App</mainClass>
+								<mainClass>org.kostiskag.unitynetwork.tracker.App</mainClass>
 								<classpathPrefix>dependency/</classpathPrefix>
 							</manifest>
 						</archive>

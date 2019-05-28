@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.gui;
+package org.kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -17,9 +17,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 /**
  * 
@@ -27,12 +27,13 @@ import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
  */
 public class EditBluenode {
 
+	private final int type;
+	private final String name;
+
 	private JFrame frmEditBluenodeEntry;
 	private JTextField textField_1;
 	private JTextField textField_2;
 	private JTextArea textArea;
-	private final int type;
-	private final String name;
 	private JButton button;
 	private JLabel lblNewLabel;
 	private JTextField textField;
@@ -177,8 +178,8 @@ public class EditBluenode {
 
 	private void updateEntry() {
 		if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()) {
-			if (textField_1.getText().length() <= App.max_str_len_small_size
-					&& textField_2.getText().length() <= App.max_int_str_len) {
+			if (textField_1.getText().length() <= App.MAX_STR_LEN_SMALL_SIZE
+					&& textField_2.getText().length() <= App.MAX_INT_STR_LEN) {
 
 				int userid = -1;
 				try {
@@ -232,12 +233,12 @@ public class EditBluenode {
 					}
 				}
 
-				App.window.updateDatabaseGUI();
+				App.TRACKER_APP.window.updateDatabaseGUI();
 				frmEditBluenodeEntry.dispose();
 
 			} else {
-				lblNewLabel.setText("<html>Please provide a Hostname up to " + App.max_str_len_small_size
-						+ " characters and a number up to " + App.max_int_str_len + " digits.</html>");
+				lblNewLabel.setText("<html>Please provide a Hostname up to " + App.MAX_STR_LEN_SMALL_SIZE
+						+ " characters and a number up to " + App.MAX_INT_STR_LEN + " digits.</html>");
 			}
 		} else {
 			lblNewLabel.setText("<html>Please fill in all the fields.</html>");

@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker;
+package org.kostiskag.unitynetwork.tracker;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;

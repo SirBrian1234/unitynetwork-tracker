@@ -1,18 +1,9 @@
-package kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.functions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -21,8 +12,6 @@ import javax.crypto.SecretKey;
 
 import org.junit.Ignore;
 import org.junit.Test;
-
-import kostiskag.unitynetwork.tracker.App;
 
 public class CryptoMethodsTest {
 

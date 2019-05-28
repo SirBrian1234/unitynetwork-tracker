@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.service.sonar;
+package org.kostiskag.unitynetwork.tracker.service.sonar;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,11 +8,12 @@ import java.util.LinkedList;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
-import kostiskag.unitynetwork.tracker.runData.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.RedNodeEntry;
 
 /**
  * These functions are being used from the sonar service - the tracker client
@@ -72,7 +73,7 @@ public class BlueNodeClient {
 			byte[] question = CryptoMethods.base64StringTobytes(args[0]);
 			
 			//decrypt with private
-			String answer = CryptoMethods.decryptWithPrivate(question, App.trackerKeys.getPrivate());
+			String answer = CryptoMethods.decryptWithPrivate(question, App.TRACKER_APP.trackerKeys.getPrivate());
 			
 			//send back plain answer
 			args = SocketFunctions.sendReceiveAESEncryptedStringData(answer, socketReader, socketWriter, sessionKey);
@@ -83,7 +84,7 @@ public class BlueNodeClient {
 				throw new Exception("Tracker authentication was not allowed from target bluenode.");
 			}
 		} catch (Exception e) {
-			App.ConsolePrint(pre+" dropped for "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(pre+" dropped for "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 			e.printStackTrace();
 		}        
 	}
@@ -94,7 +95,7 @@ public class BlueNodeClient {
     
     public boolean checkBnOnline() throws Exception {
     	if (connected) {
-    		App.ConsolePrint(pre+"CHECK"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+    		AppLogger.getLogger().consolePrint(pre+"CHECK"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);    
 	        SocketFunctions.connectionClose(socket);
 	        if (args[0].equals("OK")) {
@@ -106,7 +107,7 @@ public class BlueNodeClient {
     
     public void sendkillsig() throws Exception  {
     	if (connected) {   
-    		App.ConsolePrint(pre+"KILLSIG"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+    		AppLogger.getLogger().consolePrint(pre+"KILLSIG"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 	    	SocketFunctions.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey); 
 	    	SocketFunctions.connectionClose(socket);
 	    }
@@ -115,7 +116,7 @@ public class BlueNodeClient {
     public LinkedList<RedNodeEntry> getRedNodes() throws Exception  {  
     	LinkedList<RedNodeEntry> list = new LinkedList<>();
     	if (connected) {    	
-    		App.ConsolePrint(pre+"GETREDNODES"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+    		AppLogger.getLogger().consolePrint(pre+"GETREDNODES"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
 	    	SocketFunctions.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
 	    	String received = SocketFunctions.receiveAESEncryptedString(socketReader, sessionKey);
 	    	SocketFunctions.connectionClose(socket);	 

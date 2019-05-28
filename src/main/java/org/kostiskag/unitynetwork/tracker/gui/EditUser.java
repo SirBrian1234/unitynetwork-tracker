@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.gui;
+package org.kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -21,15 +21,24 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Logic;
-import kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
 
 /**
  * 
  * @author Konstantinos Kagiampakis
  */
 public class EditUser {
+
+	// type is
+	// 0 for new entry
+	// 1 for update
+	public static final int NEW_ENTRY = 0;
+	public static final int UPDATE = 1;
+
+	private final int type;
+	private final String username;
 
 	private JFrame frmEditUserEntry;
 	private JTextField textField;
@@ -38,45 +47,24 @@ public class EditUser {
 	private JLabel lblPassword;
 	private JLabel lblType;
 	private JTextField textField_3;
-	private int type;
-	private String username;
 	private JPasswordField passwordField;
 	private JButton btnNewButton;
 	private JLabel label;
 	private JComboBox<String> comboBox;
-	JCheckBox chckbxSetANew;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					EditUser window = new EditUser(0, "none");
-					window.frmEditUserEntry.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private JCheckBox chckbxSetANew;
 
 	/**
 	 * Create the application.
 	 */
 	public EditUser(int type, String username) {
-		// type is
-		// 0 for new entry
-		// 1 for update
 		this.type = type;
 		this.username = username;
 		initialize();
-		if (type == 0) {
+		if (type == EditUser.NEW_ENTRY) {
 			btnNewButton.setText("Add new entry");
 			chckbxSetANew.setSelected(true);
 			chckbxSetANew.setEnabled(false);
-		} else {
+		} else if (type == EditUser.UPDATE){
 			btnNewButton.setText("Update entry");
 			textField_1.setText(username);
 			textField_1.setEditable(false);
@@ -164,13 +152,13 @@ public class EditUser {
 			public void actionPerformed(ActionEvent e) {
 
 				String givenFullname = textField_3.getText();
-				if (givenFullname.length() > App.max_str_len_small_size) {
-					label.setText("<html>Please set a fullname not more than " + App.max_str_len_small_size + " characters.</html>");
+				if (givenFullname.length() > App.MAX_STR_LEN_SMALL_SIZE) {
+					label.setText("<html>Please set a fullname not more than " + App.MAX_STR_LEN_SMALL_SIZE + " characters.</html>");
 					return;
 				}
 
-				if (givenFullname.length() < App.min_username_len) {
-					label.setText("<html>Please set a fullname " + App.min_username_len + " characters or more.</html>");
+				if (givenFullname.length() < App.MIN_USERNAME_LEN) {
+					label.setText("<html>Please set a fullname " + App.MIN_USERNAME_LEN + " characters or more.</html>");
 					return;
 				}
 
@@ -184,15 +172,15 @@ public class EditUser {
 
 				if (type == 0) {
 					String givenUsername = textField_1.getText();
-					if (givenUsername.length() > App.max_str_len_small_size) {
-						label.setText("<html>Please provide one username which is less than " + App.max_str_len_small_size
+					if (givenUsername.length() > App.MAX_STR_LEN_SMALL_SIZE) {
+						label.setText("<html>Please provide one username which is less than " + App.MAX_STR_LEN_SMALL_SIZE
 								+ " characters.</html>");
 						return;
 					}
 					
-					if (givenUsername.length() < App.min_username_len) {
+					if (givenUsername.length() < App.MIN_USERNAME_LEN) {
 						label.setText(
-								"<html>Please provide one username " + App.min_username_len + " characters or more.</html>");
+								"<html>Please provide one username " + App.MIN_USERNAME_LEN + " characters or more.</html>");
 						return;
 					}
 					
@@ -205,13 +193,13 @@ public class EditUser {
 					}
 					
 					String givenPassword = new String(passwordField.getPassword());
-					if (givenPassword.length() > App.max_str_len_small_size) {
-						label.setText("<html>Please set a password less than " + App.max_str_len_small_size + " characters.</html>");
+					if (givenPassword.length() > App.MAX_STR_LEN_SMALL_SIZE) {
+						label.setText("<html>Please set a password less than " + App.MAX_STR_LEN_SMALL_SIZE + " characters.</html>");
 						return;
 					}
 
-					if (givenPassword.length() < App.min_password_len) {
-						label.setText("<html>Please provide a password " + App.min_password_len + " characters or more.</html>");
+					if (givenPassword.length() < App.MIN_PASSWORD_LEN) {
+						label.setText("<html>Please provide a password " + App.MIN_PASSWORD_LEN + " characters or more.</html>");
 						return;
 					}
 					
@@ -228,14 +216,14 @@ public class EditUser {
 						// we have to provide all the other fields along with a
 						// new password
 						String givenPassword = new String(passwordField.getPassword());
-						if (givenPassword.length() > App.max_str_len_large_size) {
+						if (givenPassword.length() > App.MAX_STR_LEN_LARGE_SIZE) {
 							label.setText(
-									"<html>Please set a password less than " + App.max_str_len_large_size + " characters.</html>");
+									"<html>Please set a password less than " + App.MAX_STR_LEN_LARGE_SIZE + " characters.</html>");
 							return;
 						}
 
-						if (givenPassword.length() < App.min_password_len) {
-							label.setText("<html>Please provide a password " + App.min_password_len + " characters or more.</html>");
+						if (givenPassword.length() < App.MIN_PASSWORD_LEN) {
+							label.setText("<html>Please provide a password " + App.MIN_PASSWORD_LEN + " characters or more.</html>");
 							return;
 						}
 
@@ -265,7 +253,7 @@ public class EditUser {
 					}
 				}
 				
-				App.window.updateDatabaseGUI();
+				App.TRACKER_APP.window.updateDatabaseGUI();
 				frmEditUserEntry.dispose();
 			}
 		});
@@ -296,5 +284,20 @@ public class EditUser {
 		chckbxSetANew.setSelected(true);
 		chckbxSetANew.setBounds(22, 96, 167, 23);
 		frmEditUserEntry.getContentPane().add(chckbxSetANew);
+	}
+
+	//should be moved to tests
+	//Launch the application.
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					EditUser window = new EditUser(0, "none");
+					window.frmEditUserEntry.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

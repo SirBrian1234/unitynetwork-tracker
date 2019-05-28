@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.security.PublicKey;
@@ -7,11 +7,11 @@ import java.sql.SQLException;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.database.Queries;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.runData.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
 
 /**
 * Rednode queries:
@@ -30,8 +30,8 @@ public class RedNodeFunctions {
 	 */
 	public static void getRecomendedBlueNode(DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
-		if (App.BNtable.getSize() > 0) {
-			BlueNodeEntry recomended = App.BNtable.getBlueNodeEntryByLowestLoad();
+		if (App.TRACKER_APP.BNtable.getSize() > 0) {
+			BlueNodeEntry recomended = App.TRACKER_APP.BNtable.getBlueNodeEntryByLowestLoad();
 			String hostname = recomended.getName();
 			String phaddress = recomended.getPhaddress();
 			int port = recomended.getPort();
@@ -45,11 +45,11 @@ public class RedNodeFunctions {
 	}
 
 	static void getAllConnectedBlueNodes(DataOutputStream writer, SecretKey sessionKey) throws Exception {
-		int size = App.BNtable.getSize();
+		int size = App.TRACKER_APP.BNtable.getSize();
 		StringBuilder str = new StringBuilder();
 		str.append("SENDING_BLUENODES " + size+"\n");
 		
-		String fetched[][] = App.BNtable.buildStringInstanceObject();
+		String fetched[][] = App.TRACKER_APP.BNtable.buildStringInstanceObject();
 		for(int i=0; i<fetched.length; i++) {			
 			str.append(fetched[i][0]+" "+fetched[i][1]+" "+fetched[i][2]+" "+fetched[i][3]+"\n");
 		}	

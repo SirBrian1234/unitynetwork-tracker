@@ -1,13 +1,13 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.security.PublicKey;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 
 public class CommonFunctions {
 	
@@ -22,9 +22,9 @@ public class CommonFunctions {
 	 * @param sessionKey
 	 */
 	public static void getBlueNodesPublic(String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) {
-		if (App.BNtable.checkOnlineByName(BlueNodeName)) {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(BlueNodeName)) {
 			try {
-				PublicKey pub = App.BNtable.getBlueNodeEntryByHn(BlueNodeName).getPub();
+				PublicKey pub = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(BlueNodeName).getPub();
 				SocketFunctions.sendAESEncryptedStringData(CryptoMethods.objectToBase64StringRepresentation(pub), writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();

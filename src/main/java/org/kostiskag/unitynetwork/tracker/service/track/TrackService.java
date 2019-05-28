@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.service.track;
+package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -8,10 +8,11 @@ import java.security.PublicKey;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 
 /**
  * CENTRAL TRACK SERVICE
@@ -72,12 +73,12 @@ public class TrackService extends Thread {
 
 			if (args[0].equals("GETPUB")) {
 				// plain data transfer no encryption
-				App.ConsolePrint(pre+"GETPUB"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+"GETPUB"+" from "+socket.getInetAddress().getHostAddress());
 				SocketFunctions.sendPlainStringData(
-						CryptoMethods.objectToBase64StringRepresentation(App.trackerKeys.getPublic()), writer);
+						CryptoMethods.objectToBase64StringRepresentation(App.TRACKER_APP.trackerKeys.getPublic()), writer);
 			} else {
 				//client uses server's public key to send a session key
-				String decrypted = CryptoMethods.decryptWithPrivate(received, App.trackerKeys.getPrivate());
+				String decrypted = CryptoMethods.decryptWithPrivate(received, App.TRACKER_APP.trackerKeys.getPrivate());
 				sessionKey = (SecretKey) CryptoMethods.base64StringRepresentationToObject(decrypted);
 				args = SocketFunctions.sendReceiveAESEncryptedStringData("UnityTracker", reader, writer, sessionKey);
 
@@ -111,7 +112,7 @@ public class TrackService extends Thread {
 				return;
 			} else if (args.length == 3 && args[0].equals("OFFERPUB")) {
 				// bluenode offers its pub based on a ticket
-				App.ConsolePrint(pre+prebn+"OFFERPUB"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prebn+"OFFERPUB"+" from "+socket.getInetAddress().getHostAddress());
 				BlueNodeFunctions.offerPublicKey(BlueNodeHostname, args[1], args[2], writer, sessionKey);
 			} else {
 				SocketFunctions.sendAESEncryptedStringData("NOT_ALLOWED", writer, sessionKey);
@@ -148,50 +149,50 @@ public class TrackService extends Thread {
 			args = SocketFunctions.receiveAESEncryptedStringData(reader, sessionKey);
 			// OPTIONS
 			if (args.length == 2 && args[0].equals("LEASE")) {
-				App.ConsolePrint(pre+prebn+"LEASE"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prebn+"LEASE"+" from "+socket.getInetAddress().getHostAddress());
 				BlueNodeFunctions.BlueLease(BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
-			} else if (App.BNtable.checkOnlineByName(BlueNodeHostname)) {
+			} else if (App.TRACKER_APP.BNtable.checkOnlineByName(BlueNodeHostname)) {
 				//in other words in order to execute extensive queries you have to be logged in
 				if (args.length == 4 && args[0].equals("LEASE_RN")) {
-					App.ConsolePrint(pre+prebn+"LEASE_RN"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"LEASE_RN"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.RedLease(BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
 				} else if (args.length == 1 && args[0].equals("RELEASE")) {
-					App.ConsolePrint(pre+prebn+"RELEASE"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"RELEASE"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.BlueRel(BlueNodeHostname, writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("RELEASE_RN")) {
-					App.ConsolePrint(pre+prebn+"RELEASE_RN"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"RELEASE_RN"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.RedRel(BlueNodeHostname, args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("GETPH")) {
-					App.ConsolePrint(pre+prebn+"GETPH"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"GETPH"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.GetPh(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("CHECK_RN")) {
-					App.ConsolePrint(pre+prebn+"CHECK_RN"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"CHECK_RN"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.CheckRn(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("CHECK_RNA")) {
-					App.ConsolePrint(pre+prebn+"CHECK_RNA"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"CHECK_RNA"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.CheckRnAddr(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("LOOKUP_H")) {
-					App.ConsolePrint(pre+prebn+"LOOKUP_H"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"LOOKUP_H"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.LookupByHn(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("LOOKUP_V")) {
-					App.ConsolePrint(pre+prebn+"LOOKUP_V"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"LOOKUP_V"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.LookupByAddr(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
-					App.ConsolePrint(pre+prebn+"GETBNPUB"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"GETBNPUB"+" from "+socket.getInetAddress().getHostAddress());
 					CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals("GETRNPUB")) {
-					App.ConsolePrint(pre+prebn+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
 					CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
 				} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
 					// bluenode may be compromised and decides to revoke its public
-					App.ConsolePrint(pre+prebn+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.revokePublicKey(BlueNodeHostname, writer, sessionKey);
 				} else {
-					App.ConsolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" for leased bn "+BlueNodeHostname+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" for leased bn "+BlueNodeHostname+" from "+socket.getInetAddress().getHostAddress());
 					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 				}
 			} else {
-				App.ConsolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prebn+"WRONG_COMMAND: "+args[0]+" from "+socket.getInetAddress().getHostAddress());
 				SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 			}
 		}
@@ -211,7 +212,7 @@ public class TrackService extends Thread {
 				return;
 			} else if (args.length == 3 && args[0].equals("OFFERPUB")) {
 				// bluenode offers its pub based on a ticket
-				App.ConsolePrint(pre+prern+"OFFERPUB"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"OFFERPUB"+" from "+socket.getInetAddress().getHostAddress());
 				RedNodeFunctions.offerPublicKey(hostname, args[1], args[2], writer, sessionKey);
 			} else {
 				SocketFunctions.sendAESEncryptedStringData("NOT_ALLOWED", writer, sessionKey);
@@ -250,31 +251,31 @@ public class TrackService extends Thread {
 			// OPTIONS
 			if (args.length == 1 && args[0].equals("GETRBN")) {
 				//rn collects a recommended bn based on the lowest load
-				App.ConsolePrint(pre+prern+"GETRBN"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"GETRBN"+" from "+socket.getInetAddress().getHostAddress());
 				RedNodeFunctions.getRecomendedBlueNode(writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("GETBNS")) {
 				//rn collects a list of all the availlable bns
-				App.ConsolePrint(pre+prern+"GETBNS"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"GETBNS"+" from "+socket.getInetAddress().getHostAddress());
 				RedNodeFunctions.getAllConnectedBlueNodes(writer, sessionKey);
 			} else if (args.length == 2 && args[0].equals("GETBNPUB")) {
 				//collects a network bns public
-				App.ConsolePrint(pre+prern+"GETBNPUB"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"GETBNPUB"+" from "+socket.getInetAddress().getHostAddress());
 				CommonFunctions.getBlueNodesPublic(args[1], writer, sessionKey);
 			} else if (args.length == 1 && args[0].equals("REVOKEPUB")) {
 				//rn may be compromised and decides to revoke its public
-				App.ConsolePrint(pre+prern+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
 				RedNodeFunctions.revokePublicKey(hostname, writer, sessionKey);
-			} else if (App.BNtable.checkOnlineRnByHn(hostname)) {
+			} else if (App.TRACKER_APP.BNtable.checkOnlineRnByHn(hostname)) {
 				if (args.length == 2 && args[0].equals("GETRNPUB")) {
 					//collects a network rns public
-					App.ConsolePrint(pre+prern+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prern+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
 					CommonFunctions.getRedNodesPublic(args[1], writer, sessionKey);
 				} else {
-					App.ConsolePrint(pre+prern+"WRONG_COMMAND: "+args[0]+" for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+prern+"WRONG_COMMAND: "+args[0]+" for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
 					SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 				}
 			} else {
-				App.ConsolePrint(pre+prern+"WRONG_COMMAND "+args[0]+" from "+socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(pre+prern+"WRONG_COMMAND "+args[0]+" from "+socket.getInetAddress().getHostAddress());
 				SocketFunctions.sendAESEncryptedStringData("WRONG_COMMAND", writer, sessionKey);
 			}
 		}

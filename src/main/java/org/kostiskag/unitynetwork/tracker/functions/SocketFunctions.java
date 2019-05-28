@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.functions;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -14,7 +14,8 @@ import java.security.PublicKey;
 
 import javax.crypto.SecretKey;
 
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * low-level socket methods here
@@ -30,7 +31,7 @@ public class SocketFunctions {
         try {
             IPaddress = InetAddress.getByName(PhAddress);
         } catch (UnknownHostException ex) {            
-        	 App.ConsolePrint(pre + "UNKNOWN HOST "+PhAddress);
+        	 AppLogger.getLogger().consolePrint(pre + "UNKNOWN HOST "+PhAddress);
         	 throw ex;
         }
         return IPaddress;
@@ -42,16 +43,16 @@ public class SocketFunctions {
             socket = new Socket(IPaddress, authPort);
             socket.setSoTimeout(8000);
         } catch (java.net.NoRouteToHostException ex) {
-            App.ConsolePrint(pre + "NO ROUTE FOR "+IPaddress.getHostAddress()+" "+authPort);
+            AppLogger.getLogger().consolePrint(pre + "NO ROUTE FOR "+IPaddress.getHostAddress()+" "+authPort);
             throw ex;
         } catch (java.net.ConnectException ex) {
-            App.ConsolePrint(pre + "CONNECTION REFUSED FOR "+IPaddress.getHostAddress()+" "+authPort);
+            AppLogger.getLogger().consolePrint(pre + "CONNECTION REFUSED FOR "+IPaddress.getHostAddress()+" "+authPort);
             throw ex;
         } catch (java.net.SocketTimeoutException ex) {
-            App.ConsolePrint(pre + "CONNECTION TIMED OUT FOR "+IPaddress.getHostAddress()+" "+authPort);
+            AppLogger.getLogger().consolePrint(pre + "CONNECTION TIMED OUT FOR "+IPaddress.getHostAddress()+" "+authPort);
             throw ex;
         } catch (IOException ex) {
-            App.ConsolePrint(pre + "CONNECTION ERROR FOR "+IPaddress.getHostAddress()+" "+authPort);
+            AppLogger.getLogger().consolePrint(pre + "CONNECTION ERROR FOR "+IPaddress.getHostAddress()+" "+authPort);
             throw ex;
         }
         return socket;
@@ -82,17 +83,17 @@ public class SocketFunctions {
 				System.arraycopy(bytes, 0, byteT, 0, read);
 			
 				if (byteT[0] == (int)0) {
-					App.ConsolePrint(pre + "RECEIVED a zero char");
+					AppLogger.getLogger().consolePrint(pre + "RECEIVED a zero char");
 			    } else if (byteT[0] == (int)13) {
-					App.ConsolePrint(pre + "RECEIVED a new line char");
+					AppLogger.getLogger().consolePrint(pre + "RECEIVED a new line char");
 				} else if (byteT[0] == (int)10) {
-					App.ConsolePrint(pre+ "received a return char");
+					AppLogger.getLogger().consolePrint(pre+ "received a return char");
 				}
 				return byteT;
 			} else if (read == 0){
-				App.ConsolePrint(pre + "RECEIVED zero");
+				AppLogger.getLogger().consolePrint(pre + "RECEIVED zero");
 			} else {
-				App.ConsolePrint(pre + "RECEIVED "+read);
+				AppLogger.getLogger().consolePrint(pre + "RECEIVED "+read);
 			}
     	}
     	return byteT; 		
@@ -106,7 +107,7 @@ public class SocketFunctions {
 
     public static void sendPlainStringData(String message, DataOutputStream writer) throws Exception {
     	if (message == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
@@ -133,7 +134,7 @@ public class SocketFunctions {
     
     public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws Exception {
     	if (message == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
@@ -165,7 +166,7 @@ public class SocketFunctions {
     
     public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws Exception {
     	if (message == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
@@ -206,16 +207,16 @@ public class SocketFunctions {
 
     public static String[] sendData(String data,PrintWriter outputWriter,BufferedReader inputReader) throws Exception  {
         if (outputWriter==null) {
-        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
+        	AppLogger.getLogger().consolePrint(pre + "SEND DATA FAILED, NO CONNECTION");
         	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
         } else if (inputReader==null){ 
-        	App.ConsolePrint(pre + "SEND DATA FAILED, NO CONNECTION");            
+        	AppLogger.getLogger().consolePrint(pre + "SEND DATA FAILED, NO CONNECTION");
         	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
         } else if (data == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         } else if (data.isEmpty()) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre+"NO DATA TO SEND");
         }
         
@@ -229,14 +230,14 @@ public class SocketFunctions {
 			throw e;
 		}
         
-        App.ConsolePrint(pre + receivedMessage);
+        AppLogger.getLogger().consolePrint(pre + receivedMessage);
         args = receivedMessage.split("\\s+");
         return args;
     }
 
     public static void sendFinalData(String data,PrintWriter outputWriter) throws Exception {
         if (data == null) {
-        	App.ConsolePrint(pre + "NO DATA TO SEND");
+        	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new Exception(pre + "NO DATA TO SEND");
         }
         outputWriter.println(data);
@@ -244,7 +245,7 @@ public class SocketFunctions {
 
     public static String[] readData(BufferedReader inputReader) throws Exception  {
     	if (inputReader == null){
-    		App.ConsolePrint(pre + "READ DATA FAILED, NO CONNECTION");            
+    		AppLogger.getLogger().consolePrint(pre + "READ DATA FAILED, NO CONNECTION");
             throw new Exception(pre + "READ DATA FAILED, NO CONNECTION");
     	}
         

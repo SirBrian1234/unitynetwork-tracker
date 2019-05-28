@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.database;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -6,7 +6,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import kostiskag.unitynetwork.tracker.App;
+
+import com.sun.xml.internal.ws.addressing.model.ActionNotSupportedException;
+import org.kostiskag.unitynetwork.tracker.App;
 
 /**
  * This is the database low level. An external method 
@@ -16,15 +18,38 @@ import kostiskag.unitynetwork.tracker.App;
  */
 public class Database {
 
-    Connection con;
-    
-    public Database() throws SQLException {
-        String url = App.databaseUrl;
-        String user = App.user;
-        String password = App.password;
-        con = DriverManager.getConnection(url, user, password);                    
-    }
-    
+	private static Database DATABASE;
+
+	private final String url;
+	private final String user;
+	private final String password;
+
+	private Connection con;
+
+    public static Database newInstance(String url, String user, String password) throws SQLException {
+    	if (DATABASE == null) {
+    		DATABASE = new Database(url,user,password);
+		}
+    	return DATABASE;
+	}
+
+	public static Database getInstance() {
+    	if (DATABASE == null) {
+    		throw new ActionNotSupportedException("Database was called before its initialization");
+		}
+    	return DATABASE;
+	}
+
+    private Database(String url, String user, String password) throws SQLException {
+    	this.url = url;
+    	this.user = user;
+    	this.password = password;
+	}
+
+	public synchronized void connect() throws SQLException {
+		con = DriverManager.getConnection(url, user, password);
+	}
+
     public synchronized void close() throws SQLException {
     	con.close();
     }

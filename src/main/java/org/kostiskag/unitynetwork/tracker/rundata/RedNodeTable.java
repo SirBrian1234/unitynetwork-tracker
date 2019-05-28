@@ -1,8 +1,10 @@
-package kostiskag.unitynetwork.tracker.runData;
+package org.kostiskag.unitynetwork.tracker.rundata;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * Each BlueNodeEntry owns an object of a RedNodeTable.
@@ -19,13 +21,13 @@ public class RedNodeTable {
     public RedNodeTable(BlueNodeEntry bluenode) {
     	this.bluenode = bluenode;
         list = new LinkedList<RedNodeEntry>();
-        App.ConsolePrint(pre + "INITIALIZED ");
+        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
     
     public RedNodeTable(BlueNodeEntry bluenode, LinkedList<RedNodeEntry> builtList) {
     	this.bluenode = bluenode;
         list = builtList;
-        App.ConsolePrint(pre + "INITIALIZED ");
+        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
 
     public synchronized RedNodeEntry getRedNodeEntryByHn(String hostname) {
@@ -71,9 +73,9 @@ public class RedNodeTable {
     public synchronized void lease(String hostname, String vAddress) throws Exception {
     	if (	
     			hostname.length() > 0 && 
-    			hostname.length() <= App.max_str_len_small_size && 
+    			hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE &&
     			vAddress.length() > 0 && 
-    			vAddress.length() <= App.max_str_addr_len) {
+    			vAddress.length() <= App.MAX_STR_ADDR_LEN) {
 	    	
     		Iterator<RedNodeEntry> iterator = list.listIterator();
 	        while (iterator.hasNext()) {
@@ -120,7 +122,7 @@ public class RedNodeTable {
             if (hostname.equals(element.getHostname())) {
             	iterator.remove();
             	notifyGUI();
-                App.ConsolePrint(pre +hostname+" RELEASED ENTRY");
+                AppLogger.getLogger().consolePrint(pre +hostname+" RELEASED ENTRY");
                 return true;
             }
         }    	    	
@@ -141,8 +143,8 @@ public class RedNodeTable {
     }
    
 	private void notifyGUI () {
-    	if (App.gui) {
-    		App.window.updateRedNodeTable();
+    	if (App.TRACKER_APP.gui) {
+    		App.TRACKER_APP.window.updateRedNodeTable();
     	}
     }
 }

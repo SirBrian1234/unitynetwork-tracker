@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.database;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-import kostiskag.unitynetwork.tracker.App;
-import kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import kostiskag.unitynetwork.tracker.functions.HashFunctions;
+import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
 
 /**
  * The database upper logic which calls methods from Queries
@@ -121,7 +121,7 @@ public class Logic {
 		try {
 			q = new Queries();
 			if (q.checkIfUserWithIdExists(userid)) {
-				String publicStr = "NOT_SET "+CryptoMethods.generateQuestion();
+				String publicStr = "NOT_SET "+ CryptoMethods.generateQuestion();
 				ResultSet r = q.selectAddressFromBurned();
 				if (r.next()) {
 					int address = r.getInt("address");

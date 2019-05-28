@@ -1,4 +1,4 @@
-package kostiskag.unitynetwork.tracker.database;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +20,8 @@ public class Queries {
 	Database db;
 	
 	public Queries() throws SQLException {
-		db = new Database();
+		db = Database.getInstance();
+		db.connect();
 	}
 	
 	//user queries
@@ -208,10 +209,18 @@ public class Queries {
 	public void closeQueries() throws SQLException {
 		db.close();
 	}
-	
+
+	public static void validateDatabase(Database db) throws SQLException {
+		validate(db);
+	}
+
 	public static void validateDatabase() throws SQLException {
-		 Database db = new Database();
-		 
+		Database db = Database.getInstance();
+		db.connect();
+		validate(db);
+	}
+
+	public static void validate(Database db) throws SQLException {
 		String query = "CREATE TABLE IF NOT EXISTS users (\n"
 			   + "	id INTEGER PRIMARY KEY AUTOINCREMENT, \n"
 			   + "	username CHAR(128) UNIQUE, \n"
