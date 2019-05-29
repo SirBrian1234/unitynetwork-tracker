@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.security.PublicKey;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.junit.BeforeClass;
@@ -82,6 +83,7 @@ public class RedNodeTableTest {
 		}
 		assertTrue(rns.getRedNodeEntryByHn("pakis3").getHostname().equals("pakis3"));
 		assertTrue(rns.getRedNodeEntryByHn("pakis3").getVaddress().equals("192.168.1.3"));
+		assertEquals(rns.getRedNodeEntryByHn("pakis15"), null);
 	}
 	
 	@Test
@@ -116,7 +118,7 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		LinkedList<String> list = rns.getLeasedRedNodeHostnameList();
+		List<String> list = rns.getLeasedRedNodeHostnameList();
 		assertTrue(list.size() == 5);
 		assertTrue(list.get(0).equals("pakis"));
 		assertTrue(list.get(1).equals("pakis2"));

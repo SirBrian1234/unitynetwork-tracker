@@ -1,9 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
@@ -23,37 +21,41 @@ public class RedNodeTable {
     private final List<RedNodeEntry> list;
     
     public RedNodeTable(BlueNodeEntry bluenode) {
-        this.bluenode = bluenode;
-        this.list = new ArrayList<>();
-        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
+        this(bluenode, new ArrayList<>());
     }
     
     public RedNodeTable(BlueNodeEntry bluenode, List<RedNodeEntry> builtList) {
         this.bluenode = bluenode;
         this.list = builtList;
-        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
+        AppLogger.getLogger().consolePrint(pre + "INITIALIZED");
+    }
+
+    public synchronized Optional<RedNodeEntry> getOptionalRedNodeEntryByHn(String hostname) {
+        return list.stream()
+                .filter(element -> hostname.equals(element.getHostname()))
+                .findFirst();
     }
 
     public synchronized RedNodeEntry getRedNodeEntryByHn(String hostname) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-            if (hostname.equals(element.getHostname())) {
-                return element;
-            }
-        }    	
+        Optional<RedNodeEntry> e = getOptionalRedNodeEntryByHn(hostname);
+        if (e.isPresent()) {
+            return e.get();
+        }
         return null;
     }
-    
+
+    public synchronized Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(String vaddress) {
+        return list.stream()
+                .filter(element -> element.getVaddress().equals(vaddress))
+                .findFirst();
+    }
+
     public synchronized RedNodeEntry getRedNodeEntryByVAddr(String vaddress) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-        	if (vaddress.equals(element.getVaddress())) {
-                return element;
-            }
-        }    	
-        return null;
+    	Optional<RedNodeEntry> r= getOptionalRedNodeEntryByVAddr(vaddress);
+    	if (r.isPresent()){
+    	    return r.get();
+        }
+    	return null;
     }
 
     public synchronized int getSize() {
@@ -64,14 +66,10 @@ public class RedNodeTable {
         return list;
     }
     
-    public synchronized LinkedList<String> getLeasedRedNodeHostnameList() {
-    	LinkedList<String> fetched = new LinkedList<>();
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-        	fetched.add(element.getHostname());
-        }
-        return fetched;
+    public synchronized List<String> getLeasedRedNodeHostnameList() {
+    	return list.stream()
+                .map(rnentry -> rnentry.getHostname())
+                .collect(Collectors.toList());
     }
 
     public synchronized void lease(String hostname, String vAddress) throws Exception {
@@ -80,70 +78,67 @@ public class RedNodeTable {
     			hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE &&
     			vAddress.length() > 0 && 
     			vAddress.length() <= App.MAX_STR_ADDR_LEN) {
-	    	
-    		Iterator<RedNodeEntry> iterator = list.listIterator();
-	        while (iterator.hasNext()) {
-	        	RedNodeEntry element = iterator.next();
-	        	if (element.getHostname().equals(hostname) || element.getVaddress().equals(vAddress)) {
-	        		throw new Exception("Attempted to lease a non unique rednode entry.");
-	        	}
-	        }
-	        
-	    	RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
+
+            RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
+
+            if(list.contains(rn)) {
+                throw new Exception("Attempted to lease a non unique rednode entry. "+rn);
+            }
+
 	    	list.add(rn);
-	    	notifyGUI();
+            AppLogger.getLogger().consolePrint(pre +" LEASED ENTRY of "+rn);
+            notifyGUI();
     	} else {
     		throw new Exception("Rednode lease bad data.");
     	}
     }
     
     public synchronized boolean checkOnlineByHn(String hostname) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-        	if (element.getHostname().equals(hostname)) {
-        		return true;
-        	}
-        }
-        return false;
+    	return list.stream()
+                .filter(rn -> rn.getHostname().equals(hostname))
+                .findFirst().isPresent();
     }
     
     public synchronized boolean checkOnlineByVaddress(String vAddress) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-        	if (element.getVaddress().equals(vAddress)) {
-        		return true;
-        	}
-        }
-        return false;
+        return list.stream()
+                .filter(rn -> rn.getVaddress().equals(vAddress))
+                .findFirst().isPresent();
     }
-    
+
+    public synchronized boolean release(RedNodeEntry entryToBeReleased) {
+        Optional<RedNodeEntry> r = list.stream().filter(e -> e.equals(entryToBeReleased)).findFirst();
+        if (!r.isPresent())
+            return false;
+        else {
+            list.remove(r.get());
+            AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+r);
+            notifyGUI();
+            return true;
+        }
+    }
+
     public synchronized boolean release(String hostname) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-            if (hostname.equals(element.getHostname())) {
-            	iterator.remove();
-            	notifyGUI();
-                AppLogger.getLogger().consolePrint(pre +hostname+" RELEASED ENTRY");
-                return true;
-            }
-        }    	    	
-    	return false;
+    	Optional<RedNodeEntry> r = getOptionalRedNodeEntryByHn(hostname);
+    	if (!r.isPresent())
+    	    return false;
+    	else {
+    	    list.remove(r.get());
+            AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+r);
+            notifyGUI();
+            return true;
+        }
     }
     
     public synchronized boolean releaseByVAddress(String vAddress) {
-    	Iterator<RedNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	RedNodeEntry element = iterator.next();
-            if (vAddress.equals(element.getVaddress())) {
-                iterator.remove();
-                notifyGUI();
-                return true;
-            }
-        }    	    	
-    	return false;
+    	Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(vAddress);
+    	if (!r.isPresent()) {
+    	    return false;
+        } else {
+    	    list.remove(r.get());
+            AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+r);
+            notifyGUI();
+            return true;
+        }
     }
    
 	private void notifyGUI () {

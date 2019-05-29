@@ -9,10 +9,10 @@ import java.sql.Time;
  * @author Konstantinos Kagiampakis
  */
 public class RedNodeEntry {
-        
+
+    private final BlueNodeEntry bn;
     private final String hostname;
     private final String vAddress;
-    private final BlueNodeEntry bn;
     private Time regTimestamp;
     private Object timeLock = new Object();
 
@@ -45,5 +45,31 @@ public class RedNodeEntry {
     	synchronized (timeLock) {
     		this.regTimestamp = new Time(System.currentTimeMillis());
     	}
-    } 
+    }
+
+    /**
+     * due to unity restrictions each hostname may be given a unique ip,
+     * therefore if the same hostname for a RN entry is found or
+     * the same virtual address is found the objects are considered
+     * as equal
+     *
+     * @param obj
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof RedNodeEntry) {
+            RedNodeEntry given = (RedNodeEntry) obj;
+            return hostname == given.hostname || vAddress == given.vAddress;
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName()+": hostname: "+hostname+" vaddress: "+vAddress;
+    }
 }
