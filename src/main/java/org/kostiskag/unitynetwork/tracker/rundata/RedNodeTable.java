@@ -2,10 +2,13 @@ package org.kostiskag.unitynetwork.tracker.rundata;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+
+import static java.util.Arrays.asList;
 
 
 /**
@@ -94,15 +97,11 @@ public class RedNodeTable {
     }
     
     public synchronized boolean checkOnlineByHn(String hostname) {
-    	return list.stream()
-                .filter(rn -> rn.getHostname().equals(hostname))
-                .findFirst().isPresent();
+    	return getOptionalRedNodeEntryByHn(hostname).isPresent();
     }
     
     public synchronized boolean checkOnlineByVaddress(String vAddress) {
-        return list.stream()
-                .filter(rn -> rn.getVaddress().equals(vAddress))
-                .findFirst().isPresent();
+        return getOptionalRedNodeEntryByVAddr(vAddress).isPresent();
     }
 
     public synchronized boolean release(RedNodeEntry entryToBeReleased) {
@@ -140,8 +139,23 @@ public class RedNodeTable {
             return true;
         }
     }
-   
-	private void notifyGUI () {
+
+    public synchronized void clearAndRebuildList(List redNodeList) {
+        list.clear();
+        list.addAll(redNodeList);
+        AppLogger.getLogger().consolePrint(pre +" List was rebuild for "+bluenode);
+        notifyGUI();
+    }
+
+    public synchronized void clearList() {
+        clearAndRebuildList(Arrays.asList());
+    }
+
+    public synchronized Stream<RedNodeEntry> stream() {
+        return list.stream();
+    }
+
+    private void notifyGUI () {
     	if (MainWindow.isInstance()) {
     		MainWindow.getInstance().updateRedNodeTable();
     	}

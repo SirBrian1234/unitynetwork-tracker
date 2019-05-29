@@ -14,7 +14,7 @@ public class RedNodeEntry {
     private final String hostname;
     private final String vAddress;
     private Time regTimestamp;
-    private Object timeLock = new Object();
+    private final Object timeLock = new Object();
 
     public RedNodeEntry(BlueNodeEntry bn, String hostname, String Vaddress) {
         this.hostname = hostname;
@@ -63,7 +63,7 @@ public class RedNodeEntry {
         }
         if (obj instanceof RedNodeEntry) {
             RedNodeEntry given = (RedNodeEntry) obj;
-            return hostname == given.hostname || vAddress == given.vAddress;
+            return hostname.equals(given.hostname) || vAddress.equals(given.vAddress);
         }
         return false;
     }

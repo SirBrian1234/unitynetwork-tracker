@@ -14,10 +14,9 @@ public class BlueNodeEntry {
     private final String Phaddress;
     private final int port;
     private final PublicKey pub;
-    //should become final
-    public  RedNodeTable rednodes;
+    public  final RedNodeTable rednodes;
     private Time regTimestamp;
-    private Object timeLock = new Object();
+    private final Object timeLock = new Object();
 
     public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port, Time regTimestamp) {
         this.name = name;
@@ -72,5 +71,32 @@ public class BlueNodeEntry {
     	synchronized (timeLock) {
     		this.regTimestamp = new Time(System.currentTimeMillis());
     	}
-    }    
+    }
+
+    /**
+     * there can only be one bluenode with the same name and the same key
+     * according to the network's limitations!
+     * Consequently, name OR key OR pair of port:address
+     *
+     * @param obj
+     * @return
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof BlueNodeEntry) {
+            BlueNodeEntry given = (BlueNodeEntry) obj;
+            return given.getName().equals(name)
+                    || given.getPub().equals(pub)
+                    || (given.getPhaddress().equals(Phaddress) && given.getPort() == port);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + ": name: " + name + " phaddress: " + Phaddress + " port: " + port;
+    }
 }
