@@ -62,7 +62,7 @@ public class RedNodeEntry {
         }
         if (obj instanceof RedNodeEntry) {
             RedNodeEntry given = (RedNodeEntry) obj;
-            return hostname.equals(given.hostname);
+            return hostname.equals(given.hostname) || vAddress.equals(given.vAddress);
         }
         return false;
     }

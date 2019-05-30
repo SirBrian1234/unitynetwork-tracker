@@ -86,6 +86,8 @@ public class RedNodeTable {
 
             if(list.contains(rn)) {
                 throw new Exception("Attempted to lease a non unique rednode entry. "+rn);
+            } else if (checkOnlineByVaddress(vAddress)) {
+                throw new Exception("Violation of hostname - vaddress 1to1 constraint"+rn);
             }
 
 	    	list.add(rn);

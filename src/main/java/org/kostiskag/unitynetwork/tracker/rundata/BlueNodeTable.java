@@ -41,18 +41,6 @@ public class BlueNodeTable {
 	}
 
 	public synchronized BlueNodeEntry getBlueNodeEntryByHn(String name) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (Hostname.equals(element.getName())) {
-                return element;
-            }
-        }
-        AppLogger.getLogger().consolePrint(pre + "NO ENTRY FOR " + Hostname + " IN TABLE");
-        return null;
-        */
-
     	Optional<BlueNodeEntry> bn = getOptionalBlueNodeEntryByHn(name);
     	if (bn.isPresent()) {
 			return bn.get();
@@ -68,17 +56,6 @@ public class BlueNodeTable {
 	}
 		//the combination of ph address and port is unique
     public synchronized BlueNodeEntry getBlueNodeEntryByPhAddrPort(String Phaddress, int port) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	if (bn.getPhaddress().equals(Phaddress) && bn.getPort() == port) {
-        		return bn;
-        	}        	
-        }
-        return null;
-        */
-
     	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByPhAddrPort(Phaddress,port);
     	if (obn.isPresent()) {
     		return obn.get();
@@ -87,24 +64,6 @@ public class BlueNodeTable {
     }
     
     public synchronized BlueNodeEntry getBlueNodeEntryByLowestLoad() {
-    	/*
-		BlueNodeEntry retrieved = null;
-    	if (list.size() > 0) {
-    		int min = list.getFirst().getLoad();
-    		retrieved = list.getFirst();
-    		
-	    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-	        while (iterator.hasNext()) {
-	        	BlueNodeEntry element = iterator.next();
-	            if (element.getLoad() <= min) {
-	                min = element.getLoad();
-	                retrieved = element;
-	            }
-	        }	      
-        } 
-        return retrieved;
-    	*/
-
     	return list.stream()
 				.min(Comparator.comparingInt(bn -> bn.getLoad()))
 				.get();
@@ -113,17 +72,6 @@ public class BlueNodeTable {
 
 
     public synchronized BlueNodeEntry reverseLookupBnBasedOnRn(String hostname) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	if (bn.rednodes.checkOnlineByHn(hostname)) {
-        		return bn;
-        	}        	
-        }        
-    	return null;
-    	*/
-
         Optional<RedNodeEntry> orn = list.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getHostname().equals(hostname))
@@ -135,17 +83,6 @@ public class BlueNodeTable {
     }
     
     public synchronized BlueNodeEntry reverseLookupBnBasedOnRnVaddr(String vAddress) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	if (bn.rednodes.checkOnlineByVaddress(vAddress)) {
-        		return bn;
-        	}        	
-        }        
-    	return null;
-    	*/
-
 		Optional<RedNodeEntry> orn = list.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getVaddress().equals(vAddress))
@@ -157,16 +94,6 @@ public class BlueNodeTable {
     }
     
     public synchronized List<String> getLeasedRedNodeHostnameList() {
-    	/*
-		LinkedList<String> fetched = new LinkedList<>();
-    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	fetched.addAll(bn.getRedNodes().getLeasedRedNodeHostnameList());
-        }
-        return fetched;
-        */
-
     	return list.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.map(rn -> rn.getHostname())
@@ -174,32 +101,10 @@ public class BlueNodeTable {
     }
     
     public synchronized Boolean checkOnlineByName(String name) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (name.equals(element.getName())) {  
-                return true;
-            }
-        }
-        return false;
-        */
-
     	return getOptionalBlueNodeEntryByHn(name).isPresent();
     }
 
 	public synchronized Boolean checkOnlineByAddrPort(String phaddress, int port) {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (name.equals(element.getName())) {
-                return true;
-            }
-        }
-        return false;
-        */
-
 		return getOptionalBlueNodeEntryByPhAddrPort(phaddress,port).isPresent();
 	}
 
@@ -220,18 +125,6 @@ public class BlueNodeTable {
 	}
 
 	public synchronized boolean checkOnlineRnByHn(String hostname) {
-    	/*
-		LinkedList<String> fetched = new LinkedList<>();
-    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	if (bn.rednodes.checkOnlineByHn(hostname)) {
-        		return true;
-        	}        	
-        }
-        return false;
-        */
-
     	return checkOptionalOnlineRnByHn(hostname).isPresent();
     }
 
@@ -239,22 +132,15 @@ public class BlueNodeTable {
     	return checkOptionalOnlineRnByVaddr(vaddress).isPresent();
 	}
 
-    //WARNING!!! Physical address is not expected to be unique
-    //therefore the table may return all the instances with the same phaddress
+	/**
+	 *  WARNING!!! Physical address is not expected to be unique, only the combination (phaddress, port) is!!!
+	 * 	as from one ip may come multiple hosts with a different port
+	 *  therefore this method returns all the instances with the same phaddress
+	 *
+	 * @param Phaddress
+	 * @return
+	 */
     public synchronized List<BlueNodeEntry> getBlueNodeEntriesByPhAddr(String Phaddress) {
-    	/*
-		LinkedList<BlueNodeEntry> found = new LinkedList<>();
-    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (Phaddress.equals(element.getPhaddress())) {
-                found.add(element);
-            }
-        }
-        AppLogger.getLogger().consolePrint(pre + "NO ENTRY FOR " + Phaddress + " IN TABLE");
-        return found;
-        */
-
     	return list.stream()
 				.filter(bn -> bn.getPhaddress().equals(Phaddress))
 				.collect(Collectors.toList());
@@ -275,23 +161,13 @@ public class BlueNodeTable {
     		) {
 	    	
     		if (this.bncap == 0 || this.bncap > list.size()) {
-    			/*
-		    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-		        while (iterator.hasNext()) {
-		        	BlueNodeEntry element = iterator.next();
-		        	if (element.getName().equals(name) || (element.getPhaddress().equals(phAddress) && element.getPort() == port)) {
-		        		throw new Exception("Attempted to insert a non unique bluenode entry.");
-		        	}
-		        }
-		    	*/
-
     			if (!getOptionalBlueNodeEntryByHn(name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(phAddress, port).isPresent()) {
 					BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
 					list.add(bn);
 					AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
 					notifyGUI();
 				} else {
-					throw new Exception(pre + "Found a duplicate bn!");
+					throw new Exception(pre + "Found a duplicate bn! "+name);
 				}
 	    	} else {
 	    		throw new Exception(pre + "Maximum Blue Node upper limit reached.");
@@ -302,37 +178,12 @@ public class BlueNodeTable {
     }
     
     public synchronized void leaseRednode(String bluenodeName, String hostname, String vAddress) throws Exception {
-    	/*
-		BlueNodeEntry element = null;
-    	boolean found = false;
-    	Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	element = iterator.next();
-            if (bluenodeName.equals(element.getName())) {
-                found = true;
-            	break;                
-            }
-        }
-        */
-
     	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByHn(bluenodeName);
     	if (!obn.isPresent()) {
     		throw new Exception("Attempted to lease over a non existing bluenode.");
     	}
 
-    	/*
-    	iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry bn = iterator.next();
-        	if (bn.rednodes.checkOnlineByHn(hostname)) {
-        		throw new Exception("Attempted to lease a non unique rednode entry.");
-        	} else if (bn.rednodes.checkOnlineByVaddress(vAddress)) {
-        		throw new Exception("Attempted to lease a non unique rednode entry.");
-        	}
-        }
-        */
-
-		if (checkOnlineRnByHn(hostname)) {
+    	if (checkOnlineRnByHn(hostname)) {
 			throw new Exception("Attempted to lease a non unique rednode entry.");
 		}
 		if (checkOnlineRnByVaddr(vAddress)) {
@@ -343,36 +194,12 @@ public class BlueNodeTable {
     }
 
 	public synchronized void release(BlueNodeEntry tobereleased) throws Exception {
-        /*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (name.equals(element.getName())) {
-                    iterator.remove();
-
-                    return;
-            }
-        }
-        */
-
-		list.remove(tobereleased);
+        list.remove(tobereleased);
 		AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+tobereleased);
 		notifyGUI();
 	}
 
     public synchronized void release(String name) throws Exception {
-        /*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (name.equals(element.getName())) {                
-                    iterator.remove();              
-
-                    return;
-            }
-        }
-        */
-
         Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByHn(name);
         if (!obn.isPresent()) {
 			throw new Exception("NO BLUENODE ENTRY FOR " + name + " IN TABLE");
@@ -384,17 +211,6 @@ public class BlueNodeTable {
     }
     
     public synchronized void releaseRednode(String hostname) throws Exception {
-        /*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-        while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();
-            if (element.rednodes.checkOnlineByHn(hostname)) {                
-                    element.rednodes.release(hostname);              
-                    return;
-            }
-        }
-        */
-
         Optional<RedNodeEntry> orn = checkOptionalOnlineRnByHn(hostname);
 		if(orn.isPresent()) {
 			RedNodeEntry rn = orn.get();
@@ -405,42 +221,7 @@ public class BlueNodeTable {
     }
     
     public synchronized void rebuildTableViaAuthClient() {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();            
-            try {
-            	BlueNodeClient cl = new BlueNodeClient(element);
-				if (cl.checkBnOnline()) {
-					System.out.println(pre+"Fetching RNs from BN "+element.getName());
-				    element.updateTimestamp();
-				    cl = new BlueNodeClient(element);
-				    List<RedNodeEntry> rns = cl.getRedNodes();
-				    List<RedNodeEntry> in = element.rednodes.getList();
-				    List<RedNodeEntry> valid = new LinkedList<RedNodeEntry>();
-				    Iterator<RedNodeEntry> rnsIt = rns.iterator();
-				    
-				    while (rnsIt.hasNext()) {
-				    	RedNodeEntry outE = rnsIt.next();				    	
-			    		Iterator<RedNodeEntry> inIt = in.iterator();
-			    		while(inIt.hasNext()) {
-			    			RedNodeEntry inE = inIt.next();	
-				    		if (inE.getHostname().equals(outE.getHostname())) {
-				    			valid.add(inE);			    			
-				    		}				    	
-			    		}
-				    }				    
-				    element.getRedNodes().clearAndRebuildList(valid);
-				} else {                
-					iterator.remove();               
-				}
-			} catch (Exception e) {
-				iterator.remove();  
-			}
-        }
-        */
-
-    	 list.stream().forEach(bn -> {
+    	list.stream().forEach(bn -> {
 			 try {
 				 BlueNodeClient cl = new BlueNodeClient(bn);
 				 if (cl.checkBnOnline()) {
@@ -456,26 +237,13 @@ public class BlueNodeTable {
 				AppLogger.getLogger().consolePrint(pre+"network error when getting rednodes");
 				bn.getRedNodes().clearList();
 			 }
-		 });
+    	});
 
     	System.out.println(pre+" BN Table rebuilt");
     	notifyGUI();    	
     }
     
     public synchronized void sendKillSigsAndClearTable() {
-    	/*
-		Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-        	BlueNodeEntry element = iterator.next();            
-        	try {
-        		BlueNodeClient cl = new BlueNodeClient(element);
-				cl.sendkillsig();
-			} catch (Exception e) {
-				
-			}
-            iterator.remove();                           
-        }*/
-
     	list.stream().forEach(bn -> {
 			try {
 				BlueNodeClient cl = new BlueNodeClient(bn);
@@ -490,58 +258,20 @@ public class BlueNodeTable {
     	notifyGUI(); 
     }
 
-    //this will build the obj for gui
-    //gui can handle itself
-    public synchronized String[][] buildStringInstanceObject() {        
+    //these will build the objects required for gui appearance
+    public synchronized String[][] buildStringInstanceObject() {
     	String obj[][] = null;
-
-    	/*
-    	int i = 0;
-        Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-    		BlueNodeEntry element = iterator.next();
-            obj[i] = new String[]{element.getName(), element.getPhaddress(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()};
-            i++;
-        }
-		*/
-
-		return list.stream()
+    	return list.stream()
 				.map(element -> new String[] {element.getName(), element.getPhaddress(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
     		.collect(Collectors.toList()).toArray(obj);
 
     }
     
     public synchronized String[][] buildRednodeStringInstanceObject() {        
-    	/*
-		LinkedList<RedNodeEntry> li = new LinkedList<>();
-        Iterator<BlueNodeEntry> iterator = list.listIterator();
-    	while (iterator.hasNext()) {
-    		BlueNodeEntry element = iterator.next();
-    		Iterator<RedNodeEntry> redIterator = element.getRedNodes().getList().listIterator();
-    		while (redIterator.hasNext()) {
-        		RedNodeEntry redElement = redIterator.next();
-        		li.add(redElement);
-            }
-        }
-        */
-
-		String obj[][] = null;
+    	String obj[][] = null;
     	return getAllRedNodesStream()
 				.map(e -> new String[]{e.getHostname(), e.getVaddress(), e.getParentBlueNode().getName(), e.getTimestamp().toString()} )
     			.collect(Collectors.toList()).toArray(obj);
-
-    	/*
-    	Iterator<RedNodeEntry> redIterator = li.listIterator();
-    	int i=0;
-    	while (redIterator.hasNext()) {
-    		RedNodeEntry e = redIterator.next();
-    		obj[i] = new String[]{e.getHostname(), e.getVaddress(), e.getParentBlueNode().getName(), e.getTimestamp().toString()};            
-    		i++;
-    	}
-
-    	return obj;
-    	*/
-
     }
     
     private void notifyGUI () {
