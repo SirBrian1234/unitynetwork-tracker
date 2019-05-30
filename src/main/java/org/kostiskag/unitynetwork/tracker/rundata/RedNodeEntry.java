@@ -16,9 +16,9 @@ public class RedNodeEntry {
     private Time regTimestamp;
     private final Object timeLock = new Object();
 
-    public RedNodeEntry(BlueNodeEntry bn, String hostname, String Vaddress) {
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, String vAddress) {
         this.hostname = hostname;
-        this.vAddress  = Vaddress;
+        this.vAddress  = vAddress;
         this.bn = bn;
         this.regTimestamp = new Time(System.currentTimeMillis());
     }
@@ -48,10 +48,9 @@ public class RedNodeEntry {
     }
 
     /**
-     * due to unity restrictions each hostname may be given a unique ip,
-     * therefore if the same hostname for a RN entry is found or
-     * the same virtual address is found the objects are considered
-     * as equal
+     * due to unity restrictions each hostname may be given only a unique ip,
+     * this method should not be used to proofread the RedNodeTable for
+     * whether there is a duplicate vaddress it compares ONLY by rn hostname
      *
      * @param obj
      * @return
@@ -63,13 +62,13 @@ public class RedNodeEntry {
         }
         if (obj instanceof RedNodeEntry) {
             RedNodeEntry given = (RedNodeEntry) obj;
-            return hostname.equals(given.hostname) || vAddress.equals(given.vAddress);
+            return hostname.equals(given.hostname);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return this.getClass().getName()+": hostname: "+hostname+" vaddress: "+vAddress;
+        return this.getClass().getSimpleName()+": hostname: "+hostname+" vaddress: "+vAddress;
     }
 }

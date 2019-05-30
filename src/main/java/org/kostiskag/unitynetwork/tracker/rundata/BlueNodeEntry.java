@@ -4,7 +4,7 @@ import java.security.PublicKey;
 import java.sql.Time;
 
 /**
- * Each connected bluenode is represented by a BlueNode entry.
+ * Each connected bluenode is represented by a BlueNode entry!
  * 
  * @author Konstantinos Kagiampakis
  */
@@ -14,7 +14,7 @@ public class BlueNodeEntry {
     private final String Phaddress;
     private final int port;
     private final PublicKey pub;
-    public  final RedNodeTable rednodes;
+    private final RedNodeTable rednodes;
     private Time regTimestamp;
     private final Object timeLock = new Object();
 
@@ -29,12 +29,7 @@ public class BlueNodeEntry {
     
     //auto timestamp
     public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port) {
-        this.name = name;
-        this.pub = pub;
-        this.Phaddress = phAddress;
-        this.port = port;
-        this.regTimestamp = new Time(System.currentTimeMillis());
-        this.rednodes = new RedNodeTable(this);
+        this(name, pub, phAddress, port,new Time(System.currentTimeMillis()));
     }
 
     public String getName() {
@@ -88,15 +83,13 @@ public class BlueNodeEntry {
         }
         if (obj instanceof BlueNodeEntry) {
             BlueNodeEntry given = (BlueNodeEntry) obj;
-            return given.getName().equals(name)
-                    || given.getPub().equals(pub)
-                    || (given.getPhaddress().equals(Phaddress) && given.getPort() == port);
+            return given.getName().equals(name);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return getClass().getName() + ": name: " + name + " phaddress: " + Phaddress + " port: " + port;
+        return getClass().getSimpleName() + ": name: " + name + " phaddress: " + Phaddress + " port: " + port+ " \nTime "+getTimestamp().getTime();
     }
 }

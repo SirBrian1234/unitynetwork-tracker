@@ -183,8 +183,8 @@ public class BlueNodeFunctions {
 
 		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
 		if (bn != null) {
-			if (bn.rednodes.checkOnlineByHn(hostname)) {
-				bn.rednodes.release(hostname);
+			if (bn.getRedNodes().checkOnlineByHn(hostname)) {
+				bn.getRedNodes().release(hostname);
 				data = "RELEASED";
 			} else {
 				data = "NOT_AUTHORIZED";
