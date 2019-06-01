@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,11 +10,12 @@ import java.sql.SQLException;
 import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import org.kostiskag.unitynetwork.tracker.functions.VAddressFunctions;
+import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
 
 /**
@@ -114,7 +116,7 @@ public class BlueNodeFunctions {
 									int inuserid = getResults.getInt("userid");
 									if (userauth == inuserid) {
 										try {
-											String vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
+											String vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
 											bn.getRedNodes().lease(hostname, vaddress);
 											data = "LEASED " + vaddress;
 										} catch (Exception e) {
@@ -300,9 +302,16 @@ public class BlueNodeFunctions {
 				if (retrievedHostname.equals(hostname)) {
 					//found!!!
 					int num_addr = r.getInt("address");
-					vaddress = VAddressFunctions.numberTo10ipAddr(num_addr);
-					
-					q.closeQueries();
+
+					try {
+						vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
+					} catch (UnknownHostException e) {
+						AppLogger.getLogger().consolePrint("Failed lookup by hosntame for BN "+hostname+" "+e.getMessage());
+						return;
+					} finally {
+						q.closeQueries();
+					}
+
 					try {
 						SocketFunctions.sendAESEncryptedStringData(vaddress, writer, sessionKey);
 					} catch (Exception e) {
@@ -336,7 +345,13 @@ public class BlueNodeFunctions {
 	public static void LookupByAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) {
 		Queries q = null;
 		String hostname = null;
-		int addr_num  = VAddressFunctions._10ipAddrToNumber(vaddress);
+		int addr_num  = 0;
+		try {
+			addr_num = VirtualAddress._10IpAddrToNumber(vaddress);
+		} catch (UnknownHostException e) {
+			AppLogger.getLogger().consolePrint("Failed lookup by Address for address: "+vaddress+" "+e.getMessage());
+			return;
+		}
 		int retrieved_addr_num = -1;
 		
 		try {
