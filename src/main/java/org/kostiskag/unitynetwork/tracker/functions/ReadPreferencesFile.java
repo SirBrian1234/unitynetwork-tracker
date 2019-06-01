@@ -16,17 +16,17 @@ import org.kostiskag.unitynetwork.tracker.App;
 public class ReadPreferencesFile {
 
 	//These are the imported settings from file
-	public static String netName;
-	public static int auth;
+	public String netName;
+	public int auth;
 	// database
-	public static String databaseUrl;
-	public static String user;
-	public static String password;
+	public String databaseUrl;
+	public String user;
+	public String password;
 	// capacity
-	public static int bncap;
-	public static int pingTime;
-	public static boolean gui = true;
-	public static boolean log;
+	public int bncap;
+	public int pingTime;
+	public boolean gui = true;
+	public boolean log;
 
 	public ReadPreferencesFile() {
 	}
