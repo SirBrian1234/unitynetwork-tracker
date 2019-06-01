@@ -85,7 +85,7 @@ public class BlueNodeTable {
     public synchronized BlueNodeEntry reverseLookupBnBasedOnRnVaddr(String vAddress) {
 		Optional<RedNodeEntry> orn = list.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
-				.filter(rn -> rn.getVaddress().equals(vAddress))
+				.filter(rn -> rn.getVaddress().asString().equals(vAddress))
 				.findFirst();
 		if (orn.isPresent()) {
 			return orn.get().getParentBlueNode();
@@ -120,7 +120,7 @@ public class BlueNodeTable {
 
 	public synchronized Optional<RedNodeEntry> checkOptionalOnlineRnByVaddr(String vaddress) {
 		return getAllRedNodesStream()
-				.filter(rn -> rn.getVaddress().equals(vaddress))
+				.filter(rn -> rn.getVaddress().asString().equals(vaddress))
 				.findFirst();
 	}
 
@@ -270,7 +270,7 @@ public class BlueNodeTable {
     public synchronized String[][] buildRednodeStringInstanceObject() {        
     	String obj[][] = null;
     	return getAllRedNodesStream()
-				.map(e -> new String[]{e.getHostname(), e.getVaddress(), e.getParentBlueNode().getName(), e.getTimestamp().toString()} )
+				.map(e -> new String[]{e.getHostname(), e.getVaddress().asString(), e.getParentBlueNode().getName(), e.getTimestamp().toString()} )
     			.collect(Collectors.toList()).toArray(obj);
     }
     

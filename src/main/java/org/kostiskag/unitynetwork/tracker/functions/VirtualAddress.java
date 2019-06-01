@@ -13,21 +13,38 @@ import org.kostiskag.unitynetwork.tracker.App;
  */
 public class VirtualAddress {
 
+    //this is "10.256.256.255" in byte[]
+    public static final int MAX_INT_CAPACITY = VirtualAddress.byteTo10IpAddrNumber(new byte[]{0x00, 0x00, 0x00, 0x00})
+            - App.SYSTEM_RESERVED_ADDRESS_NUMBER;
+
     private final String asString;
     private final int asInt;
     private final byte[] asByte;
     private final InetAddress asInet;
 
     public VirtualAddress(String asString) throws UnknownHostException {
+        if (asString.length() < 0 ||
+                asString.length() > App.MAX_STR_ADDR_LEN) {
+            throw new UnknownHostException("the given ip is invalid");
+        }
         this.asString = asString;
         this.asInet = VirtualAddress.vAddressToInetAddress(asString);
         this.asByte = asInet.getAddress();
+        if (asByte[0] != (byte)10) {
+            throw new UnknownHostException("the given ip does not start with a 10.* network part");
+        }
         this.asInt = VirtualAddress.byteTo10IpAddrNumber(asByte);
     }
 
     public VirtualAddress(int asInt) throws UnknownHostException {
+        if (asInt <= 0) {
+            throw new UnknownHostException("the given ip number is invalid");
+        }
         this.asInt = asInt;
         this.asByte = VirtualAddress.numberTo10IpByteAddress(asInt);
+        if (asByte[0] != (byte)10) {
+            throw new UnknownHostException("the given ip does not start with a 10.* network part");
+        }
         this.asInet = VirtualAddress._10IpByteToInetAddress(asByte);
         this.asString = asInet.getHostAddress();
     }
@@ -69,7 +86,7 @@ public class VirtualAddress {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() +
-                "asString: '" + asString + '\'' +
+                ": asString: '" + asString + '\'' +
                 ", asInt: " + asInt +
                 ", asByte: " + Arrays.toString(asByte) +
                 ", asInet: " + asInet +

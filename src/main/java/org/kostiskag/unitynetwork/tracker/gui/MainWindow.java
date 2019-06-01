@@ -67,6 +67,10 @@ public class MainWindow extends javax.swing.JFrame {
 		return MainWindow.WINDOW != null;
 	}
 
+	private static void terminateInstance() {
+		MainWindow.WINDOW = null;
+	}
+
 	private MainWindow() {
 		setTitle("Unity Network Tracker");
 		bluenodes = new DefaultTableModel(new String[][]{}, bluenodesTableHead);
@@ -115,6 +119,7 @@ public class MainWindow extends javax.swing.JFrame {
 						"Are you sure you wish to terminate the Tracker?\nThis may result in the overall network termination.\nIf you decide to close the Tracker, it will send the appropriate kill signals to the connected BlueNodes.",
 						"", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, ObjButtons, ObjButtons[1]);
 				if (PromptResult == JOptionPane.YES_OPTION) {
+					MainWindow.terminateInstance();
 					App.TRACKER_APP.terminate();
 				}
 			}

@@ -1,18 +1,17 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.security.PublicKey;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kostiskag.unitynetwork.tracker.App;
+
+import java.util.List;
+import java.net.UnknownHostException;
+import java.security.PublicKey;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
+
+import static org.junit.Assert.*;
 
 public class RedNodeTableTest {
 
@@ -26,9 +25,9 @@ public class RedNodeTableTest {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -40,11 +39,11 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueHosnameTest() {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis", "192.168.1.2");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis", "10.200.1.2");
 		} catch (Exception e) {
 			assertTrue(true);
 			return;
@@ -55,11 +54,11 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueAddressTest() {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "192.168.1.1", 33);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("makis", "192.168.1.1");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("makis", "10.200.1.1");
 		} catch (Exception e) {
 			assertEquals(rns.getSize(), 1);
 			return;
@@ -68,40 +67,46 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void getByHostnameTest() {
+	public void getByHostnameTest() throws UnknownHostException, RedNodeTableException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.getRedNodeEntryByHn("pakis3").getHostname().equals("pakis3"));
-		assertTrue(rns.getRedNodeEntryByHn("pakis3").getVaddress().equals("192.168.1.3"));
-		assertEquals(rns.getRedNodeEntryByHn("pakis15"), null);
+		assertEquals(rns.getRedNodeEntry("pakis3").getHostname(),"pakis3");
+		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress().asString(),"10.200.1.3");
+		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress(),new VirtualAddress("10.200.1.3"));
+
+		try {
+			rns.getRedNodeEntry("pakis15");
+		} catch (RedNodeTableException ex) {
+			assertTrue(true);
+		}
 	}
 	
 	@Test
-	public void getByVAddressTest() {
+	public void getByVAddressTest() throws UnknownHostException, RedNodeTableException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.getRedNodeEntryByVAddr("192.168.1.2").getHostname().equals("pakis2"));
-		assertTrue(rns.getRedNodeEntryByVAddr("192.168.1.2").getVaddress().equals("192.168.1.2"));
+		assertNotNull(rns.getRedNodeEntryByVAddr("10.200.1.2").getHostname().equals("pakis2"));
+		assertTrue(rns.getRedNodeEntryByVAddr("10.200.1.2").getVaddress().asString().equals("10.200.1.2"));
 	}
 	
 	@Test
@@ -109,11 +114,11 @@ public class RedNodeTableTest {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -132,55 +137,55 @@ public class RedNodeTableTest {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.checkOnlineByHn("pakis"));
-		assertTrue(rns.checkOnlineByHn("pakis3"));
-		assertTrue(rns.checkOnlineByHn("pakis4"));
-		assertTrue(rns.checkOnlineByHn("pakis2"));
-		assertTrue(rns.checkOnlineByHn("pakis5"));
-		assertTrue(!rns.checkOnlineByHn("bob"));
+		assertTrue(rns.checkOnline("pakis"));
+		assertTrue(rns.checkOnline("pakis3"));
+		assertTrue(rns.checkOnline("pakis4"));
+		assertTrue(rns.checkOnline("pakis2"));
+		assertTrue(rns.checkOnline("pakis5"));
+		assertTrue(!rns.checkOnline("bob"));
 	}
 	
 	@Test
-	public void checkOnlineByVaddressTest() {
+	public void checkOnlineByVaddressTest() throws UnknownHostException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.3"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.1"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.2"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.5"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.4"));
-		assertTrue(!rns.checkOnlineByVaddress("192.168.1.20"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.3"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.1"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.2"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.5"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.4"));
+		assertTrue(!rns.checkOnlineByVaddress("10.200.1.20"));
 	}
 	
 	@Test
-	public void releaseByHostnameTest() {
+	public void releaseByHostnameTest() throws UnknownHostException, RedNodeTableException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -189,36 +194,46 @@ public class RedNodeTableTest {
 		rns.release("pakis3");
 		rns.release("pakis5");
 		
-		assertTrue(!rns.checkOnlineByVaddress("192.168.1.1"));
-		assertTrue(!rns.checkOnlineByVaddress("192.168.1.3"));
-		assertTrue(!rns.checkOnlineByVaddress("192.168.1.5"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.2"));
-		assertTrue(rns.checkOnlineByVaddress("192.168.1.4"));
+		assertTrue(!rns.checkOnlineByVaddress("10.200.1.1"));
+		assertTrue(!rns.checkOnlineByVaddress("10.200.1.3"));
+		assertTrue(!rns.checkOnlineByVaddress("10.200.1.5"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.2"));
+		assertTrue(rns.checkOnlineByVaddress("10.200.1.4"));
 		assertEquals(rns.getSize(), 2);
 	}
 	
 	@Test
-	public void releaseByVaddressTest() {
-		BlueNodeEntry bn = null;
+	public void releaseByVaddressTest() throws UnknownHostException, RedNodeTableException {
+		BlueNodeEntry bn = new BlueNodeEntry("bnpakis",null,null, 0);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
-			rns.lease("pakis", "192.168.1.1");
-			rns.lease("pakis2", "192.168.1.2");
-			rns.lease("pakis3", "192.168.1.3");
-			rns.lease("pakis4", "192.168.1.4");
-			rns.lease("pakis5", "192.168.1.5");
+			rns.lease("pakis", "10.200.1.1");
+			rns.lease("pakis2", "10.200.1.2");
+			rns.lease("pakis3", "10.200.1.3");
+			rns.lease("pakis4", "10.200.1.4");
+			rns.lease("pakis5", "10.200.1.5");
 		} catch (Exception e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		rns.releaseByVAddress("192.168.1.2");
-		rns.releaseByVAddress("192.168.1.4");
-		
-		assertTrue(!rns.checkOnlineByHn("pakis2"));
-		assertTrue(!rns.checkOnlineByHn("pakis4"));
-		assertTrue(rns.checkOnlineByHn("pakis3"));
-		assertTrue(rns.checkOnlineByHn("pakis"));
-		assertTrue(rns.checkOnlineByHn("pakis5"));
+
+		assertEquals(rns.getSize(), 5);
+
+
+		rns.getRedNodeEntryByVAddr("10.200.1.2");
+		rns.getRedNodeEntryByVAddr("10.200.1.4");
+
+		//these two are released
+		rns.releaseByVAddress("10.200.1.2");
+		rns.releaseByVAddress("10.200.1.4");
+		//they should not be found
+		assertTrue(!rns.checkOnline("pakis2"));
+		assertTrue(!rns.checkOnline("pakis4"));
+
+		//these should be there
+		assertTrue(rns.checkOnline("pakis3"));
+		assertTrue(rns.checkOnline("pakis"));
+		assertTrue(rns.checkOnline("pakis5"));
 		assertEquals(rns.getSize(), 3);
 	}
 

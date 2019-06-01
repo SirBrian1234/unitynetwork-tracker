@@ -1,6 +1,9 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import java.net.UnknownHostException;
 import java.sql.Time;
+
+import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
 
 /**
  * Objects of a RedNodeEntry represent the connected
@@ -12,25 +15,29 @@ public class RedNodeEntry {
 
     private final BlueNodeEntry bn;
     private final String hostname;
-    private final String vAddress;
+    private final VirtualAddress vAddress;
     private Time regTimestamp;
     private final Object timeLock = new Object();
 
-    public RedNodeEntry(BlueNodeEntry bn, String hostname, String vAddress) {
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, VirtualAddress vAddress) {
+        this.bn = bn;
         this.hostname = hostname;
         this.vAddress  = vAddress;
-        this.bn = bn;
         this.regTimestamp = new Time(System.currentTimeMillis());
+    }
+
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, String vAddress) throws UnknownHostException {
+        this(bn, hostname, new VirtualAddress(vAddress));
     }
 
     public String getHostname() {
         return hostname;
     }
 
-    public String getVaddress() {
+    public VirtualAddress getVaddress() {
         return vAddress;
     }
-    
+
     public BlueNodeEntry getParentBlueNode() {
         return bn;
     }
