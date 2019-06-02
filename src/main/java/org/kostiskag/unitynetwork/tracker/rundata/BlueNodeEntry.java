@@ -1,7 +1,12 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
+
+import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.sql.Time;
+import java.util.Objects;
 
 /**
  * Each connected bluenode is represented by a BlueNode entry!
@@ -11,25 +16,25 @@ import java.sql.Time;
 public class BlueNodeEntry {
     
     private final String name;
-    private final String Phaddress;
+    private final PhysicalAddress phAddress;
     private final int port;
     private final PublicKey pub;
     private final RedNodeTable rednodes;
     private final Object timeLock = new Object();
     private Time regTimestamp;
+    private BlueNodeClient client;
 
-    public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port, Time regTimestamp) {
+    public BlueNodeEntry(String name, PublicKey pub, PhysicalAddress phAddress, int port) {
         this.name = name;
         this.pub = pub;
-        this.Phaddress = phAddress;
+        this.phAddress = phAddress;
         this.port = port;
-        this.regTimestamp = regTimestamp;
+        this.regTimestamp = new Time(System.currentTimeMillis());
         this.rednodes = new RedNodeTable(this);
     }
-    
-    //auto timestamp
-    public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port) {
-        this(name, pub, phAddress, port,new Time(System.currentTimeMillis()));
+
+    public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port) throws UnknownHostException {
+        this(name,pub,PhysicalAddress.valueOf(phAddress),port);
     }
 
     public String getName() {
@@ -40,8 +45,8 @@ public class BlueNodeEntry {
 		return pub;
 	}
     
-    public String getPhaddress() {
-        return Phaddress;
+    public PhysicalAddress getPhAddress() {
+        return phAddress;
     }
 
     public int getPort() {
@@ -54,6 +59,14 @@ public class BlueNodeEntry {
     
     public RedNodeTable getRedNodes() {
     	return rednodes;
+    }
+
+    public BlueNodeClient getClient() {
+        return client;
+    }
+
+    public void setClient(BlueNodeClient client) {
+        this.client = client;
     }
 
     public Time getTimestamp() {
@@ -89,7 +102,12 @@ public class BlueNodeEntry {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(name, phAddress, port, pub);
+    }
+
+    @Override
     public String toString() {
-        return getClass().getSimpleName() + ": name: " + name + " phaddress: " + Phaddress + " port: " + port+ " \nTime "+getTimestamp().getTime();
+        return getClass().getSimpleName() + ": name: " + name + " phaddress: " + phAddress + " port: " + port+ " \nTime "+getTimestamp().getTime();
     }
 }

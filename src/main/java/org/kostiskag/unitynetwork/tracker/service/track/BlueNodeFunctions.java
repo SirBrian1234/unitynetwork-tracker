@@ -206,7 +206,7 @@ public class BlueNodeFunctions {
 		String data;
 		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
 		if (bn != null) {			
-			data = bn.getPhaddress()+" "+ bn.getPort();
+			data = bn.getPhAddress().asString()+" "+ bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}
@@ -221,7 +221,7 @@ public class BlueNodeFunctions {
 		String data;
 		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRn(hostname);
 		if (bn != null) {
-			data = "ONLINE " +bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
+			data = "ONLINE " +bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}
@@ -239,7 +239,7 @@ public class BlueNodeFunctions {
 		
 		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRnVaddr(vaddress);
 		if (bn!=null) {
-			data = "ONLINE "+bn.getName()+" "+bn.getPhaddress()+" "+bn.getPort();
+			data = "ONLINE "+bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}						

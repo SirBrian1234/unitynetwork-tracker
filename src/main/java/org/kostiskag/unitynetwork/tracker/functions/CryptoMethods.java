@@ -53,15 +53,10 @@ public class CryptoMethods {
 	 * 
 	 * @return
 	 */
-	public static SecretKey generateAESSessionkey() {
-		try {
-			KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
-			AES_keygen.init(128, new SecureRandom());
-			return AES_keygen.generateKey();
-		} catch (NoSuchAlgorithmException ex) {
-			ex.printStackTrace();
-		}
-		return null;
+	public static SecretKey generateAESSessionkey() throws NoSuchAlgorithmException {
+		KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
+		AES_keygen.init(128, new SecureRandom());
+		return AES_keygen.generateKey();
 	}
 	
 	public static byte[] aesEncrypt(String message, SecretKey key) {

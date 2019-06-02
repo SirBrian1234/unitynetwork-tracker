@@ -6,9 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -37,20 +35,15 @@ public class SocketFunctions {
         return IPaddress;
     }
     
-    public static Socket absoluteConnect(InetAddress IPaddress, int authPort) throws Exception {
+    public static Socket absoluteConnect(InetAddress IPaddress, int authPort) throws IOException {
+        return absoluteConnect(IPaddress,authPort,8000);
+    }
+
+    public static Socket absoluteConnect(InetAddress IPaddress, int authPort, int timeout) throws IOException {
         Socket socket = null;
         try {
             socket = new Socket(IPaddress, authPort);
-            socket.setSoTimeout(8000);
-        } catch (java.net.NoRouteToHostException ex) {
-            AppLogger.getLogger().consolePrint(pre + "NO ROUTE FOR "+IPaddress.getHostAddress()+" "+authPort);
-            throw ex;
-        } catch (java.net.ConnectException ex) {
-            AppLogger.getLogger().consolePrint(pre + "CONNECTION REFUSED FOR "+IPaddress.getHostAddress()+" "+authPort);
-            throw ex;
-        } catch (java.net.SocketTimeoutException ex) {
-            AppLogger.getLogger().consolePrint(pre + "CONNECTION TIMED OUT FOR "+IPaddress.getHostAddress()+" "+authPort);
-            throw ex;
+            socket.setSoTimeout(timeout);
         } catch (IOException ex) {
             AppLogger.getLogger().consolePrint(pre + "CONNECTION ERROR FOR "+IPaddress.getHostAddress()+" "+authPort);
             throw ex;
@@ -105,10 +98,10 @@ public class SocketFunctions {
     	return received;
     }
 
-    public static void sendPlainStringData(String message, DataOutputStream writer) throws Exception {
+    public static void sendPlainStringData(String message, DataOutputStream writer) throws IOException {
     	if (message == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
+            throw new IOException(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
         	message = "\n";
@@ -132,10 +125,10 @@ public class SocketFunctions {
     	return args;
     }
     
-    public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws IOException {
     	if (message == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
+            throw new IOException(pre+"NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
         	message = "\n";
@@ -159,15 +152,15 @@ public class SocketFunctions {
     	return decrypted;
     }
     
-    public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws Exception  {
+    public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws IOException  {
     	sendAESEncryptedStringData(message, writer, sessionKey);
     	return receiveAESEncryptedStringData(reader, sessionKey);
     }
     
-    public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws Exception {
+    public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws IOException {
     	if (message == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
+            throw new IOException(pre+" NO DATA TO SEND");
         } else if (message.isEmpty()) {
         	//line feed
         	message = "\n";

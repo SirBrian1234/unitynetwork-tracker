@@ -33,7 +33,7 @@ public class RedNodeFunctions {
 		if (App.TRACKER_APP.BNtable.getSize() > 0) {
 			BlueNodeEntry recomended = App.TRACKER_APP.BNtable.getBlueNodeEntryByLowestLoad();
 			String hostname = recomended.getName();
-			String phaddress = recomended.getPhaddress();
+			String phaddress = recomended.getPhAddress().asString();
 			int port = recomended.getPort();
 			int load = recomended.getLoad();
 			String pubkey = CryptoMethods.objectToBase64StringRepresentation(recomended.getPub());

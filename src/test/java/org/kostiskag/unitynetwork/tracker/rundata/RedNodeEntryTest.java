@@ -5,6 +5,7 @@ import java.sql.Time;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +17,7 @@ public class RedNodeEntryTest {
 
 	@Test
 	public void constructorAccessorsTest() throws UnknownHostException {
-		BlueNodeEntry bn = new BlueNodeEntry("pakis",null,null,0);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis",null, PhysicalAddress.valueOf("1.2.3.4"),0);
 		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
 		assertEquals(rn.getHostname(), "ouiou");
 		assertEquals(rn.getVaddress().asString(), "10.0.0.1");
@@ -28,7 +29,7 @@ public class RedNodeEntryTest {
 	public void testUpdateTimestamp() throws InterruptedException, UnknownHostException {
 		Time t = new Time(System.currentTimeMillis());
 		Thread.sleep(1000);
-		BlueNodeEntry bn = new BlueNodeEntry("pakis",null,null,0);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis",null,PhysicalAddress.valueOf("1.2.3.4"),0);
 		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
 		System.out.println(bn);
 		Time oldt = rn.getTimestamp();
@@ -42,7 +43,7 @@ public class RedNodeEntryTest {
 
 	@Test
 	public void testEquality() throws InterruptedException, UnknownHostException {
-		BlueNodeEntry bn = new BlueNodeEntry("pakis",null,null,0);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis",null,PhysicalAddress.valueOf("1.2.3.4"),0);
 
 		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
 

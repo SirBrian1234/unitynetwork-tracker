@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +52,7 @@ public class BlueNodeTable {
 
 	public synchronized Optional<BlueNodeEntry> getOptionalBlueNodeEntryByPhAddrPort(String Phaddress, int port) {
 		return list.stream()
-				.filter(bn -> bn.getPhaddress().equals(Phaddress))
+				.filter(bn -> bn.getPhAddress().asString().equals(Phaddress))
 				.filter(bn -> bn.getPort() == port)
 				.findFirst();
 	}
@@ -142,7 +144,7 @@ public class BlueNodeTable {
 	 */
     public synchronized List<BlueNodeEntry> getBlueNodeEntriesByPhAddr(String Phaddress) {
     	return list.stream()
-				.filter(bn -> bn.getPhaddress().equals(Phaddress))
+				.filter(bn -> bn.getPhAddress().equals(Phaddress))
 				.collect(Collectors.toList());
 
     }
@@ -193,7 +195,7 @@ public class BlueNodeTable {
 		obn.get().getRedNodes().lease(hostname, vAddress);
     }
 
-	public synchronized void release(BlueNodeEntry tobereleased) throws Exception {
+	public synchronized void release(BlueNodeEntry tobereleased) {
         list.remove(tobereleased);
 		AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+tobereleased);
 		notifyGUI();
@@ -222,21 +224,41 @@ public class BlueNodeTable {
     
     public synchronized void rebuildTableViaAuthClient() {
     	list.stream().forEach(bn -> {
-			 try {
-				 BlueNodeClient cl = new BlueNodeClient(bn);
-				 if (cl.checkBnOnline()) {
-					 System.out.println(pre+"Fetching RNs from BN "+bn.getName());
-					 bn.updateTimestamp();
-					 cl = new BlueNodeClient(bn);
-					 List<RedNodeEntry> rns = cl.getRedNodes();
-					 bn.getRedNodes().clearAndRebuildList(rns);
-				 } else {
-					 release(bn);
-				 }
-			 } catch (Exception e) {
-				AppLogger.getLogger().consolePrint(pre+"network error when getting rednodes");
-				bn.getRedNodes().clearList();
-			 }
+			boolean validConn = false;
+
+			//is bn online?
+			if (bn.getClient().testBnOnline()) {
+				validConn = true;
+			} else {
+				//can we recover connection?
+				try {
+					new BlueNodeClient(bn);
+					validConn = true;
+				} catch (NoSuchAlgorithmException | IOException e) {
+					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
+					release(bn);
+					validConn = false;
+				}
+			}
+
+			if (validConn) {
+				boolean validList = true;
+				System.out.println(pre+"Fetching RNs from BN "+bn.getName());
+				List<RedNodeEntry> rns = null;
+
+				try {
+					rns = bn.getClient().getRedNodes();
+				} catch (IOException e) {
+					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
+					release(bn);
+					validList = false;
+				}
+
+				if(validList) {
+					bn.getRedNodes().clearAndRebuildList(rns);
+					bn.updateTimestamp();
+				}
+			}
     	});
 
     	System.out.println(pre+" BN Table rebuilt");
@@ -262,7 +284,7 @@ public class BlueNodeTable {
     public synchronized String[][] buildStringInstanceObject() {
     	String obj[][] = null;
     	return list.stream()
-				.map(element -> new String[] {element.getName(), element.getPhaddress(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
+				.map(element -> new String[] {element.getName(), element.getPhAddress().asString(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
     		.collect(Collectors.toList()).toArray(obj);
 
     }

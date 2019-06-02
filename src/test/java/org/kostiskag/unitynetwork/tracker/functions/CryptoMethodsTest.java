@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -28,7 +29,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Ignore
-	public void generateAESkey() {
+	public void generateAESkey() throws NoSuchAlgorithmException {
 		SecretKey keyA = CryptoMethods.generateAESSessionkey();
 		SecretKey keyB = CryptoMethods.generateAESSessionkey();
 		assertNotEquals(keyA, keyB);
@@ -38,7 +39,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void aesEncryptDecryptTest() {
+	public void aesEncryptDecryptTest() throws NoSuchAlgorithmException {
 		String plainMessage = "My name is Wapaf!!!";
 		SecretKey key = CryptoMethods.generateAESSessionkey();
 		byte[] chipher = CryptoMethods.aesEncrypt(plainMessage, key);
@@ -110,7 +111,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void sessionTest() {
+	public void sessionTest() throws NoSuchAlgorithmException {
 
 		KeyPair server = CryptoMethods.generateRSAkeyPair();
 		KeyPair client = CryptoMethods.generateRSAkeyPair();

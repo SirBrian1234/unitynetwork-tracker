@@ -8,6 +8,7 @@ import java.net.UnknownHostException;
 import java.security.PublicKey;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 
@@ -37,7 +38,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueHosnameTest() {
+	public void uniqueHosnameTest() throws UnknownHostException {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -52,7 +53,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueAddressTest() {
+	public void uniqueAddressTest() throws UnknownHostException {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -204,7 +205,7 @@ public class RedNodeTableTest {
 	
 	@Test
 	public void releaseByVaddressTest() throws UnknownHostException, RedNodeTableException {
-		BlueNodeEntry bn = new BlueNodeEntry("bnpakis",null,null, 0);
+		BlueNodeEntry bn = new BlueNodeEntry("bnpakis",null, PhysicalAddress.valueOf("1.2.3.4"), 0);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
 			rns.lease("pakis", "10.200.1.1");

@@ -38,21 +38,21 @@ public class BlueNodeEntryTest {
 	}
 
 	@Test
-	public void testConstructorB() {
+	public void testConstructorB() throws UnknownHostException {
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertEquals(bn.getName(),hostname);
-		assertEquals(bn.getPhaddress(),address);
+		assertEquals(bn.getPhAddress().asString(),address);
 		assertEquals(bn.getPort(),port);
 		assertEquals(bn.getPub(),pub);
 		assertNotEquals(null, bn.getRedNodes());
 	}
 	
 	@Test
-	public void testConstructorA() {
+	public void testConstructorA() throws UnknownHostException {
 		Time t = new Time(System.currentTimeMillis());
-		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port, t);
+		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertEquals(bn.getName(),hostname);
-		assertEquals(bn.getPhaddress(),address);
+		assertEquals(bn.getPhAddress().asString(),address);
 		assertEquals(bn.getPort(),port);
 		assertEquals(bn.getPub(),pub);
 		assertNotEquals(null, bn.getRedNodes());
@@ -60,7 +60,7 @@ public class BlueNodeEntryTest {
 	}
 
 	@Test
-	public void testUpdateTimestamp() throws InterruptedException {
+	public void testUpdateTimestamp() throws InterruptedException, UnknownHostException {
 		Time t = new Time(System.currentTimeMillis());
 		Thread.sleep(1000);
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
@@ -75,7 +75,7 @@ public class BlueNodeEntryTest {
 	}
 
 	@Test
-	public void testEquality() throws InterruptedException {
+	public void testEquality() throws InterruptedException, UnknownHostException {
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		BlueNodeEntry bn2 = new BlueNodeEntry("pakis", pub, address, port);
 		BlueNodeEntry bn3 = new BlueNodeEntry("lakis", pub, address, port);
