@@ -4,11 +4,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.sql.Time;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 
 public class BlueNodeEntryTest {
 
@@ -20,6 +22,19 @@ public class BlueNodeEntryTest {
 	@BeforeClass
 	public static void before() {
 		AppLogger.newInstance(null,null);
+	}
+
+	@Test
+	public void testgetipInBytes() throws UnknownHostException {
+		String ip = "10.255.255.254";
+
+		byte[] b = VirtualAddress.networkAddressToInetAddress(ip).getAddress();
+		for(byte bb : b) {
+			System.out.println(Integer.toHexString(bb & 0xff));
+		}
+
+		System.out.println(VirtualAddress.byteTo10IpAddrNumber(b));
+		System.out.println(VirtualAddress.byteTo10IpAddrNumber(new byte[] {(byte) 0x0a, (byte) 0xff, (byte) 0xff, (byte) 0xfe}));
 	}
 
 	@Test

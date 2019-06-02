@@ -27,6 +27,7 @@ public class App {
 	public static final int MIN_PASSWORD_LEN = 5;
 	public static final int MIN_USERNAME_LEN = 4;
 	public static final int MAX_STR_ADDR_LEN = "255.255.255.255".length();
+	public static final int MIN_STR_ADDR_LEN = "1.1.1.1".length();
 	public static final int MAX_ALLOWED_PORT_NUM = 65535;
 
 	// network maths

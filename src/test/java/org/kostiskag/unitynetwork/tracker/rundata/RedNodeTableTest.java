@@ -9,7 +9,7 @@ import java.security.PublicKey;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 
 import static org.junit.Assert.*;
 
@@ -82,7 +82,7 @@ public class RedNodeTableTest {
 		}
 		assertEquals(rns.getRedNodeEntry("pakis3").getHostname(),"pakis3");
 		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress().asString(),"10.200.1.3");
-		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress(),new VirtualAddress("10.200.1.3"));
+		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress(),VirtualAddress.valueOf("10.200.1.3"));
 
 		try {
 			rns.getRedNodeEntry("pakis15");
@@ -146,12 +146,12 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.checkOnline("pakis"));
-		assertTrue(rns.checkOnline("pakis3"));
-		assertTrue(rns.checkOnline("pakis4"));
-		assertTrue(rns.checkOnline("pakis2"));
-		assertTrue(rns.checkOnline("pakis5"));
-		assertTrue(!rns.checkOnline("bob"));
+		assertTrue(rns.isOnline("pakis"));
+		assertTrue(rns.isOnline("pakis3"));
+		assertTrue(rns.isOnline("pakis4"));
+		assertTrue(rns.isOnline("pakis2"));
+		assertTrue(rns.isOnline("pakis5"));
+		assertTrue(!rns.isOnline("bob"));
 	}
 	
 	@Test
@@ -168,12 +168,12 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.3"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.1"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.2"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.5"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.4"));
-		assertTrue(!rns.checkOnlineByVaddress("10.200.1.20"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.3"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.1"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.2"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.5"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.4"));
+		assertTrue(!rns.isOnlineByVaddress("10.200.1.20"));
 	}
 	
 	@Test
@@ -194,11 +194,11 @@ public class RedNodeTableTest {
 		rns.release("pakis3");
 		rns.release("pakis5");
 		
-		assertTrue(!rns.checkOnlineByVaddress("10.200.1.1"));
-		assertTrue(!rns.checkOnlineByVaddress("10.200.1.3"));
-		assertTrue(!rns.checkOnlineByVaddress("10.200.1.5"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.2"));
-		assertTrue(rns.checkOnlineByVaddress("10.200.1.4"));
+		assertTrue(!rns.isOnlineByVaddress("10.200.1.1"));
+		assertTrue(!rns.isOnlineByVaddress("10.200.1.3"));
+		assertTrue(!rns.isOnlineByVaddress("10.200.1.5"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.2"));
+		assertTrue(rns.isOnlineByVaddress("10.200.1.4"));
 		assertEquals(rns.getSize(), 2);
 	}
 	
@@ -227,13 +227,13 @@ public class RedNodeTableTest {
 		rns.releaseByVAddress("10.200.1.2");
 		rns.releaseByVAddress("10.200.1.4");
 		//they should not be found
-		assertTrue(!rns.checkOnline("pakis2"));
-		assertTrue(!rns.checkOnline("pakis4"));
+		assertTrue(!rns.isOnline("pakis2"));
+		assertTrue(!rns.isOnline("pakis4"));
 
 		//these should be there
-		assertTrue(rns.checkOnline("pakis3"));
-		assertTrue(rns.checkOnline("pakis"));
-		assertTrue(rns.checkOnline("pakis5"));
+		assertTrue(rns.isOnline("pakis3"));
+		assertTrue(rns.isOnline("pakis"));
+		assertTrue(rns.isOnline("pakis5"));
 		assertEquals(rns.getSize(), 3);
 	}
 

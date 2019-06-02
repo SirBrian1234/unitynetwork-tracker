@@ -7,10 +7,8 @@ import java.util.stream.Stream;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
-
-import static java.util.Arrays.asList;
 
 /**
  * Each BlueNodeEntry owns an object of a RedNodeTable.
@@ -53,7 +51,7 @@ public class RedNodeTable {
     }
 
     private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(String vaddress) throws UnknownHostException {
-        return getOptionalRedNodeEntryByVAddr(new VirtualAddress(vaddress));
+        return getOptionalRedNodeEntryByVAddr(VirtualAddress.valueOf(vaddress));
     }
 
     private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(VirtualAddress vaddress) {
@@ -63,7 +61,7 @@ public class RedNodeTable {
     }
     //end of optionals
 
-    //start of accessors
+    //accessors
     public synchronized int getSize() {
         return list.size();
     }
@@ -72,24 +70,27 @@ public class RedNodeTable {
     public synchronized List<RedNodeEntry> getList() {
         return list;
     }
-    //end of accessors
 
     /*
         These are all questions to the table
-     */
-    public synchronized boolean checkOnline(RedNodeEntry toBeChecked) {
+        The concept is that a caller should ask first whether the object exists
+        with these and then!!!!
+        perform a get! if he performs get whithout prior calling get and the entry is
+        absent he will get a thrown exception!
+    */
+    public synchronized boolean isOnline(RedNodeEntry toBeChecked) {
         return getOptionalRedNodeEntry(toBeChecked).isPresent();
     }
 
-    public synchronized boolean checkOnline(String hostname) {
+    public synchronized boolean isOnline(String hostname) {
         return getOptionalRedNodeEntryByHn(hostname).isPresent();
     }
 
-    public synchronized boolean checkOnlineByVaddress(String vAddress) throws UnknownHostException {
-        return checkOnlineByVaddress(new VirtualAddress(vAddress));
+    public synchronized boolean isOnlineByVaddress(String vAddress) throws UnknownHostException {
+        return isOnlineByVaddress(VirtualAddress.valueOf(vAddress));
     }
 
-    public synchronized boolean checkOnlineByVaddress(VirtualAddress vAddress) {
+    public synchronized boolean isOnlineByVaddress(VirtualAddress vAddress) {
         return getOptionalRedNodeEntryByVAddr(vAddress).isPresent();
     }
 
@@ -122,7 +123,7 @@ public class RedNodeTable {
     }
 
     public synchronized RedNodeEntry getRedNodeEntryByVAddr(String vaddress) throws UnknownHostException, RedNodeTableException {
-        return getRedNodeEntryByVAddr(new VirtualAddress(vaddress));
+        return getRedNodeEntryByVAddr(VirtualAddress.valueOf(vaddress));
     }
 
     public synchronized RedNodeEntry getRedNodeEntryByVAddr(VirtualAddress vaddress) throws RedNodeTableException {
@@ -168,7 +169,7 @@ public class RedNodeTable {
     }
 
     public synchronized void lease(String hostname, String vAddress) throws UnknownHostException, RedNodeTableException {
-        lease(hostname, new VirtualAddress(vAddress));
+        lease(hostname, VirtualAddress.valueOf(vAddress));
     }
     //end of lease
 
@@ -194,7 +195,7 @@ public class RedNodeTable {
     }
 
     public synchronized void releaseByVAddress(String vAddress) throws UnknownHostException, RedNodeTableException {
-        releaseByVAddress(new VirtualAddress(vAddress));
+        releaseByVAddress(VirtualAddress.valueOf(vAddress));
     }
 
     public synchronized void releaseByVAddress(VirtualAddress vAddress) throws RedNodeTableException {

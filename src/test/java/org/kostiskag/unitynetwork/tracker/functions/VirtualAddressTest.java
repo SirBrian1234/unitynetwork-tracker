@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 
 import java.net.UnknownHostException;
 
@@ -20,7 +21,7 @@ public class VirtualAddressTest {
 		String address = "10.0.0.4";
 		VirtualAddress v = null;
 		try {
-			 v = new VirtualAddress(address);
+			 v = VirtualAddress.valueOf(address);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -34,7 +35,7 @@ public class VirtualAddressTest {
 		int address = 15;
 		VirtualAddress v = null;
 		try {
-			v = new VirtualAddress(15);
+			v = VirtualAddress.valueOf(15);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 			assertTrue(false);
@@ -46,16 +47,16 @@ public class VirtualAddressTest {
 	@Test
 	public void equalityTest() throws UnknownHostException {
 		VirtualAddress v1, v2, v3;
-		v1 = new VirtualAddress(28);
-		v2 = new VirtualAddress("10.0.0.29");
+		v1 = VirtualAddress.valueOf(28);
+		v2 = VirtualAddress.valueOf("10.0.0.29");
 
 		assertEquals(v1, v1);
-		assertEquals(v1, new VirtualAddress(28));
+		assertEquals(v1, VirtualAddress.valueOf(28));
 		assertEquals(v2, v1);
 		assertEquals(v1, v2);
 
-		v2 = new VirtualAddress("10.0.0.30");
-		v3 = new VirtualAddress(50);
+		v2 = VirtualAddress.valueOf("10.0.0.30");
+		v3 = VirtualAddress.valueOf(50);
 
 		assertNotEquals(v1, v2);
 		assertNotEquals(v2, v1);
@@ -66,9 +67,9 @@ public class VirtualAddressTest {
 	@Test
 	public void hashCodeTest() throws UnknownHostException {
 		VirtualAddress v1, v2, v3;
-		v1 = new VirtualAddress(28);
-		v2 = new VirtualAddress("10.0.0.29");
-		v3 = new VirtualAddress(50);
+		v1 = VirtualAddress.valueOf(28);
+		v2 = VirtualAddress.valueOf("10.0.0.29");
+		v3 = VirtualAddress.valueOf(50);
 
 		assertEquals(v1.hashCode(), v2.hashCode());
 		assertNotEquals(v1.hashCode(), v3.hashCode());

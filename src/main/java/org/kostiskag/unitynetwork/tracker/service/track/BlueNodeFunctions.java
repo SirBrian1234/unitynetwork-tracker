@@ -15,7 +15,7 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import org.kostiskag.unitynetwork.tracker.functions.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
 
 /**
@@ -185,7 +185,7 @@ public class BlueNodeFunctions {
 
 		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
 		if (bn != null) {
-			if (bn.getRedNodes().checkOnline(hostname)) {
+			if (bn.getRedNodes().isOnline(hostname)) {
 				bn.getRedNodes().release(hostname);
 				data = "RELEASED";
 			} else {

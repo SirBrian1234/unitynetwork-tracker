@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.address;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -11,58 +11,51 @@ import org.kostiskag.unitynetwork.tracker.App;
  *
  * @author Konstantinos Kagiampakis
  */
-public class VirtualAddress {
+public class VirtualAddress extends NetworkAddress{
 
-    //this is "10.256.256.255" in byte[]
-    public static final int MAX_INT_CAPACITY = VirtualAddress.byteTo10IpAddrNumber(new byte[]{0x00, 0x00, 0x00, 0x00})
+    // this is the total number of allowed hosts on network
+    // from 10.255.255.254 in byte[] (aka: the last permitted host) is substracted
+    // the number of system reserved addresses to find the number
+    public static final int MAX_INT_CAPACITY = VirtualAddress.byteTo10IpAddrNumber(new byte[] {(byte) 0x0a, (byte) 0xff, (byte) 0xff, (byte) 0xfe})
             - App.SYSTEM_RESERVED_ADDRESS_NUMBER;
 
-    private final String asString;
     private final int asInt;
-    private final byte[] asByte;
-    private final InetAddress asInet;
 
-    public VirtualAddress(String asString) throws UnknownHostException {
-        if (asString.length() < 0 ||
-                asString.length() > App.MAX_STR_ADDR_LEN) {
+    private VirtualAddress(String asString, byte[] asByte, InetAddress asInet, int asInt) throws UnknownHostException {
+        super(asString,asByte,asInet);
+        this.asInt = asInt;
+    }
+
+    public static VirtualAddress valueOf(String vAddress) throws UnknownHostException {
+        if (vAddress.length() > App.MAX_STR_ADDR_LEN || vAddress.length() < App.MIN_STR_ADDR_LEN) {
             throw new UnknownHostException("the given ip is invalid");
         }
-        this.asString = asString;
-        this.asInet = VirtualAddress.vAddressToInetAddress(asString);
-        this.asByte = asInet.getAddress();
+        InetAddress asInet = NetworkAddress.networkAddressToInetAddress(vAddress);
+        byte[] asByte = asInet.getAddress();
         if (asByte[0] != (byte)10) {
             throw new UnknownHostException("the given ip does not start with a 10.* network part");
         }
-        this.asInt = VirtualAddress.byteTo10IpAddrNumber(asByte);
+        int asInt = VirtualAddress.byteTo10IpAddrNumber(asByte);
+
+        return new VirtualAddress(vAddress, asByte, asInet, asInt);
     }
 
-    public VirtualAddress(int asInt) throws UnknownHostException {
-        if (asInt <= 0) {
+    public static VirtualAddress valueOf(int numericVAddress) throws UnknownHostException {
+        if (numericVAddress <= 0 || numericVAddress > MAX_INT_CAPACITY) {
             throw new UnknownHostException("the given ip number is invalid");
         }
-        this.asInt = asInt;
-        this.asByte = VirtualAddress.numberTo10IpByteAddress(asInt);
+        byte[] asByte = VirtualAddress.numberTo10IpByteAddress(numericVAddress);
         if (asByte[0] != (byte)10) {
             throw new UnknownHostException("the given ip does not start with a 10.* network part");
         }
-        this.asInet = VirtualAddress._10IpByteToInetAddress(asByte);
-        this.asString = asInet.getHostAddress();
-    }
+        InetAddress asInet = VirtualAddress._10IpByteToInetAddress(asByte);
+        String asString = asInet.getHostAddress();
 
-    public String asString() {
-        return asString;
+        return new VirtualAddress(asString, asByte, asInet, numericVAddress);
     }
 
     public int asInt() {
         return asInt;
-    }
-
-    public byte[] asByte() {
-        return asByte;
-    }
-
-    public InetAddress asInet() {
-        return asInet;
     }
 
     @Override
@@ -70,26 +63,24 @@ public class VirtualAddress {
         if (this == o) return true;
         if (!(o instanceof VirtualAddress)) return false;
         VirtualAddress vaddr = (VirtualAddress) o;
-        return asInt == vaddr.asInt &&
-                Objects.equals(asString, vaddr.asString) &&
-                Arrays.equals(asByte, vaddr.asByte) &&
-                Objects.equals(asInet, vaddr.asInet);
+        return asInt == vaddr.asInt
+                && super.equals(o);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(asString, asInt, asInet);
-        result = 31 * result + Arrays.hashCode(asByte);
+        int result = Objects.hash(asInt);
+        result = 31 * result + super.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         return this.getClass().getSimpleName() +
-                ": asString: '" + asString + '\'' +
+                ": asString: '" + super.asString() + '\'' +
                 ", asInt: " + asInt +
-                ", asByte: " + Arrays.toString(asByte) +
-                ", asInet: " + asInet +
+                ", asByte: " + Arrays.toString(super.asByte()) +
+                ", asInet: " + super.asInet() +
                 '}';
     }
 
@@ -118,10 +109,6 @@ public class VirtualAddress {
     }
 
     //---------------reverse process----------------
-    public static InetAddress vAddressToInetAddress(String vAddress) throws UnknownHostException {
-        return InetAddress.getByName(vAddress);
-    }
-
     public static int byteTo10IpAddrNumber(byte[] address) {
         byte[] hostpart = new byte[3];
         System.arraycopy(address, 1, hostpart, 0, 3);
@@ -134,6 +121,6 @@ public class VirtualAddress {
     }
 
     public static int _10IpAddrToNumber(String vaddress) throws UnknownHostException {
-        return byteTo10IpAddrNumber(vAddressToInetAddress(vaddress).getAddress());
+        return byteTo10IpAddrNumber(NetworkAddress.networkAddressToInetAddress(vaddress).getAddress());
     }
 }

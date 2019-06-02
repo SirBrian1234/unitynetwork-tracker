@@ -15,8 +15,8 @@ public class BlueNodeEntry {
     private final int port;
     private final PublicKey pub;
     private final RedNodeTable rednodes;
-    private Time regTimestamp;
     private final Object timeLock = new Object();
+    private Time regTimestamp;
 
     public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port, Time regTimestamp) {
         this.name = name;
