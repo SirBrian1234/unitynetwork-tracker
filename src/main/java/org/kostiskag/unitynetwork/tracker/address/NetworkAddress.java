@@ -29,7 +29,10 @@ class NetworkAddress {
         this.asByte = asInet.getAddress();
     }
 
-    public NetworkAddress(String asString, byte[] asByte, InetAddress asInet) {
+    public NetworkAddress(String asString, byte[] asByte, InetAddress asInet) throws UnknownHostException {
+        if (!asInet.getHostAddress().equals(asString) || !Arrays.equals(asInet.getAddress(),asByte)) {
+            throw new UnknownHostException("The network address was broken by its instantiation!");
+        }
         this.asString = asString;
         this.asByte = asByte;
         this.asInet = asInet;
