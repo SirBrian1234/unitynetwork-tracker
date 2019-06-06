@@ -7,9 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.sun.xml.internal.ws.addressing.model.ActionNotSupportedException;
-import org.kostiskag.unitynetwork.tracker.App;
-
 /**
  * This is the database low level. An external method 
  * should no call methods from here it should use Queries and Logic instead.
@@ -34,9 +31,6 @@ public class Database {
 	}
 
 	public static Database getInstance() {
-    	if (DATABASE == null) {
-    		throw new ActionNotSupportedException("Database was called before its initialization");
-		}
     	return DATABASE;
 	}
 

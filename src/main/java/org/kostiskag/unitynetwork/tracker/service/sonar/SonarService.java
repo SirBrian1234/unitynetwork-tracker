@@ -3,6 +3,8 @@ package org.kostiskag.unitynetwork.tracker.service.sonar;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.App;
 
+import java.util.concurrent.locks.Lock;
+
 /**
  * Works like the java garbage collector but for killed bluenodes and redonodes. The sonar
  * connects to the leased bluenodes and requests to get their respective rednodes back
@@ -32,8 +34,15 @@ public class SonarService extends Thread {
                 AppLogger.getLogger().consolePrint(ex.getMessage());
             }
             if (kill) break;
-            AppLogger.getLogger().consolePrint(pre+"Updating BN Tables via ping");
-            App.TRACKER_APP.BNtable.rebuildTableViaAuthClient();
+            try {
+                Lock lock = App.TRACKER_APP.BNtable.aquireLock();
+                AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
+                App.TRACKER_APP.BNtable.rebuildTableViaAuthClient(lock);
+            } catch (InterruptedException e) {
+                AppLogger.getLogger().consolePrint(e.getMessage());
+            } finally {
+                App.TRACKER_APP.BNtable.releaseLock();
+            }
         }
     }
     

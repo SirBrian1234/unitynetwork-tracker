@@ -6,6 +6,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.concurrent.locks.Lock;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JButton;
@@ -18,6 +19,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -567,17 +569,31 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 	
 	public synchronized void updateBlueNodeTable() {
-		String[][] data = App.TRACKER_APP.BNtable.buildStringInstanceObject();
-        bluenodes = new DefaultTableModel(data, bluenodesTableHead);
-        jTable2.setModel(bluenodes);
-        repaint();
+		try {
+			Lock lock = App.TRACKER_APP.BNtable.aquireLock();
+			String[][] data = App.TRACKER_APP.BNtable.buildStringInstanceObject(lock);
+			bluenodes = new DefaultTableModel(data, bluenodesTableHead);
+			jTable2.setModel(bluenodes);
+			repaint();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint(e.getMessage());
+		} finally {
+			App.TRACKER_APP.BNtable.releaseLock();
+		}
 	}
 	
 	public synchronized void updateRedNodeTable() {
-		String[][] data = App.TRACKER_APP.BNtable.buildRednodeStringInstanceObject();
-        rednodes = new DefaultTableModel(data, rednodesTableHead);
-        jTable1.setModel(rednodes);
-        repaint();
+		try {
+			Lock lock = App.TRACKER_APP.BNtable.aquireLock();
+			String[][] data = App.TRACKER_APP.BNtable.buildRednodeStringInstanceObject(lock);
+			rednodes = new DefaultTableModel(data, rednodesTableHead);
+			jTable1.setModel(rednodes);
+			repaint();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint(e.getMessage());
+		} finally {
+			App.TRACKER_APP.BNtable.releaseLock();
+		}
 	}
 
 	private javax.swing.JPanel BlueNodes;

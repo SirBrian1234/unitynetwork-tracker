@@ -3,6 +3,7 @@ package org.kostiskag.unitynetwork.tracker;
 import java.io.*;
 import java.security.KeyPair;
 import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
 import javax.swing.UIManager;
 
 import org.kostiskag.unitynetwork.tracker.database.Database;
@@ -195,7 +196,14 @@ public class App {
 
 	public void terminate() {
 		sonar.kill();
-		BNtable.sendKillSigsAndClearTable();
+		try {
+			Lock lock = BNtable.aquireLock();
+			BNtable.sendKillSigsAndClearTable(lock);
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint(e.getMessage());
+		} finally {
+			BNtable.releaseLock();
+		}
 		AppLogger.getLogger().consolePrint("Tracker is going to terminate.");
 		die();
 	}

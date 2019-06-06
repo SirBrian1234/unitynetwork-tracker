@@ -22,6 +22,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -29,8 +30,6 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
-
-import javax.xml.bind.DatatypeConverter;
 
 /**
  *
@@ -179,22 +178,21 @@ public class CryptoMethods {
 	public static String objectToBase64StringRepresentation(Object obj) {
 		byte[] serial = objectToBytes(obj);
 		if (serial != null) {
-			return DatatypeConverter.printBase64Binary(serial);
+			return new String(Base64.getEncoder().encode(serial));
 		}
 		return null;
 	}
 	
 	public static Object base64StringRepresentationToObject(String base64Str) {
-		byte[] serial = DatatypeConverter.parseBase64Binary(base64Str);
-		return bytesToObject(serial); 
+		return bytesToObject(Base64.getDecoder().decode(base64Str.getBytes()));
 	}
 	
 	public static String bytesToBase64String(byte[] b) {
-		return DatatypeConverter.printBase64Binary(b);
+		return new String(Base64.getEncoder().encode(b));
 	}
 	
 	public static byte[] base64StringTobytes(String base64Str) {
-		return DatatypeConverter.parseBase64Binary(base64Str);
+		return Base64.getDecoder().decode(base64Str.getBytes());
 	}
 
 	public static void objectToFile(Object obj, File file) {

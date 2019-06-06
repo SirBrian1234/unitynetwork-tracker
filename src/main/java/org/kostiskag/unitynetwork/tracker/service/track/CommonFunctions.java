@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.security.PublicKey;
+import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
@@ -21,10 +22,10 @@ public class CommonFunctions {
 	 * @param writer
 	 * @param sessionKey
 	 */
-	public static void getBlueNodesPublic(String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) {
-		if (App.TRACKER_APP.BNtable.checkOnlineByName(BlueNodeName)) {
+	public static void getBlueNodesPublic(Lock lock, String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(lock, BlueNodeName)) {
 			try {
-				PublicKey pub = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(BlueNodeName).getPub();
+				PublicKey pub = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(lock, BlueNodeName).getPub();
 				SocketFunctions.sendAESEncryptedStringData(CryptoMethods.objectToBase64StringRepresentation(pub), writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();

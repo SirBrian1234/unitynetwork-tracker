@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
@@ -37,7 +38,7 @@ public class BlueNodeFunctions {
 	 * lease a bluenode on the network
 	 * @throws Exception 
 	 */
-	public static void BlueLease(String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 
 		String data = null;
 		Queries q = null;
@@ -52,10 +53,10 @@ public class BlueNodeFunctions {
 				if (getResults.getString("name").equals(bluenodeHostname)) {
 					String address = socket.getInetAddress().getHostAddress();
 					int port = Integer.parseInt(givenPort);
-					if (!App.TRACKER_APP.BNtable.checkOnlineByName(bluenodeHostname)) {
+					if (!App.TRACKER_APP.BNtable.checkOnlineByName(lock, bluenodeHostname)) {
 						// normal connect for a non associated BN
 						try {
-							App.TRACKER_APP.BNtable.lease(bluenodeHostname, pub, address, port);
+							App.TRACKER_APP.BNtable.lease(lock, bluenodeHostname, pub, address, port);
 							data = "LEASED " + address;
 							found = true;
 							break;
@@ -87,11 +88,11 @@ public class BlueNodeFunctions {
 	 * on a successful lease a full ip is returned 
 	 * @throws Exception 
 	 */
-	public static void RedLease(String bluenodeName, String givenHostname, String username, String password,
+	public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String password,
 			DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		int userauth = checkUser(password);
 
-		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bnTableLock, bluenodeName);
 		if (bn != null) {				
 			String data = null;
 			Queries q = null;
@@ -110,7 +111,7 @@ public class BlueNodeFunctions {
 							String hostname = getResults.getString("hostname");
 							if (hostname.equals(givenHostname)) {
 								found = true;
-								if (!App.TRACKER_APP.BNtable.checkOnlineRnByHn(hostname)) {
+								if (!App.TRACKER_APP.BNtable.checkOnlineRnByHn(bnTableLock, hostname)) {
 									//the id from hostnames is the hostname's virtual address
 									int num_addr = getResults.getInt("address");
 									int inuserid = getResults.getInt("userid");
@@ -159,11 +160,11 @@ public class BlueNodeFunctions {
 	 * releases a bluenode from the network
 	 * @throws Exception 
 	 */
-	public static void BlueRel(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void BlueRel(Lock bnTableLock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data = null;
-		if (App.TRACKER_APP.BNtable.checkOnlineByName(hostname)) {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(bnTableLock, hostname)) {
 			try {
-				App.TRACKER_APP.BNtable.release(hostname);
+				App.TRACKER_APP.BNtable.release(bnTableLock, hostname);
 			} catch (Exception e) {
 				e.printStackTrace();
 				data = "RELEASE_FAILED";
@@ -179,11 +180,11 @@ public class BlueNodeFunctions {
 	 * releases a rednode from a bluenode
 	 * @throws Exception 
 	 */
-	public static void RedRel(String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data = null;
 		boolean found = false;
 
-		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bluenodeName);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(bnTableLock, bluenodeName);
 		if (bn != null) {
 			if (bn.getRedNodes().isOnline(hostname)) {
 				bn.getRedNodes().release(hostname);
@@ -202,9 +203,9 @@ public class BlueNodeFunctions {
 	 * provides the physical address and port of a known bluenode
 	 * @throws Exception 
 	 */
-	public static void GetPh(String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void GetPh(Lock lock, String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
-		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(BNTargetHostname);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(lock, BNTargetHostname);
 		if (bn != null) {			
 			data = bn.getPhAddress().asString()+" "+ bn.getPort();
 		} else {
@@ -217,9 +218,9 @@ public class BlueNodeFunctions {
 	 *  checks whether a RN is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRn(String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void CheckRn(Lock lock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		String data;
-		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRn(hostname);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRn(lock, hostname);
 		if (bn != null) {
 			data = "ONLINE " +bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
 		} else {
@@ -232,12 +233,12 @@ public class BlueNodeFunctions {
 	 * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
 	 * @throws Exception 
 	 */
-	public static void CheckRnAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+	public static void CheckRnAddr(Lock lock, String vaddress, DataOutputStream writer, SecretKey sessionKey) throws Exception {
 		Queries q = null;
 		String data = null;
 		String hostname = null;
 		
-		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRnVaddr(vaddress);
+		BlueNodeEntry bn = App.TRACKER_APP.BNtable.reverseLookupBnBasedOnRnVaddr(lock, vaddress);
 		if (bn!=null) {
 			data = "ONLINE "+bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
 		} else {
@@ -435,14 +436,14 @@ public class BlueNodeFunctions {
 		}
 	}
 
-	public static void revokePublicKey(String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) {
+	public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException {
 		//first check whether the bn is a member and release from the network
-		if (App.TRACKER_APP.BNtable.checkOnlineByName(blueNodeHostname)) {
+		if (App.TRACKER_APP.BNtable.checkOnlineByName(lock, blueNodeHostname)) {
 			try {
-				App.TRACKER_APP.BNtable.release(blueNodeHostname);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}			
+				App.TRACKER_APP.BNtable.release(lock, blueNodeHostname);
+			} catch (IllegalAccessException e) {
+				AppLogger.getLogger().consolePrint(e.getMessage());
+			}
 		}
 		
 		String key = "NOT_SET "+ CryptoMethods.generateQuestion();

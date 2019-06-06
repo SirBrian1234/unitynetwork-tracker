@@ -3,6 +3,8 @@ package org.kostiskag.unitynetwork.tracker.service;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
+
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
@@ -17,9 +19,10 @@ public class BlueNodeGlobalFunctions {
 	 * Collects a bluenode's public key.
 	 * 
 	 * @returns the public key if its set OR null for a not set key
-	 * @throws exception when fetch bn key is called for a non member
+	 * @throws  IllegalAccessException when fetch bn key is called for a non member
+	 * @throws  SQLException can not connect to database or db error
 	 */
-	public static PublicKey fetchPubKey(String BlueNodeHostname) throws Exception {
+	public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, SQLException {
 		Queries q = null;
 		ResultSet getResults;
 		try {
@@ -39,16 +42,17 @@ public class BlueNodeGlobalFunctions {
 				}
 			}
 			q.closeQueries();
-			throw new Exception("The Bn "+BlueNodeHostname+" is not a network member.");
+			throw new IllegalAccessException("The Bn "+BlueNodeHostname+" is not a network member.");
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw e;
+		} finally {
 			try {
 				q.closeQueries();
 			} catch (SQLException e1) {
-				e1.printStackTrace();				
+				e1.printStackTrace();
 			}
-			throw e;
 		}
 	}
 	
@@ -57,7 +61,7 @@ public class BlueNodeGlobalFunctions {
 	 * 
 	 * @returns 1 for an already leased member, 0 for a non leased member, -1 for a non member
 	 */
-	public static int authBluenode(String BlueNodeHostname) {
+	public static int authBluenode(Lock lock, String BlueNodeHostname) throws InterruptedException {
 		Queries q = null;
 		ResultSet getResults;
 		try {
@@ -71,7 +75,7 @@ public class BlueNodeGlobalFunctions {
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
 					q.closeQueries();
-					if (App.TRACKER_APP.BNtable.checkOnlineByName(BlueNodeHostname)) {
+					if (App.TRACKER_APP.BNtable.checkOnlineByName(lock, BlueNodeHostname)) {
 						return 1;
 					} else {						
 						return 0;

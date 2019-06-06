@@ -1,12 +1,15 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.concurrent.locks.Lock;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -20,147 +23,145 @@ import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 
 public class BlueNodeTableTest {
 
-	@BeforeClass
-	public static void beforeClass() {
-		System.out.println("Before");
-		AppLogger.newInstance(null,null);
-		File file = new File("bn_test.db");
-    	if (file.exists()) {
-    		file.delete();
-    	}
-    	try {
-			Database db = Database.newInstance("jdbc:sqlite:bn_test.db","","");
-			db.connect();
-			Queries.validateDatabase(db);
-			Queries q = new Queries();
-			q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
-			ResultSet r = q.selectAllFromUsers();
-			int id = 0;
-			while(r.next()) {
-				id = r.getInt("id");
-			}
-			q.insertEntryBluenodes("pakis1", id,"");
-			q.insertEntryBluenodes("pakis2", id,"");
-			q.insertEntryBluenodes("pakis3", id,"");
-			q.insertEntryBluenodes("pakis4", id,"");
-		    //q.closeQueries();
-    	} catch (SQLException e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-    }
-	
-	@AfterClass
-	public static void afterClass() {
-		File file = new File("bn_test.db");
-    	if (file.exists()) {
-    		file.delete();
-    	}
-	}
-	
-	@Before
-	public void before() {
+    static PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 
-	}
-	
-	@Test
-	public void initTest(){
-		BlueNodeTable bns = new BlueNodeTable(0);
-		assertEquals(bns.getSize(), 0);
-		try {
-			PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-			bns.lease("pakis", pub, "192.168.1.1", 1234);
-			bns.lease("pakis2", pub, "192.168.1.2", 1234);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-		assertEquals(bns.getSize(), 2);
-	}
-	
-	@Test
-	public void maxCapacityTest(){
-		System.out.println("cap test");
-		BlueNodeTable bns = new BlueNodeTable(2);
-		assertEquals(bns.getSize(), 0);
-		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		try {
-			bns.lease("pakis", pub, "192.168.1.1", 1234);
-			bns.lease("pakis2", pub, "192.168.1.2", 1234);
-			bns.lease("pakis3", pub, "192.168.1.3", 1234);
-			bns.lease("pakis4", pub, "192.168.1.4", 1234);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-		System.out.println(bns.getSize());
-		assertEquals(bns.getSize(), 2);
-	}
-	
-	@Test
-	public void uniqueHnTest(){
-		BlueNodeTable bns = new BlueNodeTable(0);
-		assertEquals(bns.getSize(), 0);
-		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		try {
-			bns.lease("pakis", pub, "192.168.1.1", 1234);
-			bns.lease("pakis", pub, "192.168.1.2", 1234);
-		} catch (Exception e) {
-			assertEquals(bns.getSize(), 1);
-			return;
-		}		
-		assertTrue(false);
-	}
-	
-	@Test
-	public void uniqueAddrTest(){
-		BlueNodeTable bns = new BlueNodeTable(0);
-		assertEquals(bns.getSize(), 0);
-		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		try {
-			bns.lease("pakis", pub, "192.168.1.1", 1234);
-			bns.lease("pakis2", pub, "192.168.1.1", 1234);
-		} catch (Exception e) {
-			assertEquals(bns.getSize(), 1);
-			return;
-		}		
-		assertTrue(false);
-	}
-	
-	//@Test
-	public void leaseRedNodeTest(){
-		BlueNodeTable bns = new BlueNodeTable(0);
-		assertEquals(bns.getSize(), 0);
-		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		try {
-			bns.lease("pakis", pub, "192.168.1.1", 1234);
-			bns.lease("pakis2", pub, "192.168.1.2", 1234);
-			bns.lease("pakis3", pub, "192.168.1.2", 1235);
-			bns.lease("pakis4", pub, "192.168.1.4", 1234);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}		
-		assertEquals(bns.getSize(), 4);
-		
-		try {
-			bns.leaseRednode("pakis", "lakis", "10.0.0.1");
-			bns.leaseRednode("pakis", "lakis2", "10.0.0.2");
-			bns.leaseRednode("pakis", "lakis3", "10.0.0.3");
-			bns.leaseRednode("pakis", "lakis4", "10.0.0.4");
-			
-			bns.leaseRednode("pakis2", "lakis5", "10.0.0.5");
-			bns.leaseRednode("pakis2", "lakis6", "10.0.0.6");
-			
-			bns.leaseRednode("pakis3", "lakis7", "10.0.0.7");
-			bns.leaseRednode("pakis3", "lakis8", "10.0.0.8");
-			bns.leaseRednode("pakis3", "lakis9", "10.0.0.9");
-		} catch (Exception e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
-		assertEquals(bns.getBlueNodeEntryByHn("pakis").getLoad(), 4);
-		assertEquals(bns.getBlueNodeEntryByHn("pakis2").getLoad(), 2);
-		assertEquals(bns.getBlueNodeEntryByHn("pakis3").getLoad(), 3);
-		assertEquals(bns.getBlueNodeEntryByHn("pakis4").getLoad(), 0);
-		assertEquals(bns.getBlueNodeEntryByLowestLoad().getName(), "pakis4");
-	}
+    @BeforeClass
+    public static void beforeClass() throws SQLException {
+        AppLogger.newInstance(null, null);
+        File file = new File("bn_test.db");
+        if (file.exists()) {
+            file.delete();
+        }
+        Database db = Database.newInstance("jdbc:sqlite:bn_test.db", "", "");
+        db.connect();
+        Queries.validateDatabase(db);
+        Queries q = new Queries();
+        q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
+        ResultSet r = q.selectAllFromUsers();
+        int id = 0;
+        while (r.next()) {
+            id = r.getInt("id");
+        }
+        q.insertEntryBluenodes("pakis1", id, "");
+        q.insertEntryBluenodes("pakis2", id, "");
+        q.insertEntryBluenodes("pakis3", id, "");
+        q.insertEntryBluenodes("pakis4", id, "");
+        //q.closeQueries();
+    }
+
+    @AfterClass
+    public static void afterClass() {
+        File file = new File("bn_test.db");
+        if (file.exists()) {
+            file.delete();
+        }
+    }
+
+    @Before
+    public void before() {
+
+    }
+
+    @Test
+    public void initTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
+        BlueNodeTable bns = new BlueNodeTable(0);
+        try {
+            Lock lock = bns.aquireLock();
+            assertEquals(bns.getSize(lock), 0);
+            bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
+            bns.lease(lock, "pakis2", pub, "192.168.1.2", 1234);
+            assertEquals(bns.getSize(lock), 2);
+        } finally {
+            bns.releaseLock();
+        }
+    }
+
+    @Test
+    public void maxCapacityTest() throws InterruptedException, UnknownHostException {
+        BlueNodeTable bns = new BlueNodeTable(2);
+        Lock lock = null;
+        try {
+            lock = bns.aquireLock();
+            assertEquals(bns.getSize(lock), 0);
+            bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
+            bns.lease(lock, "pakis2", pub, "192.168.1.2", 1234);
+            bns.lease(lock, "pakis3", pub, "192.168.1.3", 1234);
+            bns.lease(lock, "pakis4", pub, "192.168.1.4", 1234);
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            assertEquals(bns.getSize(lock), 2);
+            bns.releaseLock();
+        }
+    }
+
+    @Test
+    public void uniqueHostnameTest() throws InterruptedException, UnknownHostException {
+        BlueNodeTable bns = new BlueNodeTable(0);
+        Lock lock = null;
+        try {
+            lock = bns.aquireLock();
+            assertEquals(bns.getSize(lock), 0);
+            bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
+            bns.lease(lock, "pakis", pub, "192.168.1.2", 1234);
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            assertEquals(bns.getSize(lock), 1);
+            bns.releaseLock();
+        }
+    }
+
+    @Test
+    public void uniqueAddressTest() throws InterruptedException, UnknownHostException {
+        BlueNodeTable bns = new BlueNodeTable(0);
+        Lock lock = null;
+        try {
+            lock = bns.aquireLock();
+            assertEquals(bns.getSize(lock), 0);
+
+            bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
+            bns.lease(lock, "pakis2", pub, "192.168.1.1", 1234);
+        } catch (IllegalAccessException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            assertEquals(bns.getSize(lock), 1);
+            bns.releaseLock();
+        }
+    }
+
+    //@Test
+    public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException, RedNodeTableException {
+        BlueNodeTable bns = new BlueNodeTable(0);
+        try {
+            Lock lock = bns.aquireLock();
+            assertEquals(bns.getSize(lock), 0);
+            bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
+            bns.lease(lock, "pakis2", pub, "192.168.1.2", 1234);
+            bns.lease(lock, "pakis3", pub, "192.168.1.2", 1235);
+            bns.lease(lock, "pakis4", pub, "192.168.1.4", 1234);
+            assertEquals(bns.getSize(lock), 4);
+
+            bns.leaseRednode(lock, "pakis", "lakis", "10.0.0.1");
+            bns.leaseRednode(lock, "pakis", "lakis2", "10.0.0.2");
+            bns.leaseRednode(lock, "pakis", "lakis3", "10.0.0.3");
+            bns.leaseRednode(lock, "pakis", "lakis4", "10.0.0.4");
+
+            bns.leaseRednode(lock, "pakis2", "lakis5", "10.0.0.5");
+            bns.leaseRednode(lock, "pakis2", "lakis6", "10.0.0.6");
+
+            bns.leaseRednode(lock, "pakis3", "lakis7", "10.0.0.7");
+            bns.leaseRednode(lock, "pakis3", "lakis8", "10.0.0.8");
+            bns.leaseRednode(lock, "pakis3", "lakis9", "10.0.0.9");
+
+            assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis").getLoad(), 4);
+            assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis2").getLoad(), 2);
+            assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis3").getLoad(), 3);
+            assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis4").getLoad(), 0);
+            assertEquals(bns.getBlueNodeEntryByLowestLoad(lock).getName(), "pakis4");
+        } finally {
+            bns.releaseLock();
+        }
+    }
 
 }
