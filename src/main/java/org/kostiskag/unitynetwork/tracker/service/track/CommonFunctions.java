@@ -9,6 +9,7 @@ import javax.crypto.SecretKey;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
 
 public class CommonFunctions {
 	
@@ -23,9 +24,9 @@ public class CommonFunctions {
 	 * @param sessionKey
 	 */
 	public static void getBlueNodesPublic(Lock lock, String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException {
-		if (App.TRACKER_APP.BNtable.checkOnlineByName(lock, BlueNodeName)) {
+		if (BlueNodeTable.getInstance().checkOnlineByName(lock, BlueNodeName)) {
 			try {
-				PublicKey pub = App.TRACKER_APP.BNtable.getBlueNodeEntryByHn(lock, BlueNodeName).getPub();
+				PublicKey pub = BlueNodeTable.getInstance().getBlueNodeEntryByHn(lock, BlueNodeName).getPub();
 				SocketFunctions.sendAESEncryptedStringData(CryptoMethods.objectToBase64StringRepresentation(pub), writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();

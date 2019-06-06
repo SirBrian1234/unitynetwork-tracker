@@ -13,6 +13,7 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 
 /**
@@ -151,11 +152,11 @@ public class TrackService extends Thread {
 			// OPTIONS
 			// Now is the proper time to ask for the BNtable Lock!!!
 			try {
-				Lock bnTableLock = App.TRACKER_APP.BNtable.aquireLock();
+				Lock bnTableLock = BlueNodeTable.getInstance().aquireLock();
 				if (args.length == 2 && args[0].equals("LEASE")) {
 					AppLogger.getLogger().consolePrint(pre+prebn+"LEASE"+" from "+socket.getInetAddress().getHostAddress());
 					BlueNodeFunctions.BlueLease(bnTableLock, BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
-				} else if (App.TRACKER_APP.BNtable.checkOnlineByName(bnTableLock, BlueNodeHostname)) {
+				} else if (BlueNodeTable.getInstance().checkOnlineByName(bnTableLock, BlueNodeHostname)) {
 					//in other words in order to execute extensive queries you have to be logged in
 					if (args.length == 4 && args[0].equals("LEASE_RN")) {
 						AppLogger.getLogger().consolePrint(pre+prebn+"LEASE_RN"+" from "+socket.getInetAddress().getHostAddress());
@@ -202,7 +203,7 @@ public class TrackService extends Thread {
 			} catch (InterruptedException e) {
 				AppLogger.getLogger().consolePrint(e.getMessage());
 			} finally {
-				App.TRACKER_APP.BNtable.releaseLock();
+				BlueNodeTable.getInstance().releaseLock();
 			}
 		}
 	}
@@ -260,7 +261,7 @@ public class TrackService extends Thread {
 			// OPTIONS
 			//Now it's a proper time to ask for a lock!
 			try {
-				Lock bnTableLock = App.TRACKER_APP.BNtable.aquireLock();
+				Lock bnTableLock = BlueNodeTable.getInstance().aquireLock();
 				if (args.length == 1 && args[0].equals("GETRBN")) {
 					//rn collects a recommended bn based on the lowest load
 					AppLogger.getLogger().consolePrint(pre+prern+"GETRBN"+" from "+socket.getInetAddress().getHostAddress());
@@ -277,7 +278,7 @@ public class TrackService extends Thread {
 					//rn may be compromised and decides to revoke its public
 					AppLogger.getLogger().consolePrint(pre+prern+"REVOKEPUB"+" from "+socket.getInetAddress().getHostAddress());
 					RedNodeFunctions.revokePublicKey(hostname, writer, sessionKey);
-				} else if (App.TRACKER_APP.BNtable.checkOnlineRnByHn(bnTableLock, hostname)) {
+				} else if (BlueNodeTable.getInstance().checkOnlineRnByHn(bnTableLock, hostname)) {
 					if (args.length == 2 && args[0].equals("GETRNPUB")) {
 						//collects a network rns public
 						AppLogger.getLogger().consolePrint(pre+prern+"GETRNPUB"+" from "+socket.getInetAddress().getHostAddress());
@@ -293,7 +294,7 @@ public class TrackService extends Thread {
 			} catch (InterruptedException e) {
 				AppLogger.getLogger().consolePrint(e.getMessage());
 			} finally {
-				App.TRACKER_APP.BNtable.releaseLock();
+				BlueNodeTable.getInstance().releaseLock();
 			}
 
 		}

@@ -47,6 +47,7 @@ public class BlueNodeTableTest {
         q.insertEntryBluenodes("pakis3", id, "");
         q.insertEntryBluenodes("pakis4", id, "");
         //q.closeQueries();
+        BlueNodeTable.newInstance(2);
     }
 
     @AfterClass
@@ -64,21 +65,23 @@ public class BlueNodeTableTest {
 
     @Test
     public void initTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
-        BlueNodeTable bns = new BlueNodeTable(0);
+        BlueNodeTable bns = BlueNodeTable.getInstance();
         try {
             Lock lock = bns.aquireLock();
-            assertEquals(bns.getSize(lock), 0);
+            assertEquals(0, bns.getSize(lock));
             bns.lease(lock, "pakis", pub, "192.168.1.1", 1234);
             bns.lease(lock, "pakis2", pub, "192.168.1.2", 1234);
             assertEquals(bns.getSize(lock), 2);
+            bns.release(lock,"pakis");
+            bns.release(lock,"pakis2");
         } finally {
             bns.releaseLock();
         }
     }
 
     @Test
-    public void maxCapacityTest() throws InterruptedException, UnknownHostException {
-        BlueNodeTable bns = new BlueNodeTable(2);
+    public void maxCapacityTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
+        BlueNodeTable bns = BlueNodeTable.getInstance();
         Lock lock = null;
         try {
             lock = bns.aquireLock();
@@ -90,14 +93,16 @@ public class BlueNodeTableTest {
         } catch (IllegalAccessException e) {
             System.out.println(e.getMessage());
         } finally {
-            assertEquals(bns.getSize(lock), 2);
+            assertEquals(2, bns.getSize(lock));
+            bns.release(lock, "pakis");
+            bns.release(lock, "pakis2");
             bns.releaseLock();
         }
     }
 
     @Test
-    public void uniqueHostnameTest() throws InterruptedException, UnknownHostException {
-        BlueNodeTable bns = new BlueNodeTable(0);
+    public void uniqueHostnameTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
+        BlueNodeTable bns = BlueNodeTable.getInstance();
         Lock lock = null;
         try {
             lock = bns.aquireLock();
@@ -108,13 +113,14 @@ public class BlueNodeTableTest {
             System.out.println(e.getMessage());
         } finally {
             assertEquals(bns.getSize(lock), 1);
+            bns.release(lock,"pakis");
             bns.releaseLock();
         }
     }
 
     @Test
-    public void uniqueAddressTest() throws InterruptedException, UnknownHostException {
-        BlueNodeTable bns = new BlueNodeTable(0);
+    public void uniqueAddressTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
+        BlueNodeTable bns = BlueNodeTable.getInstance();
         Lock lock = null;
         try {
             lock = bns.aquireLock();
@@ -126,13 +132,14 @@ public class BlueNodeTableTest {
             System.out.println(e.getMessage());
         } finally {
             assertEquals(bns.getSize(lock), 1);
+            bns.release(lock,"pakis");
             bns.releaseLock();
         }
     }
 
     //@Test
     public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException, RedNodeTableException {
-        BlueNodeTable bns = new BlueNodeTable(0);
+        BlueNodeTable bns = BlueNodeTable.getInstance();
         try {
             Lock lock = bns.aquireLock();
             assertEquals(bns.getSize(lock), 0);

@@ -61,7 +61,6 @@ public class App {
 	// data
 	public TrackServer track;
 	public MainWindow window;
-	public BlueNodeTable BNtable;
 	public SonarService sonar;
 	public KeyPair trackerKeys;
 
@@ -171,7 +170,7 @@ public class App {
 
 		// 5. table
 		AppLogger.getLogger().consolePrint("initializing tables...");
-		BNtable = new BlueNodeTable(this.bncap);
+		BlueNodeTable.newInstance(this.bncap);
 
 		// 6. service
 		AppLogger.getLogger().consolePrint("initializing AuthService on port " + auth + " ...");
@@ -197,12 +196,12 @@ public class App {
 	public void terminate() {
 		sonar.kill();
 		try {
-			Lock lock = BNtable.aquireLock();
-			BNtable.sendKillSigsAndClearTable(lock);
+			Lock lock = BlueNodeTable.getInstance().aquireLock();
+			BlueNodeTable.getInstance().sendKillSigsAndClearTable(lock);
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint(e.getMessage());
 		} finally {
-			BNtable.releaseLock();
+			BlueNodeTable.getInstance().releaseLock();
 		}
 		AppLogger.getLogger().consolePrint("Tracker is going to terminate.");
 		die();

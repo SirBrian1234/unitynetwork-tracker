@@ -8,6 +8,7 @@ import java.util.concurrent.locks.Lock;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
 
 /**
  * 
@@ -75,7 +76,7 @@ public class BlueNodeGlobalFunctions {
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
 					q.closeQueries();
-					if (App.TRACKER_APP.BNtable.checkOnlineByName(lock, BlueNodeHostname)) {
+					if (BlueNodeTable.getInstance().checkOnlineByName(lock, BlueNodeHostname)) {
 						return 1;
 					} else {						
 						return 0;

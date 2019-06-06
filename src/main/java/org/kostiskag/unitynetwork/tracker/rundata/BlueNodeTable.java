@@ -17,29 +17,48 @@ import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
- * A bluenode table holds all the joined bluenodes on the network.
- * Each connected bluenode is represented by a BlueNode entry.
- * Where each BlueNode entry holds a RedNode list with all its connected 
+ * A bluenode table holds the entries representing all the connected bluenodes on the network.
+ * Each BlueNode entry holds a RedNode list with all its connected
  * rednodes.
+ *
+ * THIS IS A SINGLETON!!!!!
+ * to use it:
+ * BlueNodeTable.getInstance();
  *
  * @author Konstantinos Kagiampakis
  */
 public class BlueNodeTable {
 	private static final String pre = "^BNTABLE ";
 	private static final int TIMEOUT_SECONDS = 5;
+	private static BlueNodeTable BN_TABLE_INSTANCE;
 	private final int bncap;
 	private final List<BlueNodeEntry> list;
 	private final Lock orb = new ReentrantLock(true);
 
-	public BlueNodeTable() {
+	private BlueNodeTable() {
 		this(0);
 	}
 
-	public BlueNodeTable(int bncap) {
+	private BlueNodeTable(int bncap) {
         this.bncap = bncap;
         list = new ArrayList<BlueNodeEntry>();
         AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
+
+	public static BlueNodeTable newInstance() {
+		return BlueNodeTable.newInstance(0);
+	}
+
+	public static BlueNodeTable newInstance(int capacity) {
+		if (BN_TABLE_INSTANCE == null) {
+			BN_TABLE_INSTANCE = new BlueNodeTable(capacity);
+		}
+		return BN_TABLE_INSTANCE;
+	}
+
+	public static BlueNodeTable getInstance() {
+		return BN_TABLE_INSTANCE;
+	}
 
     /*
 		WE USED to have synchronized methods for table access but this

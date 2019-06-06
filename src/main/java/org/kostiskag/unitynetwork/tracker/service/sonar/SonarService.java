@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.service.sonar;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
 
 import java.util.concurrent.locks.Lock;
 
@@ -35,13 +36,13 @@ public class SonarService extends Thread {
             }
             if (kill) break;
             try {
-                Lock lock = App.TRACKER_APP.BNtable.aquireLock();
+                Lock lock = BlueNodeTable.getInstance().aquireLock();
                 AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
-                App.TRACKER_APP.BNtable.rebuildTableViaAuthClient(lock);
+                BlueNodeTable.getInstance().rebuildTableViaAuthClient(lock);
             } catch (InterruptedException e) {
                 AppLogger.getLogger().consolePrint(e.getMessage());
             } finally {
-                App.TRACKER_APP.BNtable.releaseLock();
+                BlueNodeTable.getInstance().releaseLock();
             }
         }
     }

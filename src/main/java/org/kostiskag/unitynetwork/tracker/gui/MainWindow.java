@@ -21,6 +21,8 @@ import javax.swing.table.DefaultTableModel;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+
 import javax.swing.LayoutStyle.ComponentPlacement;
 
 /**
@@ -569,30 +571,50 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 	
 	public synchronized void updateBlueNodeTable() {
-		try {
-			Lock lock = App.TRACKER_APP.BNtable.aquireLock();
-			String[][] data = App.TRACKER_APP.BNtable.buildStringInstanceObject(lock);
+		//A BN is always initialized after GUI and this is because the window
+		//goes to logger!
+		if (BlueNodeTable.getInstance() != null) {
+			try {
+				Lock lock = BlueNodeTable.getInstance().aquireLock();
+				String[][] data = BlueNodeTable.getInstance().buildStringInstanceObject(lock);
+				bluenodes = new DefaultTableModel(data, bluenodesTableHead);
+				jTable2.setModel(bluenodes);
+				repaint();
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint(e.getMessage());
+			} finally {
+				BlueNodeTable.getInstance().releaseLock();
+			}
+		} else {
+			String[] d1 = new String[] { "","","","",""};
+			String[][] data = new String[][]{d1};
 			bluenodes = new DefaultTableModel(data, bluenodesTableHead);
 			jTable2.setModel(bluenodes);
 			repaint();
-		} catch (InterruptedException e) {
-			AppLogger.getLogger().consolePrint(e.getMessage());
-		} finally {
-			App.TRACKER_APP.BNtable.releaseLock();
 		}
 	}
 	
 	public synchronized void updateRedNodeTable() {
-		try {
-			Lock lock = App.TRACKER_APP.BNtable.aquireLock();
-			String[][] data = App.TRACKER_APP.BNtable.buildRednodeStringInstanceObject(lock);
+		//A BN is always initialized after GUI and this is because the window
+		//goes to logger!
+		if (BlueNodeTable.getInstance() != null) {
+			try {
+				Lock lock = BlueNodeTable.getInstance().aquireLock();
+				String[][] data = BlueNodeTable.getInstance().buildRednodeStringInstanceObject(lock);
+				rednodes = new DefaultTableModel(data, rednodesTableHead);
+				jTable1.setModel(rednodes);
+				repaint();
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint(e.getMessage());
+			} finally {
+				BlueNodeTable.getInstance().releaseLock();
+			}
+		} else {
+			String[] d1 = new String[] { " "," "," "," "};
+			String[][] data = new String[][]{d1};
 			rednodes = new DefaultTableModel(data, rednodesTableHead);
 			jTable1.setModel(rednodes);
 			repaint();
-		} catch (InterruptedException e) {
-			AppLogger.getLogger().consolePrint(e.getMessage());
-		} finally {
-			App.TRACKER_APP.BNtable.releaseLock();
 		}
 	}
 

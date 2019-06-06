@@ -14,6 +14,7 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
 import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
 
 /**
 * Rednode queries:
@@ -32,8 +33,8 @@ public class RedNodeFunctions {
 	 */
 	public static void getRecomendedBlueNode(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IOException {
 		String data;
-		if (App.TRACKER_APP.BNtable.getSize(lock) > 0) {
-			BlueNodeEntry recomended = App.TRACKER_APP.BNtable.getBlueNodeEntryByLowestLoad(lock);
+		if (BlueNodeTable.getInstance().getSize(lock) > 0) {
+			BlueNodeEntry recomended = BlueNodeTable.getInstance().getBlueNodeEntryByLowestLoad(lock);
 			String hostname = recomended.getName();
 			String phaddress = recomended.getPhAddress().asString();
 			int port = recomended.getPort();
@@ -47,11 +48,11 @@ public class RedNodeFunctions {
 	}
 
 	public static void getAllConnectedBlueNodes(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IOException {
-		int size = App.TRACKER_APP.BNtable.getSize(lock);
+		int size = BlueNodeTable.getInstance().getSize(lock);
 		StringBuilder str = new StringBuilder();
 		str.append("SENDING_BLUENODES " + size+"\n");
 		
-		String fetched[][] = App.TRACKER_APP.BNtable.buildStringInstanceObject(lock);
+		String fetched[][] = BlueNodeTable.getInstance().buildStringInstanceObject(lock);
 		for(int i=0; i<fetched.length; i++) {			
 			str.append(fetched[i][0]+" "+fetched[i][1]+" "+fetched[i][2]+" "+fetched[i][3]+"\n");
 		}	
