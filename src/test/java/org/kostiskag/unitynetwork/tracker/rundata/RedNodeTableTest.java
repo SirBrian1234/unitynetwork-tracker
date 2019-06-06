@@ -38,7 +38,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueHosnameTest() throws UnknownHostException {
+	public void uniqueHosnameTest() throws IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -53,7 +53,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueAddressTest() throws UnknownHostException {
+	public void uniqueAddressTest() throws IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -204,8 +204,9 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void releaseByVaddressTest() throws UnknownHostException, RedNodeTableException {
-		BlueNodeEntry bn = new BlueNodeEntry("bnpakis",null, PhysicalAddress.valueOf("1.2.3.4"), 0);
+	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, RedNodeTableException {
+		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+    	BlueNodeEntry bn = new BlueNodeEntry("bnpakis",pub, PhysicalAddress.valueOf("1.2.3.4"), 1000);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
 			rns.lease("pakis", "10.200.1.1");

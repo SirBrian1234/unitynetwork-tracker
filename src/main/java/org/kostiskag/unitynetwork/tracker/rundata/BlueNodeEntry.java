@@ -1,5 +1,6 @@
 package org.kostiskag.unitynetwork.tracker.rundata;
 
+import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
@@ -24,16 +25,25 @@ public class BlueNodeEntry {
     private Time regTimestamp;
     private BlueNodeClient client;
 
-    public BlueNodeEntry(String name, PublicKey pub, PhysicalAddress phAddress, int port) {
-        this.name = name;
-        this.pub = pub;
-        this.phAddress = phAddress;
-        this.port = port;
-        this.regTimestamp = new Time(System.currentTimeMillis());
-        this.rednodes = new RedNodeTable(this);
+    public BlueNodeEntry(String name, PublicKey pub, PhysicalAddress phAddress, int port) throws IllegalAccessException {
+        if (name == null || pub == null | phAddress == null) {
+            throw new IllegalAccessException("given data where null!");
+        } else if (name.isEmpty() ||
+                name.length() > App.MAX_STR_LEN_SMALL_SIZE ||
+                port <= 0 || port > App.MAX_ALLOWED_PORT_NUM
+        ) {
+            throw new IllegalAccessException("given data where not valid!");
+        } else {
+            this.name = name;
+            this.pub = pub;
+            this.phAddress = phAddress;
+            this.port = port;
+            this.regTimestamp = new Time(System.currentTimeMillis());
+            this.rednodes = new RedNodeTable(this);
+        }
     }
 
-    public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port) throws UnknownHostException {
+    public BlueNodeEntry(String name, PublicKey pub, String phAddress, int port) throws UnknownHostException, IllegalAccessException {
         this(name,pub,PhysicalAddress.valueOf(phAddress),port);
     }
 

@@ -255,28 +255,19 @@ public class BlueNodeTable {
     public void lease(Lock lock, String name, PublicKey pub, String phAddress, int port) throws IllegalAccessException, InterruptedException, UnknownHostException {
     	//this validation has to be moved inside the BlueNodeEntry constructor
 		validateLock(lock);
-    	if (!name.isEmpty() &&
-				name.length() <= App.MAX_STR_LEN_SMALL_SIZE &&
-				!phAddress.isEmpty() && 
-				phAddress.length() <= App.MAX_STR_ADDR_LEN &&
-				port > 0 && port <= App.MAX_ALLOWED_PORT_NUM
-		) {
-	    	if (this.bncap == 0 || this.bncap > list.size()) {
-    			if (!getOptionalBlueNodeEntryByHn(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
-					BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
-					list.add(bn);
-					AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
-					notifyGUI();
-				} else {
-					throw new IllegalAccessException(pre + "Found a duplicate bn! "+name);
-				}
-	    	} else {
-	    		throw new IllegalAccessException(pre + "Maximum Blue Node upper limit reached.");
-	    	}
-    	} else {
-    		throw new IllegalAccessException(pre + "Bad input data.");
-    	}
-    }
+		if (this.bncap == 0 || this.bncap > list.size()) {
+			if (!getOptionalBlueNodeEntryByHn(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
+				BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
+				list.add(bn);
+				AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
+				notifyGUI();
+			} else {
+				throw new IllegalAccessException(pre + "Found a duplicate bn! "+name);
+			}
+		} else {
+			throw new IllegalAccessException(pre + "Maximum Blue Node upper limit reached.");
+		}
+	}
     
     public synchronized void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, RedNodeTableException, UnknownHostException {
     	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByHn(lock, bluenodeName);
