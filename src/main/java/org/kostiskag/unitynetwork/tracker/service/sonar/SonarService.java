@@ -11,18 +11,36 @@ import java.util.concurrent.locks.Lock;
  * connects to the leased bluenodes and requests to get their respective rednodes back
  * When a dead bn is found it, and its rns are removed from the network
  * If a bn has died it has to wait for this duration in order to
- * be able to reconnect to the network.  
+ * be able to reconnect to the network.
+ *
+ * THIS IS A SINGLETON!!!
  * 
  * @author Konstantinos Kagiampakis
  */
 public class SonarService extends Thread {
 
-    private final String pre = "^Ping ";
-    private boolean kill = false;
+    private final static String pre = "^Ping ";
+    private static SonarService SONAR_SERVICE;
+
     private final int time;
-    
-    public SonarService(int time) {
+    private boolean kill = false;
+
+    private SonarService(int time) throws IllegalAccessException {
+        if (time <= 0) {
+            throw new IllegalAccessException("time was 0 or below!");
+        }
         this.time = time;
+    }
+
+    public static SonarService newInstance(int givenTime) throws IllegalAccessException {
+        if (SONAR_SERVICE == null) {
+            SONAR_SERVICE = new SonarService(givenTime);
+        }
+        return SONAR_SERVICE;
+    }
+
+    public static SonarService getInstance() {
+        return SONAR_SERVICE;
     }
 
     @Override

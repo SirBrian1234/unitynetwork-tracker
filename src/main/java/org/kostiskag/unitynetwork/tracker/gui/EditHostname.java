@@ -216,7 +216,7 @@ public class EditHostname {
 					return;
 				}
 				
-				App.TRACKER_APP.window.updateDatabaseGUI();
+				MainWindow.getInstance().updateDatabaseGUI();
 				frmEditHostnameEntry.dispose();
 			
 			} else {

@@ -571,50 +571,30 @@ public class MainWindow extends javax.swing.JFrame {
 	}
 	
 	public synchronized void updateBlueNodeTable() {
-		//A BN is always initialized after GUI and this is because the window
-		//goes to logger!
-		if (BlueNodeTable.getInstance() != null) {
-			try {
-				Lock lock = BlueNodeTable.getInstance().aquireLock();
-				String[][] data = BlueNodeTable.getInstance().buildStringInstanceObject(lock);
-				bluenodes = new DefaultTableModel(data, bluenodesTableHead);
-				jTable2.setModel(bluenodes);
-				repaint();
-			} catch (InterruptedException e) {
-				AppLogger.getLogger().consolePrint(e.getMessage());
-			} finally {
-				BlueNodeTable.getInstance().releaseLock();
-			}
-		} else {
-			String[] d1 = new String[] { "","","","",""};
-			String[][] data = new String[][]{d1};
+	try {
+			Lock lock = BlueNodeTable.getInstance().aquireLock();
+			String[][] data = BlueNodeTable.getInstance().buildStringInstanceObject(lock);
 			bluenodes = new DefaultTableModel(data, bluenodesTableHead);
 			jTable2.setModel(bluenodes);
 			repaint();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint(e.getMessage());
+		} finally {
+			BlueNodeTable.getInstance().releaseLock();
 		}
 	}
 	
 	public synchronized void updateRedNodeTable() {
-		//A BN is always initialized after GUI and this is because the window
-		//goes to logger!
-		if (BlueNodeTable.getInstance() != null) {
-			try {
-				Lock lock = BlueNodeTable.getInstance().aquireLock();
-				String[][] data = BlueNodeTable.getInstance().buildRednodeStringInstanceObject(lock);
-				rednodes = new DefaultTableModel(data, rednodesTableHead);
-				jTable1.setModel(rednodes);
-				repaint();
-			} catch (InterruptedException e) {
-				AppLogger.getLogger().consolePrint(e.getMessage());
-			} finally {
-				BlueNodeTable.getInstance().releaseLock();
-			}
-		} else {
-			String[] d1 = new String[] { " "," "," "," "};
-			String[][] data = new String[][]{d1};
+		try {
+			Lock lock = BlueNodeTable.getInstance().aquireLock();
+			String[][] data = BlueNodeTable.getInstance().buildRednodeStringInstanceObject(lock);
 			rednodes = new DefaultTableModel(data, rednodesTableHead);
 			jTable1.setModel(rednodes);
 			repaint();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint(e.getMessage());
+		} finally {
+			BlueNodeTable.getInstance().releaseLock();
 		}
 	}
 

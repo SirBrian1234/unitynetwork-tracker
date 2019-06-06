@@ -42,7 +42,6 @@ public class BlueNodeTable {
 	private BlueNodeTable(int bncap) {
         this.bncap = bncap;
         list = new ArrayList<BlueNodeEntry>();
-        AppLogger.getLogger().consolePrint(pre + "INITIALIZED ");
     }
 
 	public static BlueNodeTable newInstance() {

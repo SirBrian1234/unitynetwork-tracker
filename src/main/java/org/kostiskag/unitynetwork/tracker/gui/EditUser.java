@@ -253,7 +253,7 @@ public class EditUser {
 					}
 				}
 				
-				App.TRACKER_APP.window.updateDatabaseGUI();
+				MainWindow.getInstance().updateDatabaseGUI();
 				frmEditUserEntry.dispose();
 			}
 		});

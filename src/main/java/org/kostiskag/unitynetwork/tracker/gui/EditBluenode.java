@@ -233,7 +233,7 @@ public class EditBluenode {
 					}
 				}
 
-				App.TRACKER_APP.window.updateDatabaseGUI();
+				MainWindow.getInstance().updateDatabaseGUI();
 				frmEditBluenodeEntry.dispose();
 
 			} else {
