@@ -7,7 +7,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import javax.crypto.SecretKey;
@@ -16,8 +15,8 @@ import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 
 /**
  * These functions are being used from the sonar service - the tracker client
@@ -56,7 +55,7 @@ public class BlueNodeClient {
 	public BlueNodeClient(BlueNodeEntry bn) throws NoSuchAlgorithmException, IOException {
     	this.bn = bn;
 
-    	socket = SocketFunctions.absoluteConnect(bn.getPhAddress().asInet(), bn.getPort());
+    	socket = SocketFunctions.absoluteConnect(bn.getAddress().asInet(), bn.getPort());
 		socket.setSoTimeout(BlueNodeClient.TIMEOUT);
 
 		socketReader = SocketFunctions.makeDataReader(socket);
@@ -70,7 +69,7 @@ public class BlueNodeClient {
 		String[] args = SocketFunctions.receiveAESEncryptedStringData(socketReader, sessionKey);
 		System.out.println(args[0]);
 
-		if(!args[0].equals("BLUENODE") || !args[1].equals(bn.getName())) {
+		if(!args[0].equals("BLUENODE") || !args[1].equals(bn.getHostname())) {
 			throw new IOException("Wrong header message");
 		}
 
@@ -95,7 +94,7 @@ public class BlueNodeClient {
 
     public boolean testBnOnline()  {
     	try {
-    		AppLogger.getLogger().consolePrint(PRE +"CHECK"+" towards "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+    		AppLogger.getLogger().consolePrint(PRE +"CHECK"+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
 	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);
 	        SocketFunctions.connectionClose(socket);
 	        if (args[0].equals("OK")) {
@@ -104,7 +103,7 @@ public class BlueNodeClient {
 	        	throw new IOException();
 			}
     	} catch (IOException e) {
-			AppLogger.getLogger().consolePrint(PRE +"CHECK"+" BN OFFLINE "+bn.getName()+" at "+socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE +"CHECK"+" BN OFFLINE "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
 			return false;
 		} finally {
 			try {
@@ -117,16 +116,16 @@ public class BlueNodeClient {
     
     public void sendkillsig() {
     	try {
-			AppLogger.getLogger().consolePrint(PRE + "KILLSIG" + " towards " + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE + "KILLSIG" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			SocketFunctions.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey);
 			SocketFunctions.connectionClose(socket);
 		} catch (IOException e) {
-			AppLogger.getLogger().consolePrint(PRE + "KILLSIG EXCEPTION" + " towards " + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE + "KILLSIG EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 		} finally {
 			try {
 				SocketFunctions.connectionClose(socket);
 			} catch (IOException e) {
-				AppLogger.getLogger().consolePrint(PRE + "KILLSIG SOCKET CLOSE EXCEPTION" + " towards " + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(PRE + "KILLSIG SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			}
 		}
     }
@@ -134,7 +133,7 @@ public class BlueNodeClient {
     public List<RedNodeEntry> getRedNodes() throws IOException {
     	List<RedNodeEntry> list = new ArrayList<>();
 		try {
-			AppLogger.getLogger().consolePrint(PRE + "GETREDNODES" + " towards " + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE + "GETREDNODES" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			SocketFunctions.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
 			String received = SocketFunctions.receiveAESEncryptedString(socketReader, sessionKey);
 			SocketFunctions.connectionClose(socket);
@@ -155,22 +154,22 @@ public class BlueNodeClient {
 					list.add(r);
 				} catch (UnknownHostException e) {
 					//not to throw, the element just wont be included on the list
-					AppLogger.getLogger().consolePrint(PRE + "A RedNode ON BLUENODE'S LIST found with unvalid IP address" + bn.getName() + " at " + bn.getPhAddress().asString() + ": "+ e.getMessage());
+					AppLogger.getLogger().consolePrint(PRE + "A RedNode ON BLUENODE'S LIST found with unvalid IP address" + bn.getHostname() + " at " + bn.getAddress().asString() + ": "+ e.getMessage());
 				} catch (IllegalAccessException ex) {
 					//not to throw
-					AppLogger.getLogger().consolePrint(PRE + "A BN was feeding duplicate rn entries" + bn.getName() + " at " + bn.getPhAddress().asString() + ": "+ ex.getMessage());
+					AppLogger.getLogger().consolePrint(PRE + "A BN was feeding duplicate rn entries" + bn.getHostname() + " at " + bn.getAddress().asString() + ": "+ ex.getMessage());
 				}
 			}
 		} catch (IOException e) {
 			//this should be thrown!
-			AppLogger.getLogger().consolePrint(PRE + "BN GET RedNode LIST EXCEPTION for" + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE + "BN GET RedNode LIST EXCEPTION for" + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			throw e;
 		} finally {
 			try {
 				SocketFunctions.connectionClose(socket);
 			} catch (IOException e) {
 				//this should not be thrown
-				AppLogger.getLogger().consolePrint(PRE + "GET RedNode SOCKET CLOSE EXCEPTION" + " towards " + bn.getName() + " at " + socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(PRE + "GET RedNode SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			}
 		}
 

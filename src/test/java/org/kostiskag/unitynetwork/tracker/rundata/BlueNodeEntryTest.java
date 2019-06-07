@@ -10,7 +10,8 @@ import java.sql.Time;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 
 public class BlueNodeEntryTest {
 
@@ -40,8 +41,8 @@ public class BlueNodeEntryTest {
 	@Test
 	public void testConstructorB() throws IllegalAccessException, UnknownHostException {
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
-		assertEquals(bn.getName(),hostname);
-		assertEquals(bn.getPhAddress().asString(),address);
+		assertEquals(bn.getHostname(),hostname);
+		assertEquals(bn.getAddress().asString(),address);
 		assertEquals(bn.getPort(),port);
 		assertEquals(bn.getPub(),pub);
 		assertNotEquals(null, bn.getRedNodes());
@@ -51,8 +52,8 @@ public class BlueNodeEntryTest {
 	public void testConstructorA() throws IllegalAccessException, UnknownHostException {
 		Time t = new Time(System.currentTimeMillis());
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
-		assertEquals(bn.getName(),hostname);
-		assertEquals(bn.getPhAddress().asString(),address);
+		assertEquals(bn.getHostname(),hostname);
+		assertEquals(bn.getAddress().asString(),address);
 		assertEquals(bn.getPort(),port);
 		assertEquals(bn.getPub(),pub);
 		assertNotEquals(null, bn.getRedNodes());

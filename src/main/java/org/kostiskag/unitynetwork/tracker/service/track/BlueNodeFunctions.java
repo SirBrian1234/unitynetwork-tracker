@@ -16,9 +16,9 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
  *  Bluenode queries:
@@ -208,7 +208,7 @@ public class BlueNodeFunctions {
 		String data;
 		BlueNodeEntry bn = BlueNodeTable.getInstance().getBlueNodeEntryByHn(lock, BNTargetHostname);
 		if (bn != null) {			
-			data = bn.getPhAddress().asString()+" "+ bn.getPort();
+			data = bn.getAddress().asString()+" "+ bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}
@@ -223,7 +223,7 @@ public class BlueNodeFunctions {
 		String data;
 		BlueNodeEntry bn = BlueNodeTable.getInstance().reverseLookupBnBasedOnRn(lock, hostname);
 		if (bn != null) {
-			data = "ONLINE " +bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
+			data = "ONLINE " +bn.getHostname()+" "+bn.getAddress().asString()+" "+bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}
@@ -241,7 +241,7 @@ public class BlueNodeFunctions {
 		
 		BlueNodeEntry bn = BlueNodeTable.getInstance().reverseLookupBnBasedOnRnVaddr(lock, vaddress);
 		if (bn!=null) {
-			data = "ONLINE "+bn.getName()+" "+bn.getPhAddress().asString()+" "+bn.getPort();
+			data = "ONLINE "+bn.getHostname()+" "+bn.getAddress().asString()+" "+bn.getPort();
 		} else {
 			data = "OFFLINE";
 		}						

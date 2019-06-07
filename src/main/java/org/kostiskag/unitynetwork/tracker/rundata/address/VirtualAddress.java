@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.address;
+package org.kostiskag.unitynetwork.tracker.rundata.address;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;

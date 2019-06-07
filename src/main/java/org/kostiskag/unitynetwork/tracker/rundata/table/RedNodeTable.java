@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import java.net.UnknownHostException;
 import java.util.*;
@@ -7,8 +7,10 @@ import java.util.stream.Stream;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 
 /**
  * Each BlueNodeEntry owns an object of a RedNodeTable.
@@ -56,7 +58,7 @@ public class RedNodeTable {
 
     private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(VirtualAddress vaddress) {
         return list.stream()
-                .filter(element -> element.getVaddress().equals(vaddress))
+                .filter(element -> element.getAddress().equals(vaddress))
                 .findFirst();
     }
     //end of optionals
@@ -152,7 +154,7 @@ public class RedNodeTable {
         notifyGUI();
     }
 
-    public synchronized void lease(String hostname, VirtualAddress vAddress) throws RedNodeTableException {
+    public synchronized void lease(String hostname, VirtualAddress vAddress) throws RedNodeTableException, IllegalAccessException {
     	if (hostname.length() > 0 && hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE) {
 
             RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
@@ -168,7 +170,7 @@ public class RedNodeTable {
     	}
     }
 
-    public synchronized void lease(String hostname, String vAddress) throws UnknownHostException, RedNodeTableException {
+    public synchronized void lease(String hostname, String vAddress) throws UnknownHostException, RedNodeTableException, IllegalAccessException {
         lease(hostname, VirtualAddress.valueOf(vAddress));
     }
     //end of lease

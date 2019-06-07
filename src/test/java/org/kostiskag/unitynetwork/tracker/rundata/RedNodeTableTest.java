@@ -8,9 +8,12 @@ import java.net.UnknownHostException;
 import java.security.PublicKey;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTableException;
 
 import static org.junit.Assert.*;
 
@@ -82,8 +85,8 @@ public class RedNodeTableTest {
 			assertTrue(false);
 		}
 		assertEquals(rns.getRedNodeEntry("pakis3").getHostname(),"pakis3");
-		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress().asString(),"10.200.1.3");
-		assertEquals(rns.getRedNodeEntry("pakis3").getVaddress(),VirtualAddress.valueOf("10.200.1.3"));
+		assertEquals(rns.getRedNodeEntry("pakis3").getAddress().asString(),"10.200.1.3");
+		assertEquals(rns.getRedNodeEntry("pakis3").getAddress(),VirtualAddress.valueOf("10.200.1.3"));
 
 		try {
 			rns.getRedNodeEntry("pakis15");
@@ -107,7 +110,7 @@ public class RedNodeTableTest {
 			assertTrue(false);
 		}
 		assertNotNull(rns.getRedNodeEntryByVAddr("10.200.1.2").getHostname().equals("pakis2"));
-		assertTrue(rns.getRedNodeEntryByVAddr("10.200.1.2").getVaddress().asString().equals("10.200.1.2"));
+		assertTrue(rns.getRedNodeEntryByVAddr("10.200.1.2").getAddress().asString().equals("10.200.1.2"));
 	}
 	
 	@Test

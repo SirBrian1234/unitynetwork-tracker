@@ -1,8 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.service.sonar;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 import java.util.concurrent.locks.Lock;
 

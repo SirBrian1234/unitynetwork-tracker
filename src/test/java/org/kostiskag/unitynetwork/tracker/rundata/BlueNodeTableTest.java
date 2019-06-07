@@ -15,11 +15,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTableException;
 
 public class BlueNodeTableTest {
 
@@ -165,7 +166,7 @@ public class BlueNodeTableTest {
             assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis2").getLoad(), 2);
             assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis3").getLoad(), 3);
             assertEquals(bns.getBlueNodeEntryByHn(lock, "pakis4").getLoad(), 0);
-            assertEquals(bns.getBlueNodeEntryByLowestLoad(lock).getName(), "pakis4");
+            assertEquals(bns.getBlueNodeEntryByLowestLoad(lock).getHostname(), "pakis4");
         } finally {
             bns.releaseLock();
         }

@@ -6,8 +6,10 @@ import java.sql.Time;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 
 import static org.junit.Assert.*;
 
@@ -23,7 +25,7 @@ public class RedNodeEntryTest {
 		BlueNodeEntry bn = new BlueNodeEntry("pakis",pub, PhysicalAddress.valueOf("1.2.3.4"),1000);
 		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
 		assertEquals(rn.getHostname(), "ouiou");
-		assertEquals(rn.getVaddress().asString(), "10.0.0.1");
+		assertEquals(rn.getAddress().asString(), "10.0.0.1");
 		assertEquals(bn, rn.getParentBlueNode());
 		System.out.println(rn);
 	}

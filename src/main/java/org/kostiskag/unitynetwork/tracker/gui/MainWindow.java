@@ -21,7 +21,7 @@ import javax.swing.table.DefaultTableModel;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
 

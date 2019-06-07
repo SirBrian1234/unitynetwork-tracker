@@ -1,11 +1,10 @@
-package org.kostiskag.unitynetwork.tracker.address;
+package org.kostiskag.unitynetwork.tracker.rundata.address;
 
 import static org.junit.Assert.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
 
 import java.net.UnknownHostException;
 

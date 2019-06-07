@@ -11,7 +11,7 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.SonarService;
 import org.kostiskag.unitynetwork.tracker.service.track.TrackServer;
 

@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.address;
+package org.kostiskag.unitynetwork.tracker.rundata.address;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -7,7 +7,7 @@ import java.net.UnknownHostException;
 
 import org.kostiskag.unitynetwork.tracker.App;
 
-class NetworkAddress {
+public class NetworkAddress {
 
     private final String asString;
     private final byte[] asByte;

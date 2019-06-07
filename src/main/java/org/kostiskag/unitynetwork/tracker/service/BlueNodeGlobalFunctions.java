@@ -5,10 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
  * 

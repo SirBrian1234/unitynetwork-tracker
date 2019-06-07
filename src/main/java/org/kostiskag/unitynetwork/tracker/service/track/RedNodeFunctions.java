@@ -9,12 +9,11 @@ import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
 * Rednode queries:
@@ -35,8 +34,8 @@ public class RedNodeFunctions {
 		String data;
 		if (BlueNodeTable.getInstance().getSize(lock) > 0) {
 			BlueNodeEntry recomended = BlueNodeTable.getInstance().getBlueNodeEntryByLowestLoad(lock);
-			String hostname = recomended.getName();
-			String phaddress = recomended.getPhAddress().asString();
+			String hostname = recomended.getHostname();
+			String phaddress = recomended.getAddress().asString();
 			int port = recomended.getPort();
 			int load = recomended.getLoad();
 			String pubkey = CryptoMethods.objectToBase64StringRepresentation(recomended.getPub());

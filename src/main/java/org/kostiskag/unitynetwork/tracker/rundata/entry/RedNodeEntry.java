@@ -1,10 +1,9 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
 import java.net.UnknownHostException;
-import java.sql.Time;
 import java.util.Objects;
 
-import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 
 /**
  * Objects of a RedNodeEntry represent the connected
@@ -14,47 +13,21 @@ import org.kostiskag.unitynetwork.tracker.address.VirtualAddress;
  *
  * @author Konstantinos Kagiampakis
  */
-public class RedNodeEntry {
+public class RedNodeEntry extends NodeEntry<VirtualAddress>{
 
     private final BlueNodeEntry bn;
-    private final String hostname;
-    private final VirtualAddress vAddress;
-    private final Object timeLock = new Object();
-    private Time regTimestamp;
 
-    public RedNodeEntry(BlueNodeEntry bn, String hostname, VirtualAddress vAddress) {
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, VirtualAddress vAddress) throws IllegalAccessException {
+        super(hostname,vAddress);
         this.bn = bn;
-        this.hostname = hostname;
-        this.vAddress  = vAddress;
-        this.regTimestamp = new Time(System.currentTimeMillis());
     }
 
-    public RedNodeEntry(BlueNodeEntry bn, String hostname, String vAddress) throws UnknownHostException {
+    public RedNodeEntry(BlueNodeEntry bn, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException {
         this(bn, hostname, VirtualAddress.valueOf(vAddress));
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public VirtualAddress getVaddress() {
-        return vAddress;
     }
 
     public BlueNodeEntry getParentBlueNode() {
         return bn;
-    }
-
-    public Time getTimestamp() {
-    	synchronized (timeLock) {
-    		return regTimestamp;
-		}        
-    }
-       
-    public void updateTimestamp(){
-    	synchronized (timeLock) {
-    		this.regTimestamp = new Time(System.currentTimeMillis());
-    	}
     }
 
     /**
@@ -80,18 +53,18 @@ public class RedNodeEntry {
         }
         if (obj instanceof RedNodeEntry) {
             RedNodeEntry given = (RedNodeEntry) obj;
-            return hostname.equals(given.hostname) || vAddress.equals(given.vAddress);
+            return this.getHostname().equals(given.getHostname()) || this.getAddress().equals(given.getAddress());
         }
         return false;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(bn, hostname, vAddress);
+        return Objects.hash(bn, this.getHostname(), this.getAddress());
     }
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName()+": hostname: "+hostname+" vaddress: "+vAddress;
+        return this.getClass().getSimpleName()+": hostname: "+this.getHostname()+" vaddress: "+this.getAddress();
     }
 }

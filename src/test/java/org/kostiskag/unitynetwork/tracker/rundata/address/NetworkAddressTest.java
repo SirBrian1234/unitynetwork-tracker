@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.address;
+package org.kostiskag.unitynetwork.tracker.rundata.address;
 
 import org.junit.Assert;
 import org.junit.Test;

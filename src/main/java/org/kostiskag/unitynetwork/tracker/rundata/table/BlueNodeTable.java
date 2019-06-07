@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -11,9 +11,10 @@ import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
@@ -129,7 +130,7 @@ public class BlueNodeTable {
 	public Optional<BlueNodeEntry> getOptionalBlueNodeEntryByHn(Lock lock, String name) throws InterruptedException {
 		validateLock(lock);
 		return list.stream()
-			.filter(bn -> bn.getName().equals(name))
+			.filter(bn -> bn.getHostname().equals(name))
 			.findFirst();
 	}
 
@@ -144,7 +145,7 @@ public class BlueNodeTable {
 	public Optional<BlueNodeEntry> getOptionalBlueNodeEntryByPhAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
 		validateLock(lock);
 		return list.stream()
-				.filter(bn -> bn.getPhAddress().asString().equals(phAddress))
+				.filter(bn -> bn.getAddress().asString().equals(phAddress))
 				.filter(bn -> bn.getPort() == port)
 				.findFirst();
 	}
@@ -182,7 +183,7 @@ public class BlueNodeTable {
 		validateLock(lock);
 		Optional<RedNodeEntry> orn = list.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
-				.filter(rn -> rn.getVaddress().asString().equals(vAddress))
+				.filter(rn -> rn.getAddress().asString().equals(vAddress))
 				.findFirst();
 		if (orn.isPresent()) {
 			return orn.get().getParentBlueNode();
@@ -219,7 +220,7 @@ public class BlueNodeTable {
 
 	public Optional<RedNodeEntry> checkOptionalOnlineRnByVaddr(Lock lock, String vaddress) throws InterruptedException {
 		return getAllRedNodesStream(lock)
-				.filter(rn -> rn.getVaddress().asString().equals(vaddress))
+				.filter(rn -> rn.getAddress().asString().equals(vaddress))
 				.findFirst();
 	}
 
@@ -242,7 +243,7 @@ public class BlueNodeTable {
     public List<BlueNodeEntry> getBlueNodeEntriesByPhAddr(Lock lock, String Phaddress) throws InterruptedException {
     	validateLock(lock);
     	return list.stream()
-				.filter(bn -> bn.getPhAddress().equals(Phaddress))
+				.filter(bn -> bn.getAddress().equals(Phaddress))
 				.collect(Collectors.toList());
 
     }
@@ -339,7 +340,7 @@ public class BlueNodeTable {
 
 			if (validConn) {
 				boolean validList = true;
-				System.out.println(pre+"Fetching RNs from BN "+bn.getName());
+				System.out.println(pre+"Fetching RNs from BN "+bn.getHostname());
 				List<RedNodeEntry> rns = null;
 
 				try {
@@ -399,7 +400,7 @@ public class BlueNodeTable {
     	validateLock(lock);
     	String obj[][] = null;
     	return list.stream()
-				.map(element -> new String[] {element.getName(), element.getPhAddress().asString(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
+				.map(element -> new String[] {element.getHostname(), element.getAddress().asString(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
     		.collect(Collectors.toList()).toArray(obj);
 
     }
@@ -407,7 +408,7 @@ public class BlueNodeTable {
     public String[][] buildRednodeStringInstanceObject(Lock lock) throws InterruptedException {
     	String obj[][] = null;
     	return getAllRedNodesStream(lock)
-				.map(e -> new String[]{e.getHostname(), e.getVaddress().asString(), e.getParentBlueNode().getName(), e.getTimestamp().toString()} )
+				.map(e -> new String[]{e.getHostname(), e.getAddress().asString(), e.getParentBlueNode().getHostname(), e.getTimestamp().toString()} )
     			.collect(Collectors.toList()).toArray(obj);
     }
     
