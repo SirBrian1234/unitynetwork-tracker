@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import static java.lang.Thread.sleep;
 import static org.junit.Assert.assertEquals;

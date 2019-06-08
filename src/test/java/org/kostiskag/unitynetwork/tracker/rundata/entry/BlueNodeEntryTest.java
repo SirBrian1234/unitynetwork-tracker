@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

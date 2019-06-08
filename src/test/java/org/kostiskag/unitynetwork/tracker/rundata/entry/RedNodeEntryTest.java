@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.rundata;
+package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
 import java.net.UnknownHostException;
 import java.security.PublicKey;
@@ -28,23 +28,6 @@ public class RedNodeEntryTest {
 		assertEquals(rn.getAddress().asString(), "10.0.0.1");
 		assertEquals(bn, rn.getParentBlueNode());
 		System.out.println(rn);
-	}
-
-	@Test
-	public void testUpdateTimestamp() throws IllegalAccessException, InterruptedException, UnknownHostException {
-		Time t = new Time(System.currentTimeMillis());
-		Thread.sleep(1000);
-		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
-		BlueNodeEntry bn = new BlueNodeEntry("pakis",pub,PhysicalAddress.valueOf("1.2.3.4"),1000);
-		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
-		System.out.println(bn);
-		Time oldt = rn.getTimestamp();
-		Thread.sleep(1000);
-		rn.updateTimestamp();
-
-		assertTrue(rn.getTimestamp().getTime() - t.getTime() > 0);
-		assertTrue(rn.getTimestamp().getTime() - oldt.getTime() > 0);
-		assertTrue(oldt.getTime() - t.getTime() > 0);
 	}
 
 	@Test

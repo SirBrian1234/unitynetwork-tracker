@@ -65,6 +65,17 @@ public class NetworkAddressTest {
     }
 
     @Test
+    public void sublclassEqualityTest() throws UnknownHostException {
+        NetworkAddress n = new NetworkAddress("10.0.0.1");
+        PhysicalAddress ph = PhysicalAddress.valueOf("10.0.0.1");
+        VirtualAddress v = VirtualAddress.valueOf("10.0.0.1");
+
+        assertTrue(n.equals(ph));
+        assertFalse(ph.equals(v));
+        assertFalse(v.equals(n));
+    }
+
+    @Test
     public void hashTest() throws UnknownHostException {
         NetworkAddress n1 = new NetworkAddress(InetAddress.getByName("10.0.0.1"));
         NetworkAddress n2 = new NetworkAddress(InetAddress.getByName("10.0.0.2"));
