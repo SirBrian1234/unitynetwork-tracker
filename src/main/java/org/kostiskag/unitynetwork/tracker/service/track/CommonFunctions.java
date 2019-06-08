@@ -23,9 +23,9 @@ public class CommonFunctions {
 	 * @param sessionKey
 	 */
 	public static void getBlueNodesPublic(Lock lock, String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException {
-		if (BlueNodeTable.getInstance().checkOnlineByName(lock, BlueNodeName)) {
+		if (BlueNodeTable.getInstance().isOnline(lock, BlueNodeName)) {
 			try {
-				PublicKey pub = BlueNodeTable.getInstance().getBlueNodeEntryByHn(lock, BlueNodeName).getPub();
+				PublicKey pub = BlueNodeTable.getInstance().getNodeEntry(lock, BlueNodeName).getPub();
 				SocketFunctions.sendAESEncryptedStringData(CryptoMethods.objectToBase64StringRepresentation(pub), writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();

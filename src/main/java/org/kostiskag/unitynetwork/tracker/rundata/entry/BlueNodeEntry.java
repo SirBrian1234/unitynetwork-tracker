@@ -8,6 +8,7 @@ import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
 
 /**
  * Each connected bluenode is represented by a BlueNode entry!
@@ -47,7 +48,14 @@ public class BlueNodeEntry  extends NodeEntry<PhysicalAddress> {
     }
     
     public int getLoad() {
-    	return rednodes.getSize();
+        try {
+            Lock lock = getRedNodes().aquireLock();
+            return rednodes.getSize(lock);
+        } catch (InterruptedException e) {
+            return 999;
+        } finally {
+            getRedNodes().releaseLock();
+        }
     }
     
     public RedNodeTable getRedNodes() {

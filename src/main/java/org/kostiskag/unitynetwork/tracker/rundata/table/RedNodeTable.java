@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,53 +24,30 @@ import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
  * 
  * @author Konstantinos Kagiampakis
  */
-public class RedNodeTable {
+public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
-    private final static String pre = "^RNTABLE ";
+    private static final String pre = "^RNTABLE ";
     private final BlueNodeEntry bluenode;
-    private final List<RedNodeEntry> list;
-    
+
     public RedNodeTable(BlueNodeEntry bluenode) {
         this.bluenode = bluenode;
-        this.list = new ArrayList<>();
-        AppLogger.getLogger().consolePrint(pre + "INITIALIZED");
     }
 
-    /*
-        Sadly optionals cannot become public as by their nature they can be consumed anytime
-        therefore our synchronized limitation to preserve data is of no use, consequently
-        these have to be private!
-    */
-    private Optional<RedNodeEntry> getOptionalRedNodeEntry(RedNodeEntry toBeChecked) {
-        return list.stream()
-                .filter(rn -> rn.equals(toBeChecked))
-                .findFirst();
+    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, InterruptedException {
+        validateLock(lock);
+        return getOptionalRedNodeEntryByVAddr(lock, VirtualAddress.valueOf(vaddress));
     }
 
-    private Optional<RedNodeEntry> getOptionalRedNodeEntryByHn(String hostname) {
-        return list.stream()
-                .filter(element -> hostname.equals(element.getHostname()))
-                .findFirst();
-    }
-
-    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(String vaddress) throws UnknownHostException {
-        return getOptionalRedNodeEntryByVAddr(VirtualAddress.valueOf(vaddress));
-    }
-
-    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(VirtualAddress vaddress) {
+    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws InterruptedException {
+        validateLock(lock);
         return list.stream()
                 .filter(element -> element.getAddress().equals(vaddress))
                 .findFirst();
     }
-    //end of optionals
-
-    //accessors
-    public synchronized int getSize() {
-        return list.size();
-    }
 
     //this is not safe!
-    public synchronized List<RedNodeEntry> getList() {
+    public List<RedNodeEntry> getList(Lock lock) throws InterruptedException {
+        validateLock(lock);
         return list;
     }
 
@@ -80,56 +58,30 @@ public class RedNodeTable {
         perform a get! if he performs get whithout prior calling get and the entry is
         absent he will get a thrown exception!
     */
-    public synchronized boolean isOnline(RedNodeEntry toBeChecked) {
-        return getOptionalRedNodeEntry(toBeChecked).isPresent();
+
+    public boolean isOnlineByVaddress(Lock lock, String vAddress) throws UnknownHostException, InterruptedException {
+        return isOnlineByVaddress(lock, VirtualAddress.valueOf(vAddress));
     }
 
-    public synchronized boolean isOnline(String hostname) {
-        return getOptionalRedNodeEntryByHn(hostname).isPresent();
+    public boolean isOnlineByVaddress(Lock lock, VirtualAddress vAddress) throws InterruptedException {
+        validateLock(lock);
+        return getOptionalRedNodeEntryByVAddr(lock, vAddress).isPresent();
     }
 
-    public synchronized boolean isOnlineByVaddress(String vAddress) throws UnknownHostException {
-        return isOnlineByVaddress(VirtualAddress.valueOf(vAddress));
-    }
-
-    public synchronized boolean isOnlineByVaddress(VirtualAddress vAddress) {
-        return getOptionalRedNodeEntryByVAddr(vAddress).isPresent();
-    }
-
-    public synchronized List<String> getLeasedRedNodeHostnameList() {
+    public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
+        validateLock(lock);
         return list.stream()
                 .map(rnentry -> rnentry.getHostname())
                 .collect(Collectors.toList());
     }
     //end of questions
 
-    /*
-        These methods are about retrieving an element from the table
-        there is a throws RedNodeTableException penalty if a non existing element is
-        looked up!
-    */
-    public synchronized RedNodeEntry getRedNodeEntry(RedNodeEntry toBeChecked) throws RedNodeTableException {
-        Optional<RedNodeEntry> e = getOptionalRedNodeEntry(toBeChecked);
-        if (e.isPresent()) {
-            return e.get();
-        }
-        throw new RedNodeTableException("the given rn was not found on table "+toBeChecked);
+    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, RedNodeTableException, InterruptedException {
+        return getRedNodeEntryByVAddr(lock, VirtualAddress.valueOf(vaddress));
     }
 
-    public synchronized RedNodeEntry getRedNodeEntry(String hostname) throws RedNodeTableException {
-        Optional<RedNodeEntry> e = getOptionalRedNodeEntryByHn(hostname);
-        if (e.isPresent()) {
-            return e.get();
-        }
-        throw new RedNodeTableException("the given rn with hostname was not found on table "+hostname);
-    }
-
-    public synchronized RedNodeEntry getRedNodeEntryByVAddr(String vaddress) throws UnknownHostException, RedNodeTableException {
-        return getRedNodeEntryByVAddr(VirtualAddress.valueOf(vaddress));
-    }
-
-    public synchronized RedNodeEntry getRedNodeEntryByVAddr(VirtualAddress vaddress) throws RedNodeTableException {
-        Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(vaddress);
+    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws RedNodeTableException, InterruptedException {
+        Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(lock, vaddress);
         if (r.isPresent()){
             return r.get();
         }
@@ -141,12 +93,13 @@ public class RedNodeTable {
     /*
         All lease related methods
      */
-    public synchronized void lease(RedNodeEntry rn) throws RedNodeTableException {
+    public void lease(Lock lock, RedNodeEntry rn) throws IllegalAccessException, InterruptedException {
+        validateLock(lock);
         if (!rn.getParentBlueNode().equals(this.bluenode)) {
-            throw new RedNodeTableException("This instance does not belong to the table's BlueNode!");
+            throw new IllegalAccessException("This instance does not belong to the table's BlueNode!");
         }
         if(list.contains(rn)) {
-            throw new RedNodeTableException("Attempted to lease a non unique rednode entry. "+rn);
+            throw new IllegalAccessException("Attempted to lease a non unique rednode entry. "+rn);
         }
 
         list.add(rn);
@@ -154,56 +107,57 @@ public class RedNodeTable {
         notifyGUI();
     }
 
-    public synchronized void lease(String hostname, VirtualAddress vAddress) throws RedNodeTableException, IllegalAccessException {
+    public void lease(Lock lock, String hostname, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
+        validateLock(lock);
     	if (hostname.length() > 0 && hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE) {
 
             RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
             if(list.contains(rn)) {
-                throw new RedNodeTableException("Attempted to lease a non unique rednode entry. "+rn);
+                throw new IllegalAccessException("Attempted to lease a non unique rednode entry. "+rn);
             }
 
 	    	list.add(rn);
             AppLogger.getLogger().consolePrint(pre +" LEASED ENTRY of "+rn);
             notifyGUI();
     	} else {
-    		throw new RedNodeTableException("Rednode lease tried to lease a rn with a malformed hostname. "+vAddress);
+    		throw new IllegalAccessException("Rednode lease tried to lease a rn with a malformed hostname. "+vAddress);
     	}
     }
 
-    public synchronized void lease(String hostname, String vAddress) throws UnknownHostException, RedNodeTableException, IllegalAccessException {
-        lease(hostname, VirtualAddress.valueOf(vAddress));
+    public void lease(Lock lock, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
+        lease(lock, hostname, VirtualAddress.valueOf(vAddress));
     }
     //end of lease
 
     /*
         These are all release related mehtods
      */
-    public synchronized void release(RedNodeEntry toBeChecked) throws RedNodeTableException {
-        Optional<RedNodeEntry> r = getOptionalRedNodeEntry(toBeChecked);
+    public void release(Lock lock, RedNodeEntry toBeChecked) throws IllegalAccessException, InterruptedException {
+        Optional<RedNodeEntry> r = getOptionalNodeEntry(lock, toBeChecked);
         if (!r.isPresent())
-            throw new RedNodeTableException("rn was not found on table "+r.get());
+            throw new IllegalAccessException("rn was not found on table "+r.get());
         else {
             releaseInner(r.get());
         }
     }
 
-    public synchronized void release(String hostname) throws RedNodeTableException {
-        Optional<RedNodeEntry> r = getOptionalRedNodeEntryByHn(hostname);
+    public void release(Lock lock, String hostname) throws IllegalAccessException, InterruptedException {
+        Optional<RedNodeEntry> r = getOptionalNodeEntry(lock, hostname);
         if (!r.isPresent())
-            throw new RedNodeTableException("element with given hostname "+hostname+" was not found on table");
+            throw new IllegalAccessException("element with given hostname "+hostname+" was not found on table");
         else {
             releaseInner(r.get());
         }
     }
 
-    public synchronized void releaseByVAddress(String vAddress) throws UnknownHostException, RedNodeTableException {
-        releaseByVAddress(VirtualAddress.valueOf(vAddress));
+    public void releaseByVAddress(Lock lock, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
+        releaseByVAddress(lock, VirtualAddress.valueOf(vAddress));
     }
 
-    public synchronized void releaseByVAddress(VirtualAddress vAddress) throws RedNodeTableException {
-        Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(vAddress);
+    public void releaseByVAddress(Lock lock, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
+        Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(lock, vAddress);
         if (!r.isPresent()) {
-            throw new RedNodeTableException("Given entry to be released was not on table "+ r.get());
+            throw new IllegalAccessException("Given entry to be released was not on table "+ r.get());
         } else {
             releaseInner(r.get());
         }
@@ -226,7 +180,7 @@ public class RedNodeTable {
     //end of release related methods
 
     //cleaners
-    public synchronized void clearAndRebuildList(List redNodeList) {
+    public void clearAndRebuildList(List redNodeList) {
         list.clear();
         list.addAll(redNodeList);
         //there is no duplicate control
@@ -234,12 +188,11 @@ public class RedNodeTable {
         notifyGUI();
     }
 
-    public synchronized void clearList() {
+    public void clearList() {
         clearAndRebuildList(Arrays.asList());
     }
 
-    public synchronized Stream<RedNodeEntry> stream() {
-        //this is not right there should be an obj to indicate synchronization
+    public Stream<RedNodeEntry> stream() {
         return list.stream();
     }
 

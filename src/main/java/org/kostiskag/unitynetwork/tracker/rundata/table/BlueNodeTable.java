@@ -3,9 +3,7 @@ package org.kostiskag.unitynetwork.tracker.rundata.table;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.security.PublicKey;
 import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
@@ -28,21 +26,18 @@ import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
  *
  * @author Konstantinos Kagiampakis
  */
-public class BlueNodeTable {
+public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 	private static final String pre = "^BNTABLE ";
-	private static final int TIMEOUT_SECONDS = 5;
 	private static BlueNodeTable BN_TABLE_INSTANCE;
 	private final int bncap;
-	private final List<BlueNodeEntry> list;
-	private final Lock orb = new ReentrantLock(true);
 
 	private BlueNodeTable() {
 		this(0);
 	}
 
 	private BlueNodeTable(int bncap) {
-        this.bncap = bncap;
-        list = new ArrayList<BlueNodeEntry>();
+        super();
+		this.bncap = bncap;
     }
 
 	public static BlueNodeTable newInstance() {
@@ -60,88 +55,6 @@ public class BlueNodeTable {
 		return BN_TABLE_INSTANCE;
 	}
 
-    /*
-		WE USED to have synchronized methods for table access but this
-		approach was found to be ineffective as one calling thread was
-		frequently in the need to call several methods before
-		making a complete and meaningful action on the table like ex.
-		1. check if bn named "pakis" exists
-		2. if yes get me its instance
-
-		with sync methods there was no guarantee that after method 1 another thread wouldn't
-		have deleted "pakis" before 2 was called!
-
-		SO NOW, the caller gets the orb, does his action by calling one or several methods
-		gives the orb back when he completes his action!
-
-		This method also lets the caller use Optionals and streams as by their nature there was no
-		guarantee for which point in time the caller would decide to consume one!
-
-		To improve matters further and to be sure the caller owns the orb before calling
-		anything, he has to also pass it as argument in the calling method!
-
-		every caller should do :
-		try {
-        	Lock l = aquireLock();
-        	findSmth(lock, args);
-        	findAnotherSmth(lock, args);
-        } catch interupted {
-			log("unbelivable!!!");
-        } finally {
-        	readLock.unlock();
-    	}
-
-    	The inner method on its turn has to validate the lock to ensure it was not called from
-    	a caller without having a lock
-
-    	public int getSmth(Lock lock, String name) throws InterruptedException {
-			validateLock(lock);
-			do stuff...
-			return ...
-		}
-	*/
-	public Lock aquireLock() throws InterruptedException {
-		orb.tryLock(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-		return orb;
-	}
-
-
-	/**
-	 * To be used inside a finally block
-	 */
-	public void releaseLock() {
-		orb.unlock();
-	}
-
-	/**
-	 * To be called by all inner methods
-	 * Ensures the lock is called before attempting to call a method
-	 *
-	 * @param lock
-	 * @throws InterruptedException
-	 */
-	private void validateLock(Lock lock) throws InterruptedException {
-		if (lock != orb) {
-			throw new InterruptedException("the given lock is not the BNtable's orb!");
-		}
-	}
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	public Optional<BlueNodeEntry> getOptionalBlueNodeEntryByHn(Lock lock, String name) throws InterruptedException {
-		validateLock(lock);
-		return list.stream()
-			.filter(bn -> bn.getHostname().equals(name))
-			.findFirst();
-	}
-
-	public BlueNodeEntry getBlueNodeEntryByHn(Lock lock, String name) throws InterruptedException {
-		Optional<BlueNodeEntry> bn = getOptionalBlueNodeEntryByHn(lock, name);
-    	if (bn.isPresent()) {
-			return bn.get();
-		}
-    	return null;
-    }
-
 	public Optional<BlueNodeEntry> getOptionalBlueNodeEntryByPhAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
 		validateLock(lock);
 		return list.stream()
@@ -149,7 +62,8 @@ public class BlueNodeTable {
 				.filter(bn -> bn.getPort() == port)
 				.findFirst();
 	}
-		//the combination of ph address and port is unique
+
+	//the combination of ph address and port is unique
     public BlueNodeEntry getBlueNodeEntryByPhAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
     	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port);
     	if (obn.isPresent()) {
@@ -165,7 +79,6 @@ public class BlueNodeTable {
 				.get();
 
     }
-
 
     public BlueNodeEntry reverseLookupBnBasedOnRn(Lock lock, String hostname) throws InterruptedException {
 		validateLock(lock);
@@ -198,13 +111,9 @@ public class BlueNodeTable {
 				.map(rn -> rn.getHostname())
 				.collect(Collectors.toList());
     }
-    
-    public Boolean checkOnlineByName(Lock lock, String name) throws InterruptedException {
-    	return getOptionalBlueNodeEntryByHn(lock, name).isPresent();
-    }
 
-	public Boolean checkOnlineByAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
-		return getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress,port).isPresent();
+	public Boolean isOnlineByAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
+		return getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent();
 	}
 
 	public Stream<RedNodeEntry> getAllRedNodesStream(Lock lock) throws InterruptedException {
@@ -212,24 +121,24 @@ public class BlueNodeTable {
 		return list.stream().flatMap(bn -> bn.getRedNodes().stream());
 	}
 
-	public Optional<RedNodeEntry> checkOptionalOnlineRnByHn(Lock lock, String hostname) throws InterruptedException {
+	public Optional<RedNodeEntry> isOptionalOnlineRnByHn(Lock lock, String hostname) throws InterruptedException {
 		return getAllRedNodesStream(lock)
 				.filter(rn -> rn.getHostname().equals(hostname))
 				.findFirst();
 	}
 
-	public Optional<RedNodeEntry> checkOptionalOnlineRnByVaddr(Lock lock, String vaddress) throws InterruptedException {
+	public Optional<RedNodeEntry> isOptionalOnlineRnByVaddr(Lock lock, String vaddress) throws InterruptedException {
 		return getAllRedNodesStream(lock)
 				.filter(rn -> rn.getAddress().asString().equals(vaddress))
 				.findFirst();
 	}
 
-	public boolean checkOnlineRnByHn(Lock lock, String hostname) throws InterruptedException {
-    	return checkOptionalOnlineRnByHn(lock, hostname).isPresent();
+	public boolean isOnlineRnByHostname(Lock lock, String hostname) throws InterruptedException {
+    	return isOptionalOnlineRnByHn(lock, hostname).isPresent();
     }
 
-	public boolean checkOnlineRnByVaddr(Lock lock, String vaddress) throws InterruptedException {
-    	return checkOptionalOnlineRnByVaddr(lock, vaddress).isPresent();
+	public boolean isOnlineRnByVaddress(Lock lock, String vaddress) throws InterruptedException {
+    	return isOptionalOnlineRnByVaddr(lock, vaddress).isPresent();
 	}
 
 	/**
@@ -247,17 +156,12 @@ public class BlueNodeTable {
 				.collect(Collectors.toList());
 
     }
-    
-    public int getSize(Lock lock) throws InterruptedException {
-    	validateLock(lock);
-        return list.size();
-    }
 
     public void lease(Lock lock, String name, PublicKey pub, String phAddress, int port) throws IllegalAccessException, InterruptedException, UnknownHostException {
     	//this validation has to be moved inside the BlueNodeEntry constructor
 		validateLock(lock);
 		if (this.bncap == 0 || this.bncap > list.size()) {
-			if (!getOptionalBlueNodeEntryByHn(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
+			if (!getOptionalNodeEntry(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
 				BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
 				list.add(bn);
 				AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
@@ -270,20 +174,26 @@ public class BlueNodeTable {
 		}
 	}
     
-    public synchronized void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, RedNodeTableException, UnknownHostException {
-    	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByHn(lock, bluenodeName);
+    public void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, RedNodeTableException, UnknownHostException {
+    	Optional<BlueNodeEntry> obn = getOptionalNodeEntry(lock, bluenodeName);
     	if (!obn.isPresent()) {
     		throw new IllegalAccessException("Attempted to lease over a non existing bluenode.");
     	}
 
-    	if (checkOnlineRnByHn(lock, hostname)) {
+    	if (isOnlineRnByHostname(lock, hostname)) {
 			throw new IllegalAccessException("Attempted to lease a non unique rednode entry.");
 		}
-		if (checkOnlineRnByVaddr(lock, vAddress)) {
+		if (isOnlineRnByVaddress(lock, vAddress)) {
 			throw new IllegalAccessException("Attempted to lease a non unique rednode entry.");
 		}
 
-		obn.get().getRedNodes().lease(hostname, vAddress);
+		RedNodeTable rns = obn.get().getRedNodes();
+		try {
+			Lock rl = rns.aquireLock();
+			obn.get().getRedNodes().lease(rl, hostname, vAddress);
+		} finally {
+			rns.releaseLock();
+		}
     }
 
 	public void release(Lock lock, BlueNodeEntry tobereleased) throws InterruptedException {
@@ -294,7 +204,7 @@ public class BlueNodeTable {
 	}
 
     public void release(Lock lock, String name) throws InterruptedException, IllegalAccessException  {
-        Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByHn(lock, name);
+        Optional<BlueNodeEntry> obn = getOptionalNodeEntry(lock, name);
         if (!obn.isPresent()) {
 			throw new IllegalAccessException("NO BLUENODE ENTRY FOR " + name + " IN TABLE");
 		}
@@ -304,11 +214,17 @@ public class BlueNodeTable {
 		notifyGUI();
     }
     
-    public void releaseRednode(Lock lock, String hostname) throws IllegalAccessException, RedNodeTableException, InterruptedException {
-        Optional<RedNodeEntry> orn = checkOptionalOnlineRnByHn(lock, hostname);
+    public void releaseRednode(Lock lock, String hostname) throws IllegalAccessException, InterruptedException {
+        Optional<RedNodeEntry> orn = isOptionalOnlineRnByHn(lock, hostname);
 		if(orn.isPresent()) {
 			RedNodeEntry rn = orn.get();
-			rn.getParentBlueNode().getRedNodes().release(rn);
+			RedNodeTable t = rn.getParentBlueNode().getRedNodes();
+			try {
+				Lock rnlock = t.aquireLock();
+				t.release(rnlock, rn);
+			} finally {
+				t.releaseLock();
+			}
 		} else {
 			throw new IllegalAccessException("NO REDNODE ENTRY FOR " + hostname + " IN TABLE");
 		}

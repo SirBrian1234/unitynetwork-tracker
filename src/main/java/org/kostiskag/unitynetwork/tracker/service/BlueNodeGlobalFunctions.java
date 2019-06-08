@@ -75,7 +75,7 @@ public class BlueNodeGlobalFunctions {
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
 					q.closeQueries();
-					if (BlueNodeTable.getInstance().checkOnlineByName(lock, BlueNodeHostname)) {
+					if (BlueNodeTable.getInstance().isOnline(lock, BlueNodeHostname)) {
 						return 1;
 					} else {						
 						return 0;
