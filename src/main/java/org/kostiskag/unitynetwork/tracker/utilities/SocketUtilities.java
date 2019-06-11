@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.utilities;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -20,7 +20,7 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
  *
  * @author Konstantinos Kagiampakis
  */
-public class SocketFunctions {
+public class SocketUtilities {
 
 	public static final String pre = "^SOCKET METHODS ";       
     
@@ -135,20 +135,20 @@ public class SocketFunctions {
         }        
     	//include a line feed and a return char
     	//message += "\n\r";
-    	byte[] chiphered = CryptoMethods.aesEncrypt(message, sessionKey);
+    	byte[] chiphered = CryptoUtilities.aesEncrypt(message, sessionKey);
         sendData(chiphered, writer);
     }
     
     public static String[] receiveAESEncryptedStringData(DataInputStream reader, SecretKey sessionKey) throws IOException {
     	byte[] received = receiveData(reader);
-    	String decrypted = CryptoMethods.aesDecrypt(received, sessionKey);
+    	String decrypted = CryptoUtilities.aesDecrypt(received, sessionKey);
     	String[] args = decrypted.split("\\s+");
         return args;
     }
     
     public static String receiveAESEncryptedString(DataInputStream reader, SecretKey sessionKey) throws IOException {
     	byte[] received = receiveData(reader);
-    	String decrypted = CryptoMethods.aesDecrypt(received, sessionKey);
+    	String decrypted = CryptoUtilities.aesDecrypt(received, sessionKey);
     	return decrypted;
     }
     
@@ -167,13 +167,13 @@ public class SocketFunctions {
         }        
     	//include a line feed and a return char
     	//message += "\n\r";
-    	byte[] chiphered = CryptoMethods.encryptWithPublic(message, key);
+    	byte[] chiphered = CryptoUtilities.encryptWithPublic(message, key);
         sendData(chiphered, writer);
     }
     
     public static String[] receiveRSAEncryptedStringData(DataInputStream reader, PrivateKey priv) throws IOException {
     	byte[] received = receiveData(reader);
-    	String decrypted = CryptoMethods.decryptWithPrivate(received, priv);
+    	String decrypted = CryptoUtilities.decryptWithPrivate(received, priv);
     	return decrypted.split("\\s+");
     }
     

@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.utilities;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Properties;
-import org.kostiskag.unitynetwork.tracker.App;
 
 /**
  *

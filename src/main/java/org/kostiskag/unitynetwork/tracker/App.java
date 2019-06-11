@@ -8,8 +8,8 @@ import javax.swing.*;
 
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.ReadPreferencesFile;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.ReadPreferencesFile;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.SonarService;
@@ -139,20 +139,20 @@ public class App {
         if (keyPairFile.exists()) {
             // the tracker has key pair
             AppLogger.getLogger().consolePrint("Loading RSA key pair from file...");
-            trackerKeys = (KeyPair) CryptoMethods.fileToObject(keyPairFile);
+            trackerKeys = (KeyPair) CryptoUtilities.fileToObject(keyPairFile);
             AppLogger.getLogger().consolePrint(
-                    "Your public key is:\n" + CryptoMethods.bytesToBase64String(trackerKeys.getPublic().getEncoded()));
+                    "Your public key is:\n" + CryptoUtilities.bytesToBase64String(trackerKeys.getPublic().getEncoded()));
 
         } else {
             // the tracker does not have a public private key pair
             // generating...
             AppLogger.getLogger().consolePrint("Generating RSA key pair...");
-            trackerKeys = CryptoMethods.generateRSAkeyPair();
+            trackerKeys = CryptoUtilities.generateRSAkeyPair();
             // and storing
             AppLogger.getLogger().consolePrint("Generating key file...");
-            CryptoMethods.objectToFile(trackerKeys, keyPairFile);
+            CryptoUtilities.objectToFile(trackerKeys, keyPairFile);
             AppLogger.getLogger().consolePrint(
-                    "Your public key is:\n" + CryptoMethods.bytesToBase64String(
+                    "Your public key is:\n" + CryptoUtilities.bytesToBase64String(
                             trackerKeys.getPublic().getEncoded()));
         }
 
