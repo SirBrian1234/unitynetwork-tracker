@@ -174,7 +174,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 		}
 	}
     
-    public void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, RedNodeTableException, UnknownHostException {
+    public void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, UnknownHostException {
     	Optional<BlueNodeEntry> obn = getOptionalNodeEntry(lock, bluenodeName);
     	if (!obn.isPresent()) {
     		throw new IllegalAccessException("Attempted to lease over a non existing bluenode.");
@@ -314,7 +314,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     //these will build the objects required for gui appearance
     public String[][] buildStringInstanceObject(Lock lock) throws InterruptedException {
     	validateLock(lock);
-    	String obj[][] = null;
+    	String obj[][] = new String[list.size()][];
     	return list.stream()
 				.map(element -> new String[] {element.getHostname(), element.getAddress().asString(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
     		.collect(Collectors.toList()).toArray(obj);
@@ -322,7 +322,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     }
     
     public String[][] buildRednodeStringInstanceObject(Lock lock) throws InterruptedException {
-    	String obj[][] = null;
+    	String obj[][] = new String[(int) getAllRedNodesStream(lock).count()][];
     	return getAllRedNodesStream(lock)
 				.map(e -> new String[]{e.getHostname(), e.getAddress().asString(), e.getParentBlueNode().getHostname(), e.getTimestamp().toString()} )
     			.collect(Collectors.toList()).toArray(obj);

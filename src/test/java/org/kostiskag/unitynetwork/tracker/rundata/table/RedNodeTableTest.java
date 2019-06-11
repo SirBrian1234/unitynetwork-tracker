@@ -101,7 +101,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void getByVAddressTest() throws UnknownHostException, RedNodeTableException, InterruptedException {
+	public void getByVAddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		Lock lock = rns.aquireLock();
@@ -223,8 +223,8 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, RedNodeTableException, InterruptedException {
-		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
+	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
+	PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
     	BlueNodeEntry bn = new BlueNodeEntry("bnpakis",pub, PhysicalAddress.valueOf("1.2.3.4"), 1000);
 		RedNodeTable rns = new RedNodeTable(bn);
 		Lock lock = rns.aquireLock();

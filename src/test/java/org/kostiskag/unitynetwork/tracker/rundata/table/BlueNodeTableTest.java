@@ -137,7 +137,7 @@ public class BlueNodeTableTest {
     }
 
     //@Test
-    public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException, RedNodeTableException {
+    public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
         BlueNodeTable bns = BlueNodeTable.getInstance();
         try {
             Lock lock = bns.aquireLock();
