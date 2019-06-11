@@ -11,7 +11,7 @@ import org.kostiskag.unitynetwork.tracker.App;
  *
  * @author Konstantinos Kagiampakis
  */
-public class VirtualAddress extends NetworkAddress{
+public final class VirtualAddress extends NetworkAddress{
 
     // this is the total number of allowed hosts on network
     // from 10.255.255.254 in byte[] (aka: the last permitted host) is substracted

@@ -90,14 +90,6 @@ public class NodeTable<N extends NodeEntry> {
         return list.size();
     }
 
-    public boolean isOnline(Lock lock, N toBeChecked) throws InterruptedException {
-        return getOptionalNodeEntry(lock, toBeChecked).isPresent();
-    }
-
-    public boolean isOnline(Lock lock, String hostname) throws InterruptedException {
-        return getOptionalNodeEntry(lock, hostname).isPresent();
-    }
-
     public Optional<N> getOptionalNodeEntry(Lock lock, N toBeChecked) throws InterruptedException {
         validateLock(lock);
         return list.stream()
@@ -112,6 +104,20 @@ public class NodeTable<N extends NodeEntry> {
                 .findFirst();
     }
 
+    //since there are locks now getOptionalNodeEntry and getOptionalNodeEntry should be favoured instead
+    //to use optional to check use Optional<N> n; n.isPresent();
+    @Deprecated
+    public boolean isOnline(Lock lock, N toBeChecked) throws InterruptedException {
+        return getOptionalNodeEntry(lock, toBeChecked).isPresent();
+    }
+
+    @Deprecated
+    public boolean isOnline(Lock lock, String hostname) throws InterruptedException {
+        return getOptionalNodeEntry(lock, hostname).isPresent();
+    }
+
+    //to use optional to get use Optional<N> n; n.get();
+    @Deprecated
     public N getNodeEntry(Lock lock, N toBeChecked) throws IllegalAccessException, InterruptedException {
         validateLock(lock);
         Optional<N> e = getOptionalNodeEntry(lock, toBeChecked);
@@ -121,6 +127,7 @@ public class NodeTable<N extends NodeEntry> {
         throw new IllegalAccessException("the given node was not found on table "+toBeChecked);
     }
 
+    @Deprecated
     public N getNodeEntry(Lock lock, String hostname) throws InterruptedException, IllegalAccessException {
         validateLock(lock);
         Optional<N> n = getOptionalNodeEntry(lock, hostname);

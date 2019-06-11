@@ -13,8 +13,6 @@ import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
-import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTableException;
 
 import static org.junit.Assert.*;
 
@@ -103,7 +101,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void getByVAddressTest() throws UnknownHostException, RedNodeTableException, InterruptedException {
+	public void getByVAddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
 		BlueNodeEntry bn = null;
 		RedNodeTable rns = new RedNodeTable(bn);
 		Lock lock = rns.aquireLock();
@@ -225,7 +223,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, RedNodeTableException, InterruptedException {
+	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
 		PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
     	BlueNodeEntry bn = new BlueNodeEntry("bnpakis",pub, PhysicalAddress.valueOf("1.2.3.4"), 1000);
 		RedNodeTable rns = new RedNodeTable(bn);

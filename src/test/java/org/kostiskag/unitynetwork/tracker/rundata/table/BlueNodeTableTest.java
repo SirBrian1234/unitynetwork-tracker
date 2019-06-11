@@ -19,8 +19,6 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
-import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTableException;
 
 public class BlueNodeTableTest {
 
@@ -139,7 +137,7 @@ public class BlueNodeTableTest {
     }
 
     //@Test
-    public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException, RedNodeTableException {
+    public void leaseRedNodeTest() throws InterruptedException, UnknownHostException, IllegalAccessException {
         BlueNodeTable bns = BlueNodeTable.getInstance();
         try {
             Lock lock = bns.aquireLock();

@@ -33,62 +33,73 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         this.bluenode = bluenode;
     }
 
-    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, InterruptedException {
+    /*
+        These are all queries to the table
+        The concept is that a caller should ask first whether the object exists
+        with these and then!!!!
+        perform a get! if he performs get whithout prior calling get and the entry is
+        absent he will get a thrown exception!
+
+        If he uses the optionals he can both check whether and element is online and retrieve it
+        as well!!!
+    */
+    public Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, InterruptedException {
         validateLock(lock);
         return getOptionalRedNodeEntryByVAddr(lock, VirtualAddress.valueOf(vaddress));
     }
 
-    private Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws InterruptedException {
+    public Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws InterruptedException {
         validateLock(lock);
         return list.stream()
                 .filter(element -> element.getAddress().equals(vaddress))
                 .findFirst();
     }
 
-    //this is not safe!
-    public List<RedNodeEntry> getList(Lock lock) throws InterruptedException {
-        validateLock(lock);
-        return list;
-    }
-
-    /*
-        These are all questions to the table
-        The concept is that a caller should ask first whether the object exists
-        with these and then!!!!
-        perform a get! if he performs get whithout prior calling get and the entry is
-        absent he will get a thrown exception!
-    */
-
+    //use optionals instead!
+    @Deprecated
     public boolean isOnlineByVaddress(Lock lock, String vAddress) throws UnknownHostException, InterruptedException {
         return isOnlineByVaddress(lock, VirtualAddress.valueOf(vAddress));
     }
 
+    @Deprecated
     public boolean isOnlineByVaddress(Lock lock, VirtualAddress vAddress) throws InterruptedException {
         validateLock(lock);
         return getOptionalRedNodeEntryByVAddr(lock, vAddress).isPresent();
     }
 
-    public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
-        validateLock(lock);
-        return list.stream()
-                .map(rnentry -> rnentry.getHostname())
-                .collect(Collectors.toList());
-    }
-    //end of questions
-
-    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, RedNodeTableException, InterruptedException {
+    @Deprecated
+    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, String vaddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
         return getRedNodeEntryByVAddr(lock, VirtualAddress.valueOf(vaddress));
     }
 
-    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws RedNodeTableException, InterruptedException {
+    @Deprecated
+    public RedNodeEntry getRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws IllegalAccessException, InterruptedException {
         Optional<RedNodeEntry> r = getOptionalRedNodeEntryByVAddr(lock, vaddress);
         if (r.isPresent()){
             return r.get();
         }
-        throw new RedNodeTableException("the given rn was not found on table "+vaddress);
+        throw new IllegalAccessException("the given rn was not found on table "+vaddress);
     }
-    //end of retrievers
 
+    //this is not safe!
+    @Deprecated
+    public List<RedNodeEntry> getList(Lock lock) throws InterruptedException {
+        validateLock(lock);
+        return list;
+    }
+
+    //this is safe!
+    public Stream<RedNodeEntry> stream() {
+        return list.stream();
+    }
+
+    //this is an immutable list!
+    public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
+        validateLock(lock);
+        return list.stream()
+                .map(rnentry -> rnentry.getHostname())
+                .collect(Collectors.toUnmodifiableList());
+    }
 
     /*
         All lease related methods
@@ -107,6 +118,10 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         notifyGUI();
     }
 
+    public void lease(Lock lock, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
+        lease(lock, hostname, VirtualAddress.valueOf(vAddress));
+    }
+
     public void lease(Lock lock, String hostname, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
         validateLock(lock);
     	if (hostname.length() > 0 && hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE) {
@@ -123,11 +138,6 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
     		throw new IllegalAccessException("Rednode lease tried to lease a rn with a malformed hostname. "+vAddress);
     	}
     }
-
-    public void lease(Lock lock, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
-        lease(lock, hostname, VirtualAddress.valueOf(vAddress));
-    }
-    //end of lease
 
     /*
         These are all release related mehtods
@@ -190,10 +200,6 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
     public void clearList() {
         clearAndRebuildList(Arrays.asList());
-    }
-
-    public Stream<RedNodeEntry> stream() {
-        return list.stream();
     }
 
     //system
