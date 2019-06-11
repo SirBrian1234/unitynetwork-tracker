@@ -3,6 +3,7 @@ package org.kostiskag.unitynetwork.tracker.service.sonar;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -22,7 +23,7 @@ public class SonarService extends Thread {
     private static SonarService SONAR_SERVICE;
 
     private final int time;
-    private boolean kill = false;
+    private AtomicBoolean kill = new AtomicBoolean(false);
 
     private SonarService(int time) throws IllegalAccessException {
         if (time <= 0) {
@@ -45,13 +46,13 @@ public class SonarService extends Thread {
     @Override
     public void run() {
         AppLogger.getLogger().consolePrint(pre+"started in thread "+Thread.currentThread()+" with time "+time+" sec");
-        while (!kill) {
+        while (kill.get()) {
             try {
                 sleep(time*1000);
             } catch (InterruptedException ex) {
                 AppLogger.getLogger().consolePrint(ex.getMessage());
             }
-            if (kill) break;
+            if (kill.get()) break;
             try {
                 Lock lock = BlueNodeTable.getInstance().aquireLock();
                 AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
@@ -64,7 +65,7 @@ public class SonarService extends Thread {
         }
     }
     
-    public synchronized void kill(){
-        kill = true;
+    public void kill(){
+        kill.set(true);
     }
 }
