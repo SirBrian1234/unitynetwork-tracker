@@ -24,31 +24,33 @@ public class BlueNodeGlobalFunctions {
 	 * @throws  IllegalAccessException when fetch bn key is called for a non member
 	 * @throws  SQLException can not connect to database or db error
 	 */
-	public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, GeneralSecurityException, IOException, SQLException {
+	public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, GeneralSecurityException, IOException {
+		PublicKey pub = null;
+		boolean found = false;
 		Queries q = null;
-		ResultSet getResults;
 		try {
 			q = new Queries();
-			getResults = q.selectAllFromBluenodes();
+			ResultSet getResults = q.selectAllFromBluenodes();
 
 			while (getResults.next()) {
-				if (getResults.getString("name").equals(BlueNodeHostname)) {									
+				if (getResults.getString("name").equals(BlueNodeHostname)) {
+					found = true;
 					String key = getResults.getString("public");
-					q.closeQueries();
 					String[] parts = key.split("\\s+");
-					if (parts[0].equals("NOT_SET")) {
-						return null;
-					} else {
-						return (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
-					}				
+					if (!parts[0].equals("NOT_SET")) {
+						pub = (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
+					}
+					//break; //remember to break if you dont return!
 				}
 			}
-			q.closeQueries();
-			throw new IllegalAccessException("The Bn "+BlueNodeHostname+" is not a network member.");
+
+			if (!found) {
+				throw new IllegalAccessException("The Bn " + BlueNodeHostname + " is not a network member.");
+			}
+			return pub;
 
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw e;
+			return null;
 		} finally {
 			try {
 				q.closeQueries();
@@ -77,7 +79,7 @@ public class BlueNodeGlobalFunctions {
 			while (getResults.next()) {
 				if (getResults.getString("name").equals(BlueNodeHostname)) {
 					q.closeQueries();
-					if (BlueNodeTable.getInstance().isOnline(lock, BlueNodeHostname)) {
+					if (BlueNodeTable.getInstance().getOptionalNodeEntry(lock, BlueNodeHostname).isPresent()) {
 						return 1;
 					} else {						
 						return 0;

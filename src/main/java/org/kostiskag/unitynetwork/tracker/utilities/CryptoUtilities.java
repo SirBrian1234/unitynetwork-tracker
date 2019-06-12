@@ -15,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.util.Base64;
 
@@ -73,8 +74,8 @@ public class CryptoUtilities {
 		try {
 			AesCipher = Cipher.getInstance("AES");
 			AesCipher.init(Cipher.DECRYPT_MODE, key);
-	        return new String(AesCipher.doFinal(chiphered), "utf-8");
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+	        return new String(AesCipher.doFinal(chiphered), StandardCharsets.ISO_8859_1);
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
 			throw new GeneralSecurityException(e);
 		}
 	}

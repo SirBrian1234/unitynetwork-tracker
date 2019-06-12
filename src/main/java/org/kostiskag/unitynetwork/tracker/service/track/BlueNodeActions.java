@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
@@ -15,6 +16,7 @@ import javax.crypto.SecretKey;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.tracker.utilities.SocketUtilities;
@@ -43,7 +45,7 @@ public class BlueNodeActions {
      *
      * @throws Exception
      */
-    public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
 
         String data = null;
         Queries q = null;
@@ -58,7 +60,7 @@ public class BlueNodeActions {
                 if (getResults.getString("name").equals(bluenodeHostname)) {
                     String address = socket.getInetAddress().getHostAddress();
                     int port = Integer.parseInt(givenPort);
-                    if (!BlueNodeTable.getInstance().isOnline(lock, bluenodeHostname)) {
+                    if (!BlueNodeTable.getInstance().getOptionalNodeEntry(lock, bluenodeHostname).isPresent()) {
                         // normal connect for a non associated BN
                         try {
                             BlueNodeTable.getInstance().lease(lock, bluenodeHostname, pub, address, port);
@@ -73,12 +75,13 @@ public class BlueNodeActions {
                     }
                 }
             }
+
             if (!found) {
                 data = "LEASE_FAILED";
             }
-            q.closeQueries();
-        } catch (SQLException ex) {
+        } catch (InterruptedException | SQLException ex) {
             data = "SYSTEM_ERROR";
+        } finally {
             try {
                 q.closeQueries();
             } catch (SQLException e) {
@@ -95,11 +98,11 @@ public class BlueNodeActions {
      * @throws Exception
      */
     public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String password,
-                                DataOutputStream writer, SecretKey sessionKey) throws Exception {
+                                DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
         int userauth = checkUser(password);
 
-        BlueNodeEntry bn = BlueNodeTable.getInstance().getNodeEntry(bnTableLock, bluenodeName);
-        if (bn != null) {
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
+        if (b.isPresent()) {
             String data = null;
             Queries q = null;
             ResultSet getResults = null;
@@ -124,7 +127,7 @@ public class BlueNodeActions {
                                     if (userauth == inuserid) {
                                         try {
                                             String vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
-                                            RedNodeTable rns = bn.getRedNodes();
+                                            RedNodeTable rns = b.get().getRedNodes();
                                             try {
                                                 Lock rl = rns.aquireLock();
                                                 rns.lease(rl,hostname, vaddress);
@@ -150,15 +153,18 @@ public class BlueNodeActions {
                             data = "LEASE_FAILED";
                         }
                     }
-                    q.closeQueries();
                     SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
-                } catch (SQLException ex) {
+
+                } catch (SQLException | GeneralSecurityException | IOException e) {
+                    SocketUtilities.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
+                    throw e;
+
+                } finally {
                     try {
                         q.closeQueries();
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-                    SocketUtilities.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
                 }
             } else {
                 SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
@@ -171,18 +177,18 @@ public class BlueNodeActions {
     /**
      * releases a bluenode from the network
      *
-     * @throws Exception
+     * @throws
      */
-    public static void BlueRel(Lock bnTableLock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void BlueRel(Lock bnTableLock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data = null;
-        if (BlueNodeTable.getInstance().isOnline(bnTableLock, hostname)) {
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, hostname);
+        if (b.isPresent()) {
             try {
-                BlueNodeTable.getInstance().release(bnTableLock, hostname);
-            } catch (Exception e) {
-                e.printStackTrace();
+                BlueNodeTable.getInstance().release(bnTableLock, b.get());
+                data = "RELEASED";
+            } catch (IllegalAccessException e) {
                 data = "RELEASE_FAILED";
             }
-            data = "RELEASED";
         } else {
             data = "RELEASE_FAILED";
         }
@@ -196,25 +202,26 @@ public class BlueNodeActions {
      */
     public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws IOException, GeneralSecurityException, IllegalAccessException, InterruptedException {
         String data = null;
-        boolean found = false;
-
-        BlueNodeEntry bn = BlueNodeTable.getInstance().getNodeEntry(bnTableLock, bluenodeName);
-        RedNodeTable rnt = bn.getRedNodes();
-
-        try {
-            Lock rlock = rnt.aquireLock();
-            if (bn.getRedNodes().isOnline(rlock, hostname)) {
-                bn.getRedNodes().release(rlock, hostname);
-                data = "RELEASED";
-            } else {
-                data = "NOT_AUTHORIZED";
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
+        if (b.isPresent()) {
+            RedNodeTable rnt = b.get().getRedNodes();
+            try {
+                Lock rlock = rnt.aquireLock();
+                Optional<RedNodeEntry> r = rnt.getOptionalNodeEntry(rlock, hostname);
+                if (r.isPresent()) {
+                    rnt.release(rlock, r.get());
+                    data = "RELEASED";
+                } else {
+                    data = "NOT_AUTHORIZED";
+                }
+            } catch (InterruptedException e) {
+                data = "SYSTEM_ERROR";
+            } finally {
+                rnt.releaseLock();
             }
-        } catch (InterruptedException e) {
-            data = "SYSTEM_ERROR";
-        } finally {
-            rnt.releaseLock();
+        } else {
+            data = "NOT_AUTHORIZED";
         }
-
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
@@ -223,10 +230,11 @@ public class BlueNodeActions {
      *
      * @throws Exception
      */
-    public static void GetPh(Lock lock, String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void GetPh(Lock lock, String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
-        BlueNodeEntry bn = BlueNodeTable.getInstance().getNodeEntry(lock, BNTargetHostname);
-        if (bn != null) {
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, BNTargetHostname);
+        if (b.isPresent()) {
+            BlueNodeEntry bn = b.get();
             data = bn.getAddress().asString() + " " + bn.getPort();
         } else {
             data = "OFFLINE";
@@ -239,7 +247,7 @@ public class BlueNodeActions {
      *
      * @throws Exception
      */
-    public static void CheckRn(Lock lock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void CheckRn(Lock lock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
         BlueNodeEntry bn = BlueNodeTable.getInstance().reverseLookupBnBasedOnRn(lock, hostname);
         if (bn != null) {
@@ -255,7 +263,7 @@ public class BlueNodeActions {
      *
      * @throws Exception
      */
-    public static void CheckRnAddr(Lock lock, String vaddress, DataOutputStream writer, SecretKey sessionKey) throws Exception {
+    public static void CheckRnAddr(Lock lock, String vaddress, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         Queries q = null;
         String data = null;
         String hostname = null;
@@ -457,14 +465,11 @@ public class BlueNodeActions {
         }
     }
 
-    public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException {
+    public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IllegalAccessException {
         //first check whether the bn is a member and release from the network
-        if (BlueNodeTable.getInstance().isOnline(lock, blueNodeHostname)) {
-            try {
-                BlueNodeTable.getInstance().release(lock, blueNodeHostname);
-            } catch (IllegalAccessException e) {
-                AppLogger.getLogger().consolePrint(e.getMessage());
-            }
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, blueNodeHostname);
+        if (b.isPresent()) {
+            BlueNodeTable.getInstance().release(lock, b.get());
         }
 
         String key = "NOT_SET " + CryptoUtilities.generateQuestion();

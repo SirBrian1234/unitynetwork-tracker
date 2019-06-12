@@ -90,15 +90,11 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertEquals(rns.getNodeEntry(lock, "pakis3").getHostname(),"pakis3");
-		assertEquals(rns.getNodeEntry(lock, "pakis3").getAddress().asString(),"10.200.1.3");
-		assertEquals(rns.getNodeEntry(lock, "pakis3").getAddress(),VirtualAddress.valueOf("10.200.1.3"));
+		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getHostname(),"pakis3");
+		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress().asString(),"10.200.1.3");
+		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress(),VirtualAddress.valueOf("10.200.1.3"));
 
-		try {
-			rns.getNodeEntry(lock, "pakis15");
-		} catch (IllegalAccessException ex) {
-			assertTrue(true);
-		}
+		assertFalse(rns.getOptionalNodeEntry(lock, "pakis15").isPresent());
 	}
 	
 	@Test
@@ -117,8 +113,8 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		rns.getRedNodeEntryByVAddr(lock, "10.200.1.2").getHostname().equals("pakis2");
-		assertTrue(rns.getRedNodeEntryByVAddr(lock, "10.200.1.2").getAddress().asString().equals("10.200.1.2"));
+		rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.2").get().getHostname().equals("pakis2");
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.2").get().getAddress().asString().equals("10.200.1.2"));
 	}
 	
 	@Test
@@ -163,12 +159,12 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.isOnline(lock, "pakis"));
-		assertTrue(rns.isOnline(lock, "pakis3"));
-		assertTrue(rns.isOnline(lock, "pakis4"));
-		assertTrue(rns.isOnline(lock, "pakis2"));
-		assertTrue(rns.isOnline(lock, "pakis5"));
-		assertTrue(!rns.isOnline(lock, "bob"));
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis3").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis4").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis2").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis5").isPresent());
+		assertTrue(!rns.getOptionalNodeEntry(lock, "bob").isPresent());
 	}
 	
 	@Test
@@ -187,12 +183,12 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.3"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.1"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.2"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.5"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.4"));
-		assertTrue(!rns.isOnlineByVaddress(lock, "10.200.1.20"));
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.3").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.1").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.2").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.5").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.4").isPresent());
+		assertTrue(!rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.20").isPresent());
 	}
 	
 	@Test
@@ -215,11 +211,11 @@ public class RedNodeTableTest {
 		rns.release(lock, "pakis3");
 		rns.release(lock, "pakis5");
 		
-		assertTrue(!rns.isOnlineByVaddress(lock, "10.200.1.1"));
-		assertTrue(!rns.isOnlineByVaddress(lock, "10.200.1.3"));
-		assertTrue(!rns.isOnlineByVaddress(lock, "10.200.1.5"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.2"));
-		assertTrue(rns.isOnlineByVaddress(lock, "10.200.1.4"));
+		assertTrue(!rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.1").isPresent());
+		assertTrue(!rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.3").isPresent());
+		assertTrue(!rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.5").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.2").isPresent());
+		assertTrue(rns.getOptionalRedNodeEntryByVAddr(lock, "10.200.1.4").isPresent());
 		assertEquals(rns.getSize(lock), 2);
 	}
 	
@@ -243,21 +239,18 @@ public class RedNodeTableTest {
 
 		assertEquals(rns.getSize(lock), 5);
 
-
-		rns.getRedNodeEntryByVAddr(lock, "10.200.1.2");
-		rns.getRedNodeEntryByVAddr(lock, "10.200.1.4");
-
 		//these two are released
 		rns.releaseByVAddress(lock, "10.200.1.2");
 		rns.releaseByVAddress(lock, "10.200.1.4");
+
 		//they should not be found
-		assertTrue(!rns.isOnline(lock, "pakis2"));
-		assertTrue(!rns.isOnline(lock, "pakis4"));
+		assertTrue(!rns.getOptionalNodeEntry(lock, "pakis2").isPresent());
+		assertTrue(!rns.getOptionalNodeEntry(lock, "pakis4").isPresent());
 
 		//these should be there
-		assertTrue(rns.isOnline(lock, "pakis3"));
-		assertTrue(rns.isOnline(lock, "pakis"));
-		assertTrue(rns.isOnline(lock, "pakis5"));
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis3").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis").isPresent());
+		assertTrue(rns.getOptionalNodeEntry(lock, "pakis5").isPresent());
 		assertEquals(rns.getSize(lock), 3);
 	}
 

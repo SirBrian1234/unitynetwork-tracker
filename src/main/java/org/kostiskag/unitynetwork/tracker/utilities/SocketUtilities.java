@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -115,12 +116,12 @@ public class SocketUtilities {
     
     public static String[] receivePlainStringData(DataInputStream reader) throws IOException {
     	byte[] received = receiveData(reader);
-    	String receivedMessage = new String(received, "utf-8");
+    	String receivedMessage = new String(received, StandardCharsets.UTF_8);
         String[] args = receivedMessage.split("\\s+");
         return args;
     }
     
-    public static String[] sendReceivePlainStringData(String data, DataInputStream reader, DataOutputStream writer) throws Exception  {
+    public static String[] sendReceivePlainStringData(String data, DataInputStream reader, DataOutputStream writer) throws IOException {
     	sendPlainStringData(data, writer);
     	String[] args = receivePlainStringData(reader);
     	return args;
@@ -188,30 +189,32 @@ public class SocketUtilities {
      * Deprecated
      */
     
-
+    @Deprecated
     public static BufferedReader makeReadWriter(Socket socket) throws IOException {
         BufferedReader inputReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         return inputReader;
     }
 
+    @Deprecated
     public static PrintWriter makeWriteWriter(Socket socket) throws IOException {
         PrintWriter outputWriter = new PrintWriter(socket.getOutputStream(), true);
         return outputWriter;
     }
 
-    public static String[] sendData(String data,PrintWriter outputWriter,BufferedReader inputReader) throws Exception  {
+    @Deprecated
+    public static String[] sendData(String data,PrintWriter outputWriter,BufferedReader inputReader) throws IOException  {
         if (outputWriter==null) {
         	AppLogger.getLogger().consolePrint(pre + "SEND DATA FAILED, NO CONNECTION");
-        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
+        	throw new IOException(pre + "SEND DATA FAILED, NO CONNECTION");
         } else if (inputReader==null){ 
         	AppLogger.getLogger().consolePrint(pre + "SEND DATA FAILED, NO CONNECTION");
-        	throw new Exception(pre + "SEND DATA FAILED, NO CONNECTION");
+        	throw new IOException(pre + "SEND DATA FAILED, NO CONNECTION");
         } else if (data == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
+            throw new IOException(pre+"NO DATA TO SEND");
         } else if (data.isEmpty()) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre+"NO DATA TO SEND");
+            throw new IOException(pre+"NO DATA TO SEND");
         }
         
         outputWriter.println(data);
@@ -229,6 +232,7 @@ public class SocketUtilities {
         return args;
     }
 
+    @Deprecated
     public static void sendFinalData(String data,PrintWriter outputWriter) throws Exception {
         if (data == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
@@ -237,6 +241,7 @@ public class SocketUtilities {
         outputWriter.println(data);
     }
 
+    @Deprecated
     public static String[] readData(BufferedReader inputReader) throws Exception  {
     	if (inputReader == null){
     		AppLogger.getLogger().consolePrint(pre + "READ DATA FAILED, NO CONNECTION");

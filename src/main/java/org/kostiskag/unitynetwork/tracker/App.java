@@ -75,7 +75,7 @@ public class App {
         try {
             Database.newInstance(this.databaseUrl, this.user, this.password);
         } catch (SQLException e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             die();
         }
 
@@ -257,7 +257,7 @@ public class App {
                     + " file was not found in the dir. Generating new file with the default settings");
             try {
                 ReadPreferencesFile.GenerateFile(file);
-            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+            } catch (IOException e) {
                 System.err.println("File " + CONFIG_FILE_NAME + " could not be created.");
                 die();
             }

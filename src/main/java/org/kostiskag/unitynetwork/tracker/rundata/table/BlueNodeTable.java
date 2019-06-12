@@ -67,10 +67,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 	//the combination of ph address and port is unique
     public BlueNodeEntry getBlueNodeEntryByPhAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
     	Optional<BlueNodeEntry> obn = getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port);
-    	if (obn.isPresent()) {
-    		return obn.get();
-		}
-    	return null;
+    	return obn.orElse(null);
     }
     
     public BlueNodeEntry getBlueNodeEntryByLowestLoad(Lock lock) throws InterruptedException {
@@ -87,11 +84,8 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getHostname().equals(hostname))
 				.findFirst();
-        if (orn.isPresent()) {
-        	return orn.get().getParentBlueNode();
-		}
-        return null;
-    }
+		return orn.map(RedNodeEntry::getParentBlueNode).orElse(null);
+	}
     
     public BlueNodeEntry reverseLookupBnBasedOnRnVaddr(Lock lock, String vAddress) throws InterruptedException {
 		validateLock(lock);
@@ -99,11 +93,8 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getAddress().asString().equals(vAddress))
 				.findFirst();
-		if (orn.isPresent()) {
-			return orn.get().getParentBlueNode();
-		}
-		return null;
-    }
+		return orn.map(RedNodeEntry::getParentBlueNode).orElse(null);
+	}
     
     public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
 		validateLock(lock);
@@ -197,9 +188,12 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 		}
     }
 
-	public void release(Lock lock, BlueNodeEntry tobereleased) throws InterruptedException {
+	public void release(Lock lock, BlueNodeEntry tobereleased) throws InterruptedException, IllegalAccessException {
         validateLock(lock);
-    	list.remove(tobereleased);
+    	boolean valid = list.remove(tobereleased);
+    	if (!valid) {
+			throw new IllegalAccessException("NO BLUENODE ENTRY FOR " + tobereleased + " IN TABLE");
+		}
 		AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+tobereleased);
 		notifyGUI();
 	}
@@ -248,7 +242,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
 					try {
 						release(lock, bn);
-					} catch (InterruptedException ex) {
+					} catch (IllegalAccessException | InterruptedException ex) {
 						AppLogger.getLogger().consolePrint(pre+"attempted to release bn "+bn);
 					}
 					validConn = false;
@@ -266,7 +260,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
 					try {
 						release(lock, bn);
-					} catch (InterruptedException ex) {
+					} catch (IllegalAccessException | InterruptedException ex) {
 						AppLogger.getLogger().consolePrint(pre+"attempted to release bn "+bn);
 					}
 					validList = false;

@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.utilities;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -89,21 +90,21 @@ public class HashUtilities {
     }
  
     public static String MD5(String text) 
-    throws NoSuchAlgorithmException, UnsupportedEncodingException  { 
+    throws NoSuchAlgorithmException  {
         MessageDigest md;
         md = MessageDigest.getInstance("MD5");
         byte[] hash = new byte[32];
-        md.update(text.getBytes("iso-8859-1"), 0, text.length());
+        md.update(text.getBytes(StandardCharsets.ISO_8859_1), 0, text.length());
         hash = md.digest();
         return bytesToHexStr(hash);
     }
     
     public static String SHA256(String text) 
-    	    throws NoSuchAlgorithmException, UnsupportedEncodingException  { 
+    	    throws NoSuchAlgorithmException  {
         MessageDigest md;
         md = MessageDigest.getInstance("SHA-256");
         byte[] hash = new byte[32];
-        md.update(text.getBytes("iso-8859-1"), 0, text.length());
+        md.update(text.getBytes(StandardCharsets.ISO_8859_1), 0, text.length());
         hash = md.digest();
         return bytesToHexStr(hash);
     }

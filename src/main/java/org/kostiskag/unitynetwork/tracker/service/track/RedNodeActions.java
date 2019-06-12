@@ -62,7 +62,7 @@ public class RedNodeActions {
 	/*
 	 * To be changed from send plain string data into AES
 	 */
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) throws SQLException {
 		Queries q = null;
 		try {
 			q = new Queries();
@@ -91,78 +91,74 @@ public class RedNodeActions {
 					}
 				}
 			}
-			q.closeQueries();
+
 		} catch (SQLException e) {
-			e.printStackTrace();
+			try {
+				SocketUtilities.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
+			} catch (GeneralSecurityException | IOException ex) {
+				ex.printStackTrace();
+			}
+			throw e;
+		} finally {
 			try {
 				q.closeQueries();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
 		}
-		try {
-			SocketUtilities.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
-	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) {
+	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException, SQLException {
 		String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 		Queries q = null;
 		try {
 			q = new Queries();
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
-			q.closeQueries();
+
+			SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
+
+		} catch (SQLException | GeneralSecurityException | IOException e) {
+			throw e;
+		} finally {
 			try {
-				SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
-			} catch (Exception e) {
+				q.closeQueries();
+			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
 		}
-		try {
-			SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+
+		SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
 	}
 
-	public static PublicKey fetchPubKey(String hostname) throws Exception {
+	public static PublicKey fetchPubKey(String hostname) throws GeneralSecurityException, SQLException, IOException, IllegalAccessException {
+		PublicKey pub = null;
+		boolean found = false;
 		Queries q = null;
-		ResultSet getResults;
 		try {
 			q = new Queries();
-			getResults = q.selectAllFromHostnames();
+			ResultSet getResults = q.selectAllFromHostnames();
 
 			while (getResults.next()) {
-				if (getResults.getString("hostname").equals(hostname)) {									
+				if (getResults.getString("hostname").equals(hostname)) {
+					found = true;
 					String key = getResults.getString("public");
-					q.closeQueries();
 					String[] parts = key.split("\\s+");
-					if (parts[0].equals("NOT_SET")) {
-						return null;
-					} else {
-						return (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
-					}				
+					if (!parts[0].equals("NOT_SET")) {
+						pub = (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
+					}
+					break;
 				}
 			}
-			q.closeQueries();
-			throw new Exception("The RN "+hostname+" is not a network member.");
-		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();				
+
+			if (!found) {
+				throw new IllegalAccessException("The RN " + hostname + " is not a network member.");
 			}
+
+			return pub;
+		} catch (IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
 			throw e;
+		} finally {
+			q.closeQueries();
 		}
 	}
 }

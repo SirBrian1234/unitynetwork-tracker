@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.database;
 
 import java.io.UnsupportedEncodingException;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,7 @@ public class Logic {
 		//pass = hash(salt+pass)
 		try {
 			password = HashUtilities.SHA256(App.SALT + password);
-		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
+		} catch (GeneralSecurityException e2) {
 			e2.printStackTrace();
 			return;
 		}
@@ -59,7 +60,7 @@ public class Logic {
 		//pass = hash(salt+pass)
 		try {
 			password = HashUtilities.SHA256(App.SALT + password);
-		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
+		} catch (GeneralSecurityException e2) {
 			e2.printStackTrace();
 			return;
 		}

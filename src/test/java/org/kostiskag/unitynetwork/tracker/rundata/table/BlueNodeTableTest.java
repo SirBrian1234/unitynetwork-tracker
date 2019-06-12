@@ -162,10 +162,10 @@ public class BlueNodeTableTest {
             bns.leaseRednode(lock, "pakis3", "lakis8", "10.0.0.8");
             bns.leaseRednode(lock, "pakis3", "lakis9", "10.0.0.9");
 
-            assertEquals(bns.getNodeEntry(lock, "pakis").getLoad(), 4);
-            assertEquals(bns.getNodeEntry(lock, "pakis2").getLoad(), 2);
-            assertEquals(bns.getNodeEntry(lock, "pakis3").getLoad(), 3);
-            assertEquals(bns.getNodeEntry(lock, "pakis4").getLoad(), 0);
+            assertEquals(bns.getOptionalNodeEntry(lock, "pakis").get().getLoad(), 4);
+            assertEquals(bns.getOptionalNodeEntry(lock, "pakis2").get().getLoad(), 2);
+            assertEquals(bns.getOptionalNodeEntry(lock, "pakis3").get().getLoad(), 3);
+            assertEquals(bns.getOptionalNodeEntry(lock, "pakis4").get().getLoad(), 0);
             assertEquals(bns.getBlueNodeEntryByLowestLoad(lock).getHostname(), "pakis4");
         } finally {
             bns.releaseLock();

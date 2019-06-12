@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 /**
@@ -60,8 +61,8 @@ public class ReadPreferencesFile {
         return pref;
     }
 
-	public static void GenerateFile(File file) throws FileNotFoundException, UnsupportedEncodingException {
-		PrintWriter writer = new PrintWriter(file, "UTF-8");
+	public static void GenerateFile(File file) throws IOException {
+		PrintWriter writer = new PrintWriter(file, StandardCharsets.UTF_8);
 	    writer.print(""
 		+ "#############################################\n"
 		+ "#         Unity Tracker Config File         #\n"
