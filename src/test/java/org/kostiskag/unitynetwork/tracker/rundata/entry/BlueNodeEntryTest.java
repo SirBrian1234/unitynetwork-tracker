@@ -5,6 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.Time;
 
@@ -17,11 +18,12 @@ public class BlueNodeEntryTest {
 	static String hostname = "ouiou";
 	static String address = "10.0.0.1";
 	static int port = 4440;
-	static PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
+	static PublicKey pub;
 
 	@BeforeClass
-	public static void before() {
+	public static void before() throws GeneralSecurityException {
 		AppLogger.newInstance(null,null);
+		pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 	}
 
 	@Test

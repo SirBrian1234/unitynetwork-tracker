@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.service.track;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +31,7 @@ public class RedNodeActions {
 	/*
 	 * To be changed from deprecated methods
 	 */
-	public static void getRecomendedBlueNode(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IOException {
+	public static void getRecomendedBlueNode(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
 		String data;
 		if (BlueNodeTable.getInstance().getSize(lock) > 0) {
 			BlueNodeEntry recomended = BlueNodeTable.getInstance().getBlueNodeEntryByLowestLoad(lock);
@@ -46,7 +47,7 @@ public class RedNodeActions {
 		SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
-	public static void getAllConnectedBlueNodes(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IOException {
+	public static void getAllConnectedBlueNodes(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
 		int size = BlueNodeTable.getInstance().getSize(lock);
 		StringBuilder str = new StringBuilder();
 		str.append("SENDING_BLUENODES " + size+"\n");

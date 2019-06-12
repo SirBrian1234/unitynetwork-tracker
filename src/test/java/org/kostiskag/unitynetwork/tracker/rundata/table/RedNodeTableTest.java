@@ -3,6 +3,7 @@ package org.kostiskag.unitynetwork.tracker.rundata.table;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.net.UnknownHostException;
 import java.security.PublicKey;
@@ -41,7 +42,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueHosnameTest() throws IllegalAccessException, UnknownHostException {
+	public void uniqueHosnameTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -57,7 +58,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void uniqueAddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
+	public void uniqueAddressTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException, InterruptedException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
@@ -223,7 +224,7 @@ public class RedNodeTableTest {
 	}
 	
 	@Test
-	public void releaseByVaddressTest() throws IllegalAccessException, UnknownHostException, InterruptedException {
+	public void releaseByVaddressTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException, InterruptedException {
 	PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
     	BlueNodeEntry bn = new BlueNodeEntry("bnpakis",pub, PhysicalAddress.valueOf("1.2.3.4"), 1000);
 		RedNodeTable rns = new RedNodeTable(bn);

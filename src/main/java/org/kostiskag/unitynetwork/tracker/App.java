@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker;
 
 import java.io.*;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
@@ -136,25 +137,37 @@ public class App {
 
         // 6. RSA key pair
         File keyPairFile = new File(KEY_PAIR_FILE_NAME);
+        KeyPair keys = null;
         if (keyPairFile.exists()) {
             // the tracker has key pair
             AppLogger.getLogger().consolePrint("Loading RSA key pair from file...");
-            trackerKeys = (KeyPair) CryptoUtilities.fileToObject(keyPairFile);
-            AppLogger.getLogger().consolePrint(
-                    "Your public key is:\n" + CryptoUtilities.bytesToBase64String(trackerKeys.getPublic().getEncoded()));
-
+            try {
+                keys = CryptoUtilities.fileToObject(keyPairFile);
+                AppLogger.getLogger().consolePrint(
+                        "Your public key is:\n" + CryptoUtilities.bytesToBase64String(keys.getPublic().getEncoded()));
+            } catch (GeneralSecurityException | IOException e) {
+                AppLogger.getLogger().consolePrint("Public / Private key failed to read from file");
+                die();
+            }
         } else {
             // the tracker does not have a public private key pair
             // generating...
-            AppLogger.getLogger().consolePrint("Generating RSA key pair...");
-            trackerKeys = CryptoUtilities.generateRSAkeyPair();
-            // and storing
-            AppLogger.getLogger().consolePrint("Generating key file...");
-            CryptoUtilities.objectToFile(trackerKeys, keyPairFile);
-            AppLogger.getLogger().consolePrint(
-                    "Your public key is:\n" + CryptoUtilities.bytesToBase64String(
-                            trackerKeys.getPublic().getEncoded()));
+            try {
+                AppLogger.getLogger().consolePrint("Generating RSA key pair...");
+                keys = CryptoUtilities.generateRSAkeyPair();
+                // and storing
+                AppLogger.getLogger().consolePrint("Generating key file...");
+                CryptoUtilities.objectToFile(keys, keyPairFile);
+                AppLogger.getLogger().consolePrint(
+                        "Your public key is:\n" + CryptoUtilities.bytesToBase64String(
+                                keys.getPublic().getEncoded()));
+            } catch (GeneralSecurityException | IOException e) {
+                AppLogger.getLogger().consolePrint("Public / Private key pair failed to be generated");
+                die();
+            }
         }
+        //finalizing!
+        trackerKeys = keys;
 
         // 7. database
         AppLogger.getLogger().consolePrint("Testing Database Connection on " + databaseUrl + " ... ");

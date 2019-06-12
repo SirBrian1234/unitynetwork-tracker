@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 
 import org.junit.BeforeClass;
@@ -18,7 +19,7 @@ public class RedNodeEntryTest {
 	}
 
 	@Test
-	public void constructorAccessorsTest() throws IllegalAccessException, UnknownHostException {
+	public void constructorAccessorsTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis",pub, PhysicalAddress.valueOf("1.2.3.4"),1000);
 		RedNodeEntry rn = new RedNodeEntry(bn, "ouiou", "10.0.0.1");
@@ -29,7 +30,7 @@ public class RedNodeEntryTest {
 	}
 
 	@Test
-	public void testEquality() throws IllegalAccessException, UnknownHostException {
+	public void testEquality() throws GeneralSecurityException, IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 		BlueNodeEntry bn = new BlueNodeEntry("pakis",pub,PhysicalAddress.valueOf("1.2.3.4"),1000);
 

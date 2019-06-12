@@ -15,13 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.security.*;
 import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
@@ -52,48 +46,37 @@ public class CryptoUtilities {
 	 * 
 	 * @return
 	 */
-	public static SecretKey generateAESSessionkey() throws NoSuchAlgorithmException {
-		KeyGenerator AES_keygen = KeyGenerator.getInstance("AES");
-		AES_keygen.init(128, new SecureRandom());
-		return AES_keygen.generateKey();
+	public static SecretKey generateAESSessionkey() throws GeneralSecurityException {
+		KeyGenerator AES_keygen = null;
+		try {
+			AES_keygen = KeyGenerator.getInstance("AES");
+			AES_keygen.init(128, new SecureRandom());
+			return AES_keygen.generateKey();
+		} catch (NoSuchAlgorithmException e) {
+			throw new GeneralSecurityException(e);
+		}
 	}
 	
-	public static byte[] aesEncrypt(String message, SecretKey key) {
+	public static byte[] aesEncrypt(String message, SecretKey key) throws GeneralSecurityException {
 		Cipher AesCipher;
 		try {
 			AesCipher = Cipher.getInstance("AES");
 			AesCipher.init(Cipher.ENCRYPT_MODE, key);
 	        return AesCipher.doFinal(message.getBytes());
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+			throw new GeneralSecurityException(e);
 		}
-		return null;
 	}
 
-	public static String aesDecrypt(byte[] chiphered, SecretKey key) {
+	public static String aesDecrypt(byte[] chiphered, SecretKey key) throws GeneralSecurityException {
 		Cipher AesCipher;
 		try {
 			AesCipher = Cipher.getInstance("AES");
 			AesCipher.init(Cipher.DECRYPT_MODE, key);
 	        return new String(AesCipher.doFinal(chiphered), "utf-8");
-		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-			e.printStackTrace();
-		} catch (InvalidKeyException e) {
-			e.printStackTrace();
-		} catch (IllegalBlockSizeException e) {
-			e.printStackTrace();
-		} catch (BadPaddingException e) {
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException | UnsupportedEncodingException e) {
+			throw new GeneralSecurityException(e);
 		}
-		return null;
 	}
 	
 	/**
@@ -101,89 +84,71 @@ public class CryptoUtilities {
 	 * 
 	 * @return keypair
 	 */
-	public static KeyPair generateRSAkeyPair() {
+	public static KeyPair generateRSAkeyPair() throws GeneralSecurityException {
 		KeyPairGenerator kpg = null;
 		try {
 			kpg = KeyPairGenerator.getInstance("RSA");
 			kpg.initialize(2048, new SecureRandom());
 			return kpg.genKeyPair();
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			throw new GeneralSecurityException(e);
 		}
-		return null;
 	}
 
-	public static byte[] encryptWithPublic(String text, PublicKey key) {
+	public static byte[] encryptWithPublic(String text, PublicKey key) throws GeneralSecurityException {
 		byte[] cipherText = null;
 		try {
 			Cipher cipher = Cipher.getInstance("RSA");
 			cipher.init(Cipher.ENCRYPT_MODE, key);
-			cipherText = cipher.doFinal(text.getBytes());
-		} catch (Exception e) {
-			e.printStackTrace();
+			return cipher.doFinal(text.getBytes());
+		} catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
+			throw new GeneralSecurityException(e);
 		}
-		return cipherText;
 	}
 
-	public static String decryptWithPrivate(byte[] text, PrivateKey key) {
+	public static String decryptWithPrivate(byte[] text, PrivateKey key) throws GeneralSecurityException {
 		byte[] dectyptedText = null;
 		try {
 			Cipher cipher = Cipher.getInstance("RSA");
 			cipher.init(Cipher.DECRYPT_MODE, key);
-			dectyptedText = cipher.doFinal(text);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			return new String(cipher.doFinal(text));
+		} catch (NoSuchAlgorithmException | InvalidKeyException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException e) {
+			throw new GeneralSecurityException(e);
 		}
-		return new String(dectyptedText);
 	}
 	
-	public static byte[] objectToBytes(Object obj) {
-		try {
-			ByteArrayOutputStream b = new ByteArrayOutputStream();
-			ObjectOutputStream out = new ObjectOutputStream(b);
+	public static <A> byte[] objectToBytes(A obj) throws IOException {
+		try (ByteArrayOutputStream b = new ByteArrayOutputStream();
+			 ObjectOutputStream out = new ObjectOutputStream(b)) {
 			out.writeObject(obj);
-			byte[] array = b.toByteArray();
-			out.close();
-			b.close();
-			return array;
+			return b.toByteArray();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw e;
 		}
-		return null;
 	}
 
 	/**
-	 * remember to typecast to the object of your preference ex. PrivateKey
-	 * private = (PrivateKey) bytesToObject(bytes);
-	 * 
+	 * remember to define a type argument to the object of your preference ex. PrivateKey
+	 *
 	 * @param bytes
 	 * @return
 	 */
-	public static Object bytesToObject(byte[] bytes) {
-		try {
-			ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
-			ObjectInputStream in = new ObjectInputStream(bin);
-			Object obj = in.readObject();
-			in.close();
-			bin.close();
-			return obj;
+	public static <A>  A bytesToObject(byte[] bytes) throws IOException, GeneralSecurityException {
+		try (ByteArrayInputStream bin = new ByteArrayInputStream(bytes);
+			 ObjectInputStream in = new ObjectInputStream(bin)) {
+			return (A) in.readObject(); //It seems i cant avoid casting...
 		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			throw e;
+		} catch (ClassNotFoundException ex) {
+			throw new GeneralSecurityException(ex);
 		}
-		return null;
 	}
 	
-	public static String objectToBase64StringRepresentation(Object obj) {
-		byte[] serial = objectToBytes(obj);
-		if (serial != null) {
-			return new String(Base64.getEncoder().encode(serial));
-		}
-		return null;
+	public static <A> String objectToBase64StringRepresentation(A obj) throws IOException {
+		return new String(Base64.getEncoder().encode(objectToBytes(obj)));
 	}
 	
-	public static Object base64StringRepresentationToObject(String base64Str) {
+	public static <A> A base64StringRepresentationToObject(String base64Str) throws IOException, GeneralSecurityException {
 		return bytesToObject(Base64.getDecoder().decode(base64Str.getBytes()));
 	}
 	
@@ -195,42 +160,23 @@ public class CryptoUtilities {
 		return Base64.getDecoder().decode(base64Str.getBytes());
 	}
 
-	public static void objectToFile(Object obj, File file) {
-		FileOutputStream fileOut = null;
-		try {
-			fileOut = new FileOutputStream(file);
-			ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	public static <A> void objectToFile(A obj, File file) throws IOException {
+		try (FileOutputStream fileOut = new FileOutputStream(file);
+			 ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
 			out.writeObject(obj);
-			out.close();
-			fileOut.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
-			try {
-				fileOut.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			throw e;
 		}
 	}
 
-	public static Object fileToObject(File file) {
-		FileInputStream fileIn;
-		try {
-			fileIn = new FileInputStream(file);
-			ObjectInputStream in = new ObjectInputStream(fileIn);
-	        Object obj = in.readObject();
-	        in.close();
-	        fileIn.close();
-			return obj;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+	public static <A> A fileToObject(File file) throws GeneralSecurityException, IOException {
+		try (FileInputStream fileIn = new FileInputStream(file);
+			 ObjectInputStream in = new ObjectInputStream(fileIn)) {
+			return (A) in.readObject(); //It seems i cant avoid casting...
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			throw new GeneralSecurityException(e);
 		} catch (IOException e) {
-			e.printStackTrace();
-		}        
-		return null;
+			throw e;
+		}
 	}
 }

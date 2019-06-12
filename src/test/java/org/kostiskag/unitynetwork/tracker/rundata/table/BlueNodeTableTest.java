@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,11 +23,12 @@ import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 
 public class BlueNodeTableTest {
 
-    static PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
+    static PublicKey pub;
 
     @BeforeClass
-    public static void beforeClass() throws SQLException {
+    public static void beforeClass() throws SQLException, GeneralSecurityException {
         AppLogger.newInstance(null, null);
+        pub = CryptoUtilities.generateRSAkeyPair().getPublic();
         File file = new File("bn_test.db");
         if (file.exists()) {
             file.delete();

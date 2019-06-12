@@ -4,10 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.io.File;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.io.IOException;
+import java.security.*;
 
 import javax.crypto.SecretKey;
 
@@ -29,7 +27,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Ignore
-	public void generateAESkey() throws NoSuchAlgorithmException {
+	public void generateAESkey() throws GeneralSecurityException {
 		SecretKey keyA = CryptoUtilities.generateAESSessionkey();
 		SecretKey keyB = CryptoUtilities.generateAESSessionkey();
 		assertNotEquals(keyA, keyB);
@@ -39,7 +37,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void aesEncryptDecryptTest() throws NoSuchAlgorithmException {
+	public void aesEncryptDecryptTest() throws GeneralSecurityException {
 		String plainMessage = "My name is Wapaf!!!";
 		SecretKey key = CryptoUtilities.generateAESSessionkey();
 		byte[] chipher = CryptoUtilities.aesEncrypt(plainMessage, key);
@@ -50,7 +48,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void generateKeyPairTest() {
+	public void generateKeyPairTest() throws GeneralSecurityException {
 		KeyPair kp = CryptoUtilities.generateRSAkeyPair();
 		KeyPair kp2 = CryptoUtilities.generateRSAkeyPair();
 		assertNotEquals(kp.getPublic(), kp2.getPublic());
@@ -58,7 +56,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void rsaEncryptDecryptTest() {
+	public void rsaEncryptDecryptTest() throws GeneralSecurityException {
 		String question = CryptoUtilities.generateQuestion();
 		System.out.println(question);
 
@@ -82,7 +80,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void testSerializeObject() {
+	public void testSerializeObject() throws GeneralSecurityException, IOException {
 		KeyPair kp = CryptoUtilities.generateRSAkeyPair();
 		PrivateKey privkey = kp.getPrivate();
 		byte[] serial = CryptoUtilities.objectToBytes(privkey);
@@ -92,7 +90,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void testBase64Object() {
+	public void testBase64Object()  throws GeneralSecurityException, IOException {
 		KeyPair kp = CryptoUtilities.generateRSAkeyPair();
 		PrivateKey privkey = kp.getPrivate();
 		String repr = CryptoUtilities.objectToBase64StringRepresentation(privkey);
@@ -102,7 +100,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void testObjectToFile() {
+	public void testObjectToFile()  throws GeneralSecurityException, IOException {
 		KeyPair kp = CryptoUtilities.generateRSAkeyPair();
 		PrivateKey privkey = kp.getPrivate();
 		CryptoUtilities.objectToFile(privkey, new File("pakis"));
@@ -111,7 +109,7 @@ public class CryptoMethodsTest {
 	}
 
 	@Test
-	public void sessionTest() throws NoSuchAlgorithmException {
+	public void sessionTest() throws GeneralSecurityException, IOException {
 
 		KeyPair server = CryptoUtilities.generateRSAkeyPair();
 		KeyPair client = CryptoUtilities.generateRSAkeyPair();

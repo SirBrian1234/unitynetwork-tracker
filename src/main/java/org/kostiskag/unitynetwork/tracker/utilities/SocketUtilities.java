@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
+import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -125,7 +126,7 @@ public class SocketUtilities {
     	return args;
     }
     
-    public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws IOException {
+    public static void sendAESEncryptedStringData(String message, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
     	if (message == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new IOException(pre+"NO DATA TO SEND");
@@ -139,25 +140,25 @@ public class SocketUtilities {
         sendData(chiphered, writer);
     }
     
-    public static String[] receiveAESEncryptedStringData(DataInputStream reader, SecretKey sessionKey) throws IOException {
+    public static String[] receiveAESEncryptedStringData(DataInputStream reader, SecretKey sessionKey) throws GeneralSecurityException, IOException {
     	byte[] received = receiveData(reader);
     	String decrypted = CryptoUtilities.aesDecrypt(received, sessionKey);
     	String[] args = decrypted.split("\\s+");
         return args;
     }
     
-    public static String receiveAESEncryptedString(DataInputStream reader, SecretKey sessionKey) throws IOException {
+    public static String receiveAESEncryptedString(DataInputStream reader, SecretKey sessionKey) throws GeneralSecurityException, IOException {
     	byte[] received = receiveData(reader);
     	String decrypted = CryptoUtilities.aesDecrypt(received, sessionKey);
     	return decrypted;
     }
     
-    public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws IOException  {
+    public static String[] sendReceiveAESEncryptedStringData(String message, DataInputStream reader, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException  {
     	sendAESEncryptedStringData(message, writer, sessionKey);
     	return receiveAESEncryptedStringData(reader, sessionKey);
     }
     
-    public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws IOException {
+    public static void sendRSAEncryptedStringData(String message, DataOutputStream writer, PublicKey key) throws GeneralSecurityException, IOException {
     	if (message == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
             throw new IOException(pre+" NO DATA TO SEND");
@@ -171,7 +172,7 @@ public class SocketUtilities {
         sendData(chiphered, writer);
     }
     
-    public static String[] receiveRSAEncryptedStringData(DataInputStream reader, PrivateKey priv) throws IOException {
+    public static String[] receiveRSAEncryptedStringData(DataInputStream reader, PrivateKey priv) throws GeneralSecurityException, IOException {
     	byte[] received = receiveData(reader);
     	String decrypted = CryptoUtilities.decryptWithPrivate(received, priv);
     	return decrypted.split("\\s+");

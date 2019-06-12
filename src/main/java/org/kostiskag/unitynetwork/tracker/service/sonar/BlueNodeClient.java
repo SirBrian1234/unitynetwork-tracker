@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ public class BlueNodeClient {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	public BlueNodeClient(BlueNodeEntry bn) throws NoSuchAlgorithmException, IOException {
+	public BlueNodeClient(BlueNodeEntry bn) throws GeneralSecurityException, IOException {
     	this.bn = bn;
 
     	socket = SocketUtilities.absoluteConnect(bn.getAddress().asInet(), bn.getPort());
@@ -102,7 +103,7 @@ public class BlueNodeClient {
 	        } else {
 	        	throw new IOException();
 			}
-    	} catch (IOException e) {
+    	} catch (GeneralSecurityException | IOException e) {
 			AppLogger.getLogger().consolePrint(PRE +"CHECK"+" BN OFFLINE "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
 			return false;
 		} finally {
@@ -119,7 +120,7 @@ public class BlueNodeClient {
 			AppLogger.getLogger().consolePrint(PRE + "KILLSIG" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			SocketUtilities.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey);
 			SocketUtilities.connectionClose(socket);
-		} catch (IOException e) {
+		} catch (GeneralSecurityException | IOException e) {
 			AppLogger.getLogger().consolePrint(PRE + "KILLSIG EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 		} finally {
 			try {
@@ -130,7 +131,7 @@ public class BlueNodeClient {
 		}
     }
     
-    public List<RedNodeEntry> getRedNodes() throws IOException {
+    public List<RedNodeEntry> getRedNodes() throws GeneralSecurityException, IOException {
     	List<RedNodeEntry> list = new ArrayList<>();
 		try {
 			AppLogger.getLogger().consolePrint(PRE + "GETREDNODES" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());

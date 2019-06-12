@@ -1,5 +1,6 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
+import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -243,7 +244,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 				try {
 					new BlueNodeClient(bn);
 					validConn = true;
-				} catch (NoSuchAlgorithmException | IOException e) {
+				} catch (GeneralSecurityException | IOException e) {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
 					try {
 						release(lock, bn);
@@ -261,7 +262,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
 				try {
 					rns = bn.getClient().getRedNodes();
-				} catch (IOException e) {
+				} catch (GeneralSecurityException | IOException e) {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
 					try {
 						release(lock, bn);
@@ -295,7 +296,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 				try {
 					new BlueNodeClient(bn);
 					validConn = true;
-				} catch (NoSuchAlgorithmException | IOException e) {
+				} catch (GeneralSecurityException | IOException e) {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
 					validConn = false;
 				}

@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
@@ -20,7 +21,7 @@ import org.junit.Test;
 public class SocketFunctionsTest {
 
 	@Test
-	public void encryptedTest() throws NoSuchAlgorithmException, IOException {
+	public void encryptedTest() throws GeneralSecurityException, IOException {
 		SecretKey key = CryptoUtilities.generateAESSessionkey();
 		
 		ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -62,7 +63,7 @@ public class SocketFunctionsTest {
 	}
 	
 	//@Test
-	public void testAESsession() throws IOException, NoSuchAlgorithmException {
+	public void testAESsession() throws IOException, GeneralSecurityException {
 		InetAddress IPaddress = InetAddress.getByName("127.0.0.1");
 
 		Socket socket = new Socket(IPaddress, 8000);
@@ -95,7 +96,7 @@ public class SocketFunctionsTest {
 	}
 	
 	//@Test
-	public void testBNoffer() throws NoSuchAlgorithmException, IOException {
+	public void testBNoffer() throws GeneralSecurityException, IOException {
 		InetAddress IPaddress = InetAddress.getByName("127.0.0.1");
 
 		Socket socket = new Socket(IPaddress, 8000);

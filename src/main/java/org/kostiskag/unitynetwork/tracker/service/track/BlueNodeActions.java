@@ -4,6 +4,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -193,7 +194,7 @@ public class BlueNodeActions {
      *
      * @throws Exception
      */
-    public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws IOException, IllegalAccessException, InterruptedException {
+    public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws IOException, GeneralSecurityException, IllegalAccessException, InterruptedException {
         String data = null;
         boolean found = false;
 

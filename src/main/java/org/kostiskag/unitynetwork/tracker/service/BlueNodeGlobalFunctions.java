@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,7 +24,7 @@ public class BlueNodeGlobalFunctions {
 	 * @throws  IllegalAccessException when fetch bn key is called for a non member
 	 * @throws  SQLException can not connect to database or db error
 	 */
-	public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, SQLException {
+	public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, GeneralSecurityException, IOException, SQLException {
 		Queries q = null;
 		ResultSet getResults;
 		try {
