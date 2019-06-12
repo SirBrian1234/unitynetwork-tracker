@@ -19,7 +19,7 @@ import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 
 /**
  * 
@@ -208,7 +208,7 @@ public class EditBluenode {
 								q.closeQueries();
 								return;
 							}
-							String publicKey = "NOT_SET " + CryptoMethods.generateQuestion();
+							String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
 							q.insertEntryBluenodes(givenBluenodeName, userid, publicKey);
 						} else {
 							q.updateEntryBluenodesWithName(name, userid);
@@ -247,7 +247,7 @@ public class EditBluenode {
 	
 	private void resetKey() {
 		if (type==1 && textField.getText().equals("KEY_SET")) {			
-			String key = "NOT_SET "+CryptoMethods.generateQuestion();
+			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 			Queries q = null;
 			try {
 				q = new Queries();

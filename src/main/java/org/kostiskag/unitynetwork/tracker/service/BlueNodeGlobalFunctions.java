@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
@@ -37,7 +37,7 @@ public class BlueNodeGlobalFunctions {
 					if (parts[0].equals("NOT_SET")) {
 						return null;
 					} else {
-						return (PublicKey) CryptoMethods.base64StringRepresentationToObject(parts[1]);
+						return (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
 					}				
 				}
 			}

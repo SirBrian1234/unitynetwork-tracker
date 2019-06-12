@@ -10,8 +10,8 @@ import java.util.concurrent.locks.Lock;
 import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
@@ -25,7 +25,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 * 
 * @author Konstantinos Kagiampakis
 */
-public class RedNodeFunctions {
+public class RedNodeActions {
 
 	/*
 	 * To be changed from deprecated methods
@@ -38,12 +38,12 @@ public class RedNodeFunctions {
 			String phaddress = recomended.getAddress().asString();
 			int port = recomended.getPort();
 			int load = recomended.getLoad();
-			String pubkey = CryptoMethods.objectToBase64StringRepresentation(recomended.getPub());
+			String pubkey = CryptoUtilities.objectToBase64StringRepresentation(recomended.getPub());
 			data = hostname+" "+phaddress+" "+port+" "+load+" "+pubkey;
 		} else {
 			data = "NONE";
 		}
-		SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+		SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
 	}
 
 	public static void getAllConnectedBlueNodes(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IOException {
@@ -55,7 +55,7 @@ public class RedNodeFunctions {
 		for(int i=0; i<fetched.length; i++) {			
 			str.append(fetched[i][0]+" "+fetched[i][1]+" "+fetched[i][2]+" "+fetched[i][3]+"\n");
 		}	
-		SocketFunctions.sendAESEncryptedStringData(str.toString(), writer, sessionKey);
+		SocketUtilities.sendAESEncryptedStringData(str.toString(), writer, sessionKey);
 	}
 	
 	/*
@@ -72,19 +72,19 @@ public class RedNodeFunctions {
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
 					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
 					try {
-						SocketFunctions.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
+						SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else if (args[0].equals("KEY_SET")) {
 					try {
-						SocketFunctions.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
+						SocketUtilities.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				} else {
 					try {
-						SocketFunctions.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
+						SocketUtilities.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -100,21 +100,21 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
+			SocketUtilities.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) {
-		String key = "NOT_SET "+CryptoMethods.generateQuestion();
+		String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 		Queries q = null;
 		try {
 			q = new Queries();
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
 			q.closeQueries();
 			try {
-				SocketFunctions.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
+				SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -127,7 +127,7 @@ public class RedNodeFunctions {
 			}
 		}
 		try {
-			SocketFunctions.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
+			SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -148,7 +148,7 @@ public class RedNodeFunctions {
 					if (parts[0].equals("NOT_SET")) {
 						return null;
 					} else {
-						return (PublicKey) CryptoMethods.base64StringRepresentationToObject(parts[1]);
+						return (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
 					}				
 				}
 			}

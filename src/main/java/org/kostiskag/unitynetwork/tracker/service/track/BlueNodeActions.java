@@ -14,9 +14,9 @@ import javax.crypto.SecretKey;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
-import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.HashUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
@@ -35,7 +35,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
  *
  * @author Konstantinos Kagiampakis
  */
-public class BlueNodeFunctions {
+public class BlueNodeActions {
 
     /**
      * lease a bluenode on the network
@@ -84,7 +84,7 @@ public class BlueNodeFunctions {
                 e.printStackTrace();
             }
         }
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -150,20 +150,20 @@ public class BlueNodeFunctions {
                         }
                     }
                     q.closeQueries();
-                    SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+                    SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
                 } catch (SQLException ex) {
                     try {
                         q.closeQueries();
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-                    SocketFunctions.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
+                    SocketUtilities.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
                 }
             } else {
-                SocketFunctions.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
             }
         } else {
-            SocketFunctions.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
+            SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
         }
     }
 
@@ -185,7 +185,7 @@ public class BlueNodeFunctions {
         } else {
             data = "RELEASE_FAILED";
         }
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -214,7 +214,7 @@ public class BlueNodeFunctions {
             rnt.releaseLock();
         }
 
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -230,7 +230,7 @@ public class BlueNodeFunctions {
         } else {
             data = "OFFLINE";
         }
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -246,7 +246,7 @@ public class BlueNodeFunctions {
         } else {
             data = "OFFLINE";
         }
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -265,7 +265,7 @@ public class BlueNodeFunctions {
         } else {
             data = "OFFLINE";
         }
-        SocketFunctions.sendAESEncryptedStringData(data, writer, sessionKey);
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
 
@@ -288,8 +288,8 @@ public class BlueNodeFunctions {
             int i = 0;
             while (getResults.next()) {
                 try {
-                    data = HashFunctions.SHA256(App.SALT) + HashFunctions.SHA256(getResults.getString("username")) + getResults.getString("password");
-                    data = HashFunctions.SHA256(data);
+                    data = HashUtilities.SHA256(App.SALT) + HashUtilities.SHA256(getResults.getString("username")) + getResults.getString("password");
+                    data = HashUtilities.SHA256(data);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -334,7 +334,7 @@ public class BlueNodeFunctions {
                     }
 
                     try {
-                        SocketFunctions.sendAESEncryptedStringData(vaddress, writer, sessionKey);
+                        SocketUtilities.sendAESEncryptedStringData(vaddress, writer, sessionKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -343,7 +343,7 @@ public class BlueNodeFunctions {
             }
             q.closeQueries();
             try {
-                SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -356,7 +356,7 @@ public class BlueNodeFunctions {
                 e1.printStackTrace();
             }
             try {
-                SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -386,7 +386,7 @@ public class BlueNodeFunctions {
 
                     q.closeQueries();
                     try {
-                        SocketFunctions.sendAESEncryptedStringData(hostname, writer, sessionKey);
+                        SocketUtilities.sendAESEncryptedStringData(hostname, writer, sessionKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -395,7 +395,7 @@ public class BlueNodeFunctions {
             }
             q.closeQueries();
             try {
-                SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -408,7 +408,7 @@ public class BlueNodeFunctions {
                 e1.printStackTrace();
             }
             try {
-                SocketFunctions.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
@@ -426,19 +426,19 @@ public class BlueNodeFunctions {
                 if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
                     q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET" + " " + publicKey);
                     try {
-                        SocketFunctions.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
+                        SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else if (args[0].equals("KEY_SET")) {
                     try {
-                        SocketFunctions.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
+                        SocketUtilities.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 } else {
                     try {
-                        SocketFunctions.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
+                        SocketUtilities.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -466,14 +466,14 @@ public class BlueNodeFunctions {
             }
         }
 
-        String key = "NOT_SET " + CryptoMethods.generateQuestion();
+        String key = "NOT_SET " + CryptoUtilities.generateQuestion();
         Queries q = null;
         try {
             q = new Queries();
             q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
             q.closeQueries();
             try {
-                SocketFunctions.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -486,7 +486,7 @@ public class BlueNodeFunctions {
             }
         }
         try {
-            SocketFunctions.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
+            SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
         } catch (Exception e) {
             e.printStackTrace();
         }

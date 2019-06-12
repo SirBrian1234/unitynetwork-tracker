@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.HashFunctions;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.HashUtilities;
 
 /**
  * The database upper logic which calls methods from Queries
@@ -31,7 +31,7 @@ public class Logic {
 		//to do in the hash branch
 		//pass = hash(salt+pass)
 		try {
-			password = HashFunctions.SHA256(App.SALT + password);
+			password = HashUtilities.SHA256(App.SALT + password);
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
 			e2.printStackTrace();
 			return;
@@ -58,7 +58,7 @@ public class Logic {
 		//to do in the hash branch
 		//pass = hash(salt+pass)
 		try {
-			password = HashFunctions.SHA256(App.SALT + password);
+			password = HashUtilities.SHA256(App.SALT + password);
 		} catch (NoSuchAlgorithmException | UnsupportedEncodingException e2) {
 			e2.printStackTrace();
 			return;
@@ -121,7 +121,7 @@ public class Logic {
 		try {
 			q = new Queries();
 			if (q.checkIfUserWithIdExists(userid)) {
-				String publicStr = "NOT_SET "+ CryptoMethods.generateQuestion();
+				String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
 				ResultSet r = q.selectAddressFromBurned();
 				if (r.next()) {
 					int address = r.getInt("address");

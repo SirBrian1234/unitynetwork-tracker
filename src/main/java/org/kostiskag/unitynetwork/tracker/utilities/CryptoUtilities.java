@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.utilities;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -35,7 +35,7 @@ import javax.crypto.SecretKey;
  *
  * @author Konstantinos Kagiampakis
  */
-public class CryptoMethods {
+public class CryptoUtilities {
 
 	/**
 	 * Generates a random question

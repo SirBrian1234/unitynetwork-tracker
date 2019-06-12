@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.functions;
+package org.kostiskag.unitynetwork.tracker.utilities;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
  * 
  * @author Konstantinos Kagiampakis
  */
-public class HashFunctions { 
+public class HashUtilities {
  
     public static String bytesToHexStr(byte[] data) { 
         StringBuffer buf = new StringBuffer();

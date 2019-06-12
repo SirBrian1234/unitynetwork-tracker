@@ -13,13 +13,13 @@ import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
-import org.kostiskag.unitynetwork.tracker.functions.SocketFunctions;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 
 /**
- * These functions are being used from the sonar service - the tracker client
+ * These utilities are being used from the sonar service - the tracker client
  * 
  *  CHECK
  *  KILLSIG
@@ -55,18 +55,18 @@ public class BlueNodeClient {
 	public BlueNodeClient(BlueNodeEntry bn) throws NoSuchAlgorithmException, IOException {
     	this.bn = bn;
 
-    	socket = SocketFunctions.absoluteConnect(bn.getAddress().asInet(), bn.getPort());
+    	socket = SocketUtilities.absoluteConnect(bn.getAddress().asInet(), bn.getPort());
 		socket.setSoTimeout(BlueNodeClient.TIMEOUT);
 
-		socketReader = SocketFunctions.makeDataReader(socket);
-		socketWriter = SocketFunctions.makeDataWriter(socket);
+		socketReader = SocketUtilities.makeDataReader(socket);
+		socketWriter = SocketUtilities.makeDataWriter(socket);
 
-		sessionKey = CryptoMethods.generateAESSessionkey();
+		sessionKey = CryptoUtilities.generateAESSessionkey();
 
-		String keyStr = CryptoMethods.objectToBase64StringRepresentation(sessionKey);
-		SocketFunctions.sendRSAEncryptedStringData(keyStr, socketWriter, bn.getPub());
+		String keyStr = CryptoUtilities.objectToBase64StringRepresentation(sessionKey);
+		SocketUtilities.sendRSAEncryptedStringData(keyStr, socketWriter, bn.getPub());
 
-		String[] args = SocketFunctions.receiveAESEncryptedStringData(socketReader, sessionKey);
+		String[] args = SocketUtilities.receiveAESEncryptedStringData(socketReader, sessionKey);
 		System.out.println(args[0]);
 
 		if(!args[0].equals("BLUENODE") || !args[1].equals(bn.getHostname())) {
@@ -74,16 +74,16 @@ public class BlueNodeClient {
 		}
 
 		//tracker is to be authenticated by the bn
-		args = SocketFunctions.sendReceiveAESEncryptedStringData("TRACKER", socketReader, socketWriter, sessionKey);
+		args = SocketUtilities.sendReceiveAESEncryptedStringData("TRACKER", socketReader, socketWriter, sessionKey);
 
 		//decode question
-		byte[] question = CryptoMethods.base64StringTobytes(args[0]);
+		byte[] question = CryptoUtilities.base64StringTobytes(args[0]);
 
 		//decrypt with private
-		String answer = CryptoMethods.decryptWithPrivate(question, App.TRACKER_APP.trackerKeys.getPrivate());
+		String answer = CryptoUtilities.decryptWithPrivate(question, App.TRACKER_APP.trackerKeys.getPrivate());
 
 		//send back plain answer
-		args = SocketFunctions.sendReceiveAESEncryptedStringData(answer, socketReader, socketWriter, sessionKey);
+		args = SocketUtilities.sendReceiveAESEncryptedStringData(answer, socketReader, socketWriter, sessionKey);
 
 		if (!args[0].equals("OK")) {
 			throw new IOException("Tracker authentication was not allowed from target bluenode.");
@@ -95,8 +95,8 @@ public class BlueNodeClient {
     public boolean testBnOnline()  {
     	try {
     		AppLogger.getLogger().consolePrint(PRE +"CHECK"+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
-	    	String[] args = SocketFunctions.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);
-	        SocketFunctions.connectionClose(socket);
+	    	String[] args = SocketUtilities.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);
+	        SocketUtilities.connectionClose(socket);
 	        if (args[0].equals("OK")) {
 	        	return true;
 	        } else {
@@ -107,7 +107,7 @@ public class BlueNodeClient {
 			return false;
 		} finally {
 			try {
-				SocketFunctions.connectionClose(socket);
+				SocketUtilities.connectionClose(socket);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -117,13 +117,13 @@ public class BlueNodeClient {
     public void sendkillsig() {
     	try {
 			AppLogger.getLogger().consolePrint(PRE + "KILLSIG" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
-			SocketFunctions.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey);
-			SocketFunctions.connectionClose(socket);
+			SocketUtilities.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey);
+			SocketUtilities.connectionClose(socket);
 		} catch (IOException e) {
 			AppLogger.getLogger().consolePrint(PRE + "KILLSIG EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 		} finally {
 			try {
-				SocketFunctions.connectionClose(socket);
+				SocketUtilities.connectionClose(socket);
 			} catch (IOException e) {
 				AppLogger.getLogger().consolePrint(PRE + "KILLSIG SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			}
@@ -134,9 +134,9 @@ public class BlueNodeClient {
     	List<RedNodeEntry> list = new ArrayList<>();
 		try {
 			AppLogger.getLogger().consolePrint(PRE + "GETREDNODES" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
-			SocketFunctions.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
-			String received = SocketFunctions.receiveAESEncryptedString(socketReader, sessionKey);
-			SocketFunctions.connectionClose(socket);
+			SocketUtilities.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
+			String received = SocketUtilities.receiveAESEncryptedString(socketReader, sessionKey);
+			SocketUtilities.connectionClose(socket);
 
 			String[] lines = received.split("\n+"); //split into sentences
 			String[] args = lines[0].split("\\s+"); //the first sentence contains the number
@@ -166,7 +166,7 @@ public class BlueNodeClient {
 			throw e;
 		} finally {
 			try {
-				SocketFunctions.connectionClose(socket);
+				SocketUtilities.connectionClose(socket);
 			} catch (IOException e) {
 				//this should not be thrown
 				AppLogger.getLogger().consolePrint(PRE + "GET RedNode SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());

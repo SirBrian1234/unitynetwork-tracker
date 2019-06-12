@@ -9,16 +9,15 @@ import java.security.PublicKey;
 import java.sql.Time;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.functions.CryptoMethods;
+import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 
 public class BlueNodeEntryTest {
 
 	static String hostname = "ouiou";
 	static String address = "10.0.0.1";
 	static int port = 4440;
-	static PublicKey pub = CryptoMethods.generateRSAkeyPair().getPublic();
+	static PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
 
 	@BeforeClass
 	public static void before() {
