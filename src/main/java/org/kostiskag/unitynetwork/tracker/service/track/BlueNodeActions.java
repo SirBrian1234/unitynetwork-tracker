@@ -43,7 +43,7 @@ public class BlueNodeActions {
     /**
      * lease a bluenode on the network
      *
-     * @throws Exception
+     * @throws
      */
     public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
 
@@ -95,7 +95,7 @@ public class BlueNodeActions {
      * lease a rednode on the network over a bluenode
      * on a successful lease a full ip is returned
      *
-     * @throws Exception
+     * @throws
      */
     public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String password,
                                 DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
@@ -198,7 +198,7 @@ public class BlueNodeActions {
     /**
      * releases a rednode from a bluenode
      *
-     * @throws Exception
+     * @throws
      */
     public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws IOException, GeneralSecurityException, IllegalAccessException, InterruptedException {
         String data = null;
@@ -228,7 +228,7 @@ public class BlueNodeActions {
     /**
      * provides the physical address and port of a known bluenode
      *
-     * @throws Exception
+     * @throws
      */
     public static void GetPh(Lock lock, String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
@@ -245,7 +245,7 @@ public class BlueNodeActions {
     /**
      * checks whether a RN is ONLINE and from which BN is connected
      *
-     * @throws Exception
+     * @throws
      */
     public static void CheckRn(Lock lock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
@@ -261,7 +261,7 @@ public class BlueNodeActions {
     /**
      * checks whether a RN based on its virtual address is ONLINE and from which BN is connected
      *
-     * @throws Exception
+     * @throws
      */
     public static void CheckRnAddr(Lock lock, String vaddress, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         Queries q = null;

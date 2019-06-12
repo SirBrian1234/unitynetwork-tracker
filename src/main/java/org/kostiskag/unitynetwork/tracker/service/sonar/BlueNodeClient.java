@@ -161,7 +161,7 @@ public class BlueNodeClient {
 					AppLogger.getLogger().consolePrint(PRE + "A BN was feeding duplicate rn entries" + bn.getHostname() + " at " + bn.getAddress().asString() + ": "+ ex.getMessage());
 				}
 			}
-		} catch (IOException e) {
+		} catch (GeneralSecurityException | IOException e) {
 			//this should be thrown!
 			AppLogger.getLogger().consolePrint(PRE + "BN GET RedNode LIST EXCEPTION for" + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			throw e;

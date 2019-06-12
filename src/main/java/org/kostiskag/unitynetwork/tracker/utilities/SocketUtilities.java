@@ -94,7 +94,7 @@ public class SocketUtilities {
     	return byteT; 		
     }
     
-    public static byte[] sendReceiveData(byte[] toSend, DataInputStream reader, DataOutputStream writer) throws Exception  {
+    public static byte[] sendReceiveData(byte[] toSend, DataInputStream reader, DataOutputStream writer) throws IOException {
     	sendData(toSend, writer);
     	byte[] received = receiveData(reader);
     	return received;
@@ -233,19 +233,19 @@ public class SocketUtilities {
     }
 
     @Deprecated
-    public static void sendFinalData(String data,PrintWriter outputWriter) throws Exception {
+    public static void sendFinalData(String data,PrintWriter outputWriter) throws IOException  {
         if (data == null) {
         	AppLogger.getLogger().consolePrint(pre + "NO DATA TO SEND");
-            throw new Exception(pre + "NO DATA TO SEND");
+            throw new IOException(pre + "NO DATA TO SEND");
         }
         outputWriter.println(data);
     }
 
     @Deprecated
-    public static String[] readData(BufferedReader inputReader) throws Exception  {
+    public static String[] readData(BufferedReader inputReader) throws IOException {
     	if (inputReader == null){
     		AppLogger.getLogger().consolePrint(pre + "READ DATA FAILED, NO CONNECTION");
-            throw new Exception(pre + "READ DATA FAILED, NO CONNECTION");
+            throw new IOException(pre + "READ DATA FAILED, NO CONNECTION");
     	}
         
         String receivedMessage = null;
