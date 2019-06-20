@@ -2,6 +2,7 @@ package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
@@ -26,7 +27,7 @@ public class BlueNodeEntry  extends NodeEntry<PhysicalAddress> {
         super(hostname, phAddress);
         if (pub == null) {
             throw new IllegalAccessException("given data where null!");
-        } else if (port <= 0 || port > App.MAX_ALLOWED_PORT_NUM) {
+        } else if (port <= 0 || port > NumericConstraints.MAX_ALLOWED_PORT_NUM.size()) {
             throw new IllegalAccessException("given data where not valid!");
         } else {
             this.pub = pub;

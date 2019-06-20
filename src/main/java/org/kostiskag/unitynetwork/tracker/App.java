@@ -9,6 +9,7 @@ import javax.swing.*;
 
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.utilities.ReadPreferencesFile;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
@@ -21,19 +22,6 @@ import org.kostiskag.unitynetwork.tracker.service.track.TrackServer;
  */
 public class App {
 
-    // user input max sizes
-    public static final int MAX_INT_STR_LEN = 32;
-    public static final int MAX_STR_LEN_SMALL_SIZE = 128;
-    public static final int MAX_STR_LEN_LARGE_SIZE = 256;
-    public static final int MIN_PASSWORD_LEN = 5;
-    public static final int MIN_USERNAME_LEN = 4;
-    public static final int MAX_STR_ADDR_LEN = "255.255.255.255".length();
-    public static final int MIN_STR_ADDR_LEN = "1.1.1.1".length();
-    public static final int MAX_ALLOWED_PORT_NUM = 65535;
-
-    // network maths
-    public static final int VIRTUAL_NETWORK_ADDRESS_CAPACITY = (int) (Math.pow(2, 24) - 2);
-    public static final int SYSTEM_RESERVED_ADDRESS_NUMBER = 1;
     // salt
     // you will have to wait for the network branch for this to change
     public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
@@ -187,7 +175,7 @@ public class App {
             TrackServer.newInstance(auth).start();
         } catch (IllegalAccessException e) {
             AppLogger.getLogger().consolePrint("wrong tcp port range use from 1 to "
-                    + App.MAX_ALLOWED_PORT_NUM + ". Fix the " + CONFIG_FILE_NAME);
+                    + NumericConstraints.MAX_ALLOWED_PORT_NUM.size() + ". Fix the " + CONFIG_FILE_NAME);
             die();
         }
 

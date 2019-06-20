@@ -10,6 +10,7 @@ import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 
@@ -124,7 +125,7 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
     public void lease(Lock lock, String hostname, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
         validateLock(lock);
-    	if (hostname.length() > 0 && hostname.length() <= App.MAX_STR_LEN_SMALL_SIZE) {
+    	if (hostname.length() > 0 && hostname.length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()) {
 
             RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
             if(list.contains(rn)) {

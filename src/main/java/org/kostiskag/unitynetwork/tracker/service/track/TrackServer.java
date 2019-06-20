@@ -5,6 +5,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 /**
  * The auth server listens for bluenode and rednode clients
@@ -23,7 +24,7 @@ public class TrackServer extends Thread{
     private final int authPort;
     
     private TrackServer(int authport) throws IllegalAccessException {
-        if(authport <= 0 || authport > App.MAX_ALLOWED_PORT_NUM) {
+        if(authport <= 0 || authport > NumericConstraints.MAX_ALLOWED_PORT_NUM.size()) {
             throw new IllegalAccessException("Port range out of range.");
         }
         this.authPort = authport;

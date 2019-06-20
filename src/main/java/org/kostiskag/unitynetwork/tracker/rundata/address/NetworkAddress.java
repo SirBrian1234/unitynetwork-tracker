@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 public class NetworkAddress {
 
@@ -15,7 +16,7 @@ public class NetworkAddress {
 
     public NetworkAddress(String address) throws UnknownHostException {
         //also should throw a regex here!
-        if (address.length() > App.MAX_STR_ADDR_LEN || address.length() < App.MIN_STR_ADDR_LEN) {
+        if (address.length() > NumericConstraints.MAX_STR_ADDR.size() || address.length() < NumericConstraints.MIN_STR_ADDR.size()) {
             throw new UnknownHostException("the given ip is invalid");
         }
         this.asString = address;

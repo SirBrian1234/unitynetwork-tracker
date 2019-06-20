@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
 
@@ -178,8 +179,8 @@ public class EditBluenode {
 
 	private void updateEntry() {
 		if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()) {
-			if (textField_1.getText().length() <= App.MAX_STR_LEN_SMALL_SIZE
-					&& textField_2.getText().length() <= App.MAX_INT_STR_LEN) {
+			if (textField_1.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()
+					&& textField_2.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
 
 				int userid = -1;
 				try {
@@ -237,8 +238,8 @@ public class EditBluenode {
 				frmEditBluenodeEntry.dispose();
 
 			} else {
-				lblNewLabel.setText("<html>Please provide a Hostname up to " + App.MAX_STR_LEN_SMALL_SIZE
-						+ " characters and a number up to " + App.MAX_INT_STR_LEN + " digits.</html>");
+				lblNewLabel.setText("<html>Please provide a Hostname up to " + NumericConstraints.MAX_STR_LEN_SMALL.size()
+						+ " characters and a number up to " + NumericConstraints.MAX_INT_STR.size() + " digits.</html>");
 			}
 		} else {
 			lblNewLabel.setText("<html>Please fill in all the fields.</html>");

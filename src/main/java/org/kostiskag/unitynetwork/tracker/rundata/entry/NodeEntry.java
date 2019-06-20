@@ -4,6 +4,7 @@ import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.rundata.address.NetworkAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 import java.sql.Time;
 
@@ -17,7 +18,7 @@ public class NodeEntry<A extends NetworkAddress> {
     public NodeEntry(String hostname, A address) throws IllegalAccessException {
         if (hostname == null || address == null) {
             throw new IllegalAccessException("given hostname address were null!");
-        } else if (hostname.isEmpty() || hostname.length() > App.MAX_STR_LEN_SMALL_SIZE) {
+        } else if (hostname.isEmpty() || hostname.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
             throw new IllegalAccessException("given hostname not valid!");
         } else if (!(address instanceof VirtualAddress) && !(address instanceof PhysicalAddress)) {
             //Only permited addresses are either VirtualAddress or Physical Address no NetworkAddress

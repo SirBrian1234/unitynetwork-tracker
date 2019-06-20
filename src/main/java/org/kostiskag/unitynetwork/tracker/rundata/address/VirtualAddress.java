@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 /**
  *
@@ -17,7 +18,7 @@ public final class VirtualAddress extends NetworkAddress{
     // from 10.255.255.254 in byte[] (aka: the last permitted host) is substracted
     // the number of system reserved addresses to find the number
     public static final int MAX_INT_CAPACITY = VirtualAddress.byteTo10IpAddrNumber(new byte[] {(byte) 0x0a, (byte) 0xff, (byte) 0xff, (byte) 0xfe})
-            - App.SYSTEM_RESERVED_ADDRESS_NUMBER;
+            - NumericConstraints.SYSTEM_RESERVED_ADDRESS_NUMBER.size();
 
     private final int asInt;
 
@@ -27,7 +28,7 @@ public final class VirtualAddress extends NetworkAddress{
     }
 
     public static VirtualAddress valueOf(String vAddress) throws UnknownHostException {
-        if (vAddress.length() > App.MAX_STR_ADDR_LEN || vAddress.length() < App.MIN_STR_ADDR_LEN) {
+        if (vAddress.length() > NumericConstraints.MAX_STR_ADDR.size() || vAddress.length() < NumericConstraints.MIN_STR_ADDR.size()) {
             throw new UnknownHostException("the given ip is invalid");
         }
         InetAddress asInet = NetworkAddress.networkAddressToInetAddress(vAddress);
@@ -86,7 +87,7 @@ public final class VirtualAddress extends NetworkAddress{
 
     public static byte[] numberTo10IpByteAddress(int numAddr) {
         byte[] networkpart = new byte[]{0x0a};
-        int hostnum = numAddr + App.SYSTEM_RESERVED_ADDRESS_NUMBER;
+        int hostnum = numAddr + NumericConstraints.SYSTEM_RESERVED_ADDRESS_NUMBER.size();
 
         byte[] hostpart = new byte[]{
                 (byte) ((hostnum) >>> 16),
@@ -116,7 +117,7 @@ public final class VirtualAddress extends NetworkAddress{
         for (int i = 0; i < hostpart.length; i++) {
             hostnum = (hostnum << 8) + (hostpart[i] & 0xff);
         }
-        hostnum = hostnum - App.SYSTEM_RESERVED_ADDRESS_NUMBER;
+        hostnum = hostnum - NumericConstraints.SYSTEM_RESERVED_ADDRESS_NUMBER.size();
         return hostnum;
     }
 

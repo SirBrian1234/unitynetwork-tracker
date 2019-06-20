@@ -24,6 +24,7 @@ import javax.swing.JTextField;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 /**
  * 
@@ -152,13 +153,13 @@ public class EditUser {
 			public void actionPerformed(ActionEvent e) {
 
 				String givenFullname = textField_3.getText();
-				if (givenFullname.length() > App.MAX_STR_LEN_SMALL_SIZE) {
-					label.setText("<html>Please set a fullname not more than " + App.MAX_STR_LEN_SMALL_SIZE + " characters.</html>");
+				if (givenFullname.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+					label.setText("<html>Please set a fullname not more than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
 					return;
 				}
 
-				if (givenFullname.length() < App.MIN_USERNAME_LEN) {
-					label.setText("<html>Please set a fullname " + App.MIN_USERNAME_LEN + " characters or more.</html>");
+				if (givenFullname.length() < NumericConstraints.MIN_USERNAME.size()) {
+					label.setText("<html>Please set a fullname " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
 					return;
 				}
 
@@ -172,15 +173,15 @@ public class EditUser {
 
 				if (type == 0) {
 					String givenUsername = textField_1.getText();
-					if (givenUsername.length() > App.MAX_STR_LEN_SMALL_SIZE) {
-						label.setText("<html>Please provide one username which is less than " + App.MAX_STR_LEN_SMALL_SIZE
+					if (givenUsername.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+						label.setText("<html>Please provide one username which is less than " + NumericConstraints.MAX_STR_LEN_SMALL.size()
 								+ " characters.</html>");
 						return;
 					}
 					
-					if (givenUsername.length() < App.MIN_USERNAME_LEN) {
+					if (givenUsername.length() < NumericConstraints.MIN_USERNAME.size()) {
 						label.setText(
-								"<html>Please provide one username " + App.MIN_USERNAME_LEN + " characters or more.</html>");
+								"<html>Please provide one username " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
 						return;
 					}
 					
@@ -193,13 +194,13 @@ public class EditUser {
 					}
 					
 					String givenPassword = new String(passwordField.getPassword());
-					if (givenPassword.length() > App.MAX_STR_LEN_SMALL_SIZE) {
-						label.setText("<html>Please set a password less than " + App.MAX_STR_LEN_SMALL_SIZE + " characters.</html>");
+					if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+						label.setText("<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
 						return;
 					}
 
-					if (givenPassword.length() < App.MIN_PASSWORD_LEN) {
-						label.setText("<html>Please provide a password " + App.MIN_PASSWORD_LEN + " characters or more.</html>");
+					if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
+						label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
 						return;
 					}
 					
@@ -216,14 +217,14 @@ public class EditUser {
 						// we have to provide all the other fields along with a
 						// new password
 						String givenPassword = new String(passwordField.getPassword());
-						if (givenPassword.length() > App.MAX_STR_LEN_LARGE_SIZE) {
+						if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_LARGE.size()) {
 							label.setText(
-									"<html>Please set a password less than " + App.MAX_STR_LEN_LARGE_SIZE + " characters.</html>");
+									"<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_LARGE.size() + " characters.</html>");
 							return;
 						}
 
-						if (givenPassword.length() < App.MIN_PASSWORD_LEN) {
-							label.setText("<html>Please provide a password " + App.MIN_PASSWORD_LEN + " characters or more.</html>");
+						if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
+							label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
 							return;
 						}
 
