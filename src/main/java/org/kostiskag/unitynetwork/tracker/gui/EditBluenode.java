@@ -17,10 +17,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 
 /**
  * 

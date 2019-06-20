@@ -10,7 +10,7 @@ import java.security.PublicKey;
 import java.sql.Time;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 
 public class BlueNodeEntryTest {

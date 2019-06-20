@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.utilities;
+package org.kostiskag.unitynetwork.tracker.rundata.utilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
 import javax.crypto.SecretKey;

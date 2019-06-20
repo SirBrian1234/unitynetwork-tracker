@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.utilities;
+package org.kostiskag.unitynetwork.tracker.rundata.utilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;

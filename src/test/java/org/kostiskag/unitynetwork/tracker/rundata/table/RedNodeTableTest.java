@@ -11,7 +11,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
-import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 

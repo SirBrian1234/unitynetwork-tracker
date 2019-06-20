@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.utilities;
+package org.kostiskag.unitynetwork.tracker.rundata.utilities;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;

@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 
 public class BlueNodeTableTest {
 

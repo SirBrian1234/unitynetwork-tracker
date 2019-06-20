@@ -1,6 +1,5 @@
-package org.kostiskag.unitynetwork.tracker.utilities;
+package org.kostiskag.unitynetwork.tracker.rundata.utilities;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

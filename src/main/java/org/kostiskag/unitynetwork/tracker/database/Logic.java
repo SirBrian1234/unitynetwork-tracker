@@ -1,16 +1,14 @@
 package org.kostiskag.unitynetwork.tracker.database;
 
-import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.utilities.HashUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.tracker.rundata.utilities.HashUtilities;
 
 /**
  * The database upper logic which calls methods from Queries
