@@ -18,6 +18,8 @@ import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.TrackerToBlueNode;
+
 
 /**
  * These utilities are being used from the sonar service - the tracker client
@@ -95,8 +97,8 @@ public class BlueNodeClient {
 
     public boolean testBnOnline()  {
     	try {
-    		AppLogger.getLogger().consolePrint(PRE +"CHECK"+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
-	    	String[] args = SocketUtilities.sendReceiveAESEncryptedStringData("CHECK",  socketReader, socketWriter, sessionKey);
+    		AppLogger.getLogger().consolePrint(PRE +TrackerToBlueNode.CHECK_IF_ALIVE.value()+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
+	    	String[] args = SocketUtilities.sendReceiveAESEncryptedStringData(TrackerToBlueNode.CHECK_IF_ALIVE.value(),  socketReader, socketWriter, sessionKey);
 	        SocketUtilities.connectionClose(socket);
 	        if (args[0].equals("OK")) {
 	        	return true;
@@ -104,7 +106,7 @@ public class BlueNodeClient {
 	        	throw new IOException();
 			}
     	} catch (GeneralSecurityException | IOException e) {
-			AppLogger.getLogger().consolePrint(PRE +"CHECK"+" BN OFFLINE "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE +TrackerToBlueNode.CHECK_IF_ALIVE.value()+" BN OFFLINE "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
 			return false;
 		} finally {
 			try {
@@ -117,16 +119,16 @@ public class BlueNodeClient {
     
     public void sendkillsig() {
     	try {
-			AppLogger.getLogger().consolePrint(PRE + "KILLSIG" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
-			SocketUtilities.sendAESEncryptedStringData("KILLSIG", socketWriter, sessionKey);
+			AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.KILLING_SIGNAL.value() + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
+			SocketUtilities.sendAESEncryptedStringData(TrackerToBlueNode.KILLING_SIGNAL.value(), socketWriter, sessionKey);
 			SocketUtilities.connectionClose(socket);
 		} catch (GeneralSecurityException | IOException e) {
-			AppLogger.getLogger().consolePrint(PRE + "KILLSIG EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.KILLING_SIGNAL.value()+" EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 		} finally {
 			try {
 				SocketUtilities.connectionClose(socket);
 			} catch (IOException e) {
-				AppLogger.getLogger().consolePrint(PRE + "KILLSIG SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
+				AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.KILLING_SIGNAL.value()+" SOCKET CLOSE EXCEPTION" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			}
 		}
     }
@@ -134,8 +136,8 @@ public class BlueNodeClient {
     public List<RedNodeEntry> getRedNodes() throws GeneralSecurityException, IOException {
     	List<RedNodeEntry> list = new ArrayList<>();
 		try {
-			AppLogger.getLogger().consolePrint(PRE + "GETREDNODES" + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
-			SocketUtilities.sendAESEncryptedStringData("GETREDNODES", socketWriter, sessionKey);
+			AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.GET_ALL_LEASED_REDNODES.value() + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
+			SocketUtilities.sendAESEncryptedStringData(TrackerToBlueNode.GET_ALL_LEASED_REDNODES.value(), socketWriter, sessionKey);
 			String received = SocketUtilities.receiveAESEncryptedString(socketReader, sessionKey);
 			SocketUtilities.connectionClose(socket);
 
