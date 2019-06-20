@@ -24,10 +24,23 @@ public class App {
     // salt
     // you will have to wait for the network branch for this to change
     public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
+
     // file names
-    public static final String CONFIG_FILE_NAME = "tracker.conf";
-    public static final String LOG_FILE_NAME = "tracker.log";
-    public static final String KEY_PAIR_FILE_NAME = "public_private.keypair";
+    private enum FileNames {
+        CONFIG_FILE_NAME("tracker.conf"),
+        LOG_FILE_NAME("tracker.log"),
+        KEY_PAIR_FILE_NAME("public_private.keypair");
+
+        private String n;
+
+        FileNames(String name) {
+            this.n = name;
+        }
+
+        public String fileName() {
+            return n;
+        }
+    }
 
     //this is a singleton although not enforced
     public static App TRACKER_APP;
@@ -73,13 +86,13 @@ public class App {
         // 3. log
         File logFile = null;
         if (log) {
-            System.out.println("Initializing log file " + LOG_FILE_NAME);
-            logFile = new File(LOG_FILE_NAME);
+            System.out.println("Initializing log file " + FileNames.LOG_FILE_NAME.fileName());
+            logFile = new File(FileNames.LOG_FILE_NAME.fileName());
             try (FileWriter fw = new FileWriter(logFile, false)) {
                 fw.write("---------------------------------------------------------------\n");
             } catch (IOException ex) {
                 System.out.println(
-                        "Log file error! If the error continues disable logging from the " + CONFIG_FILE_NAME + " file.");
+                        "Log file error! If the error continues disable logging from the " + FileNames.CONFIG_FILE_NAME.fileName() + " file.");
                 die();
             }
         }
@@ -98,7 +111,7 @@ public class App {
                     } catch (Exception ex1) {
                         System.err.println(
                                 "Although requested for GUI there are no Java GUI libs on the system. If you are unable to solve this error you may disable the GUI from the "
-                                        + CONFIG_FILE_NAME + " config file.");
+                                        + FileNames.CONFIG_FILE_NAME.fileName() + " config file.");
                         die();
                     }
                 }
@@ -123,7 +136,7 @@ public class App {
         AppLogger.getLogger().consolePrint("");
 
         // 6. RSA key pair
-        File keyPairFile = new File(KEY_PAIR_FILE_NAME);
+        File keyPairFile = new File(FileNames.KEY_PAIR_FILE_NAME.fileName());
         KeyPair keys = null;
         if (keyPairFile.exists()) {
             // the tracker has key pair
@@ -174,7 +187,7 @@ public class App {
             TrackServer.newInstance(auth).start();
         } catch (IllegalAccessException e) {
             AppLogger.getLogger().consolePrint("wrong tcp port range use from 1 to "
-                    + NumericConstraints.MAX_ALLOWED_PORT_NUM.size() + ". Fix the " + CONFIG_FILE_NAME);
+                    + NumericConstraints.MAX_ALLOWED_PORT_NUM.size() + ". Fix the " + FileNames.CONFIG_FILE_NAME.fileName());
             die();
         }
 
@@ -183,7 +196,7 @@ public class App {
             SonarService.newInstance(pingTime).start();
         } catch (IllegalAccessException e) {
             AppLogger.getLogger().consolePrint("Non valid ping time detected. Please correct the "
-                    + CONFIG_FILE_NAME + " file");
+                    + FileNames.CONFIG_FILE_NAME.fileName() + " file");
             die();
         }
 
@@ -230,29 +243,29 @@ public class App {
      */
     public static void main(String[] args) {
         System.out.println("@Started main at " + Thread.currentThread().getName());
-        System.out.println("Opening configuration file " + CONFIG_FILE_NAME + "...");
-        File file = new File(CONFIG_FILE_NAME);
+        System.out.println("Opening configuration file " + FileNames.CONFIG_FILE_NAME.fileName() + "...");
+        File file = new File(FileNames.CONFIG_FILE_NAME.fileName());
         ReadPreferencesFile prefFile = null;
         if (file.exists()) {
             try (InputStream filein = new FileInputStream(file)) {
                 prefFile = ReadPreferencesFile.ParseFile(filein);
             } catch (Exception e) {
-                System.err.println("File " + CONFIG_FILE_NAME + " could not be loaded");
+                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded");
             }
         } else {
-            System.out.println("The " + CONFIG_FILE_NAME
+            System.out.println("The " + FileNames.CONFIG_FILE_NAME.fileName()
                     + " file was not found in the dir. Generating new file with the default settings");
             try {
                 ReadPreferencesFile.GenerateFile(file);
             } catch (IOException e) {
-                System.err.println("File " + CONFIG_FILE_NAME + " could not be created.");
+                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be created.");
                 die();
             }
 
             try (InputStream filein = new FileInputStream(file)) {
                 prefFile = ReadPreferencesFile.ParseFile(filein);
             } catch (IOException e) {
-                System.err.println("File " + CONFIG_FILE_NAME + " could not be loaded.");
+                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded.");
                 die();
             }
         }

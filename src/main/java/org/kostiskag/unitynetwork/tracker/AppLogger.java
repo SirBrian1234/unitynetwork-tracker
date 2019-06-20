@@ -42,7 +42,7 @@ public class AppLogger {
         System.out.println(message);
 
         if (loggersFile != null) {
-            try (FileWriter fw = new FileWriter(App.LOG_FILE_NAME, true)) {
+            try (FileWriter fw = new FileWriter(loggersFile, true)) {
                 fw.append(message + "\n");
             } catch (IOException ex) {
                 System.out.println(ex.getMessage());
