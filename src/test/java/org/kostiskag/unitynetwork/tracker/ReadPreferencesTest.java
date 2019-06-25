@@ -14,8 +14,7 @@ public class ReadPreferencesTest {
     var file = new File(name);
     ReadPreferencesFile.GenerateFile(file);
 
-    var filein = new FileInputStream(file);
-    var r  = ReadPreferencesFile.ParseFile(filein);
+    var r  = ReadPreferencesFile.ParseFile(file);
 
     assertEquals("UnityNetwork", r.netName);
     assertEquals(8000, r.auth);

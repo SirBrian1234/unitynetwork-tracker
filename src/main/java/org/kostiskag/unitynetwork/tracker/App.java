@@ -247,9 +247,9 @@ public class App {
         File file = new File(FileNames.CONFIG_FILE_NAME.fileName());
         ReadPreferencesFile prefFile = null;
         if (file.exists()) {
-            try (InputStream filein = new FileInputStream(file)) {
-                prefFile = ReadPreferencesFile.ParseFile(filein);
-            } catch (Exception e) {
+            try {
+                prefFile = ReadPreferencesFile.ParseFile(file);
+            } catch (IOException e) {
                 System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded");
             }
         } else {
@@ -262,8 +262,8 @@ public class App {
                 die();
             }
 
-            try (InputStream filein = new FileInputStream(file)) {
-                prefFile = ReadPreferencesFile.ParseFile(filein);
+            try {
+                prefFile = ReadPreferencesFile.ParseFile(file);
             } catch (IOException e) {
                 System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded.");
                 die();
