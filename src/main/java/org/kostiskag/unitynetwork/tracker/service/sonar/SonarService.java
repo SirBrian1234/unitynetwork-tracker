@@ -19,11 +19,11 @@ import java.util.concurrent.locks.Lock;
  */
 public class SonarService extends Thread {
 
-    private final static String pre = "^Ping ";
+    private final static String pre = "^SONAR ";
     private static SonarService SONAR_SERVICE;
 
     private final int time;
-    private AtomicBoolean kill = new AtomicBoolean(false);
+    private final AtomicBoolean kill = new AtomicBoolean(false);
 
     private SonarService(int time) throws IllegalAccessException {
         if (time <= 0) {
@@ -45,14 +45,15 @@ public class SonarService extends Thread {
 
     @Override
     public void run() {
-        AppLogger.getLogger().consolePrint(pre+"started in thread "+Thread.currentThread()+" with time "+time+" sec");
-        while (kill.get()) {
+        AppLogger.getLogger().consolePrint(pre+"Started at thread "+Thread.currentThread()+" with refresh time " + time + " sec");
+        while (!kill.get()) {
             try {
                 sleep(time*1000);
             } catch (InterruptedException ex) {
                 AppLogger.getLogger().consolePrint(ex.getMessage());
+            } finally {
+                if (kill.get()) break;
             }
-            if (kill.get()) break;
             try {
                 Lock lock = BlueNodeTable.getInstance().aquireLock();
                 AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
@@ -63,6 +64,7 @@ public class SonarService extends Thread {
                 BlueNodeTable.getInstance().releaseLock();
             }
         }
+        AppLogger.getLogger().consolePrint(pre + "stopped");
     }
     
     public void kill(){

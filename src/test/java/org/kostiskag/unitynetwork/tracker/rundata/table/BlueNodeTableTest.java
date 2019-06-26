@@ -48,7 +48,7 @@ public class BlueNodeTableTest {
         q.insertEntryBluenodes("pakis3", id, "");
         q.insertEntryBluenodes("pakis4", id, "");
         //q.closeQueries();
-        BlueNodeTable.newInstance(2);
+        BlueNodeTable.newInstance(2, null);
     }
 
     @AfterClass

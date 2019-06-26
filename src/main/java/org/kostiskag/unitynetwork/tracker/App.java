@@ -3,6 +3,8 @@ package org.kostiskag.unitynetwork.tracker;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 import javax.swing.*;
@@ -19,46 +21,50 @@ import org.kostiskag.unitynetwork.tracker.service.track.TrackServer;
 /**
  * @author Konstantinos Kagiampakis
  */
-public class App {
-
-    // salt
-    // you will have to wait for the network branch for this to change
-    public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
+public final class App {
 
     // file names
     private enum FileNames {
-        CONFIG_FILE_NAME("tracker.conf"),
-        LOG_FILE_NAME("tracker.log"),
-        KEY_PAIR_FILE_NAME("public_private.keypair");
+        CONFIG_FILE("tracker.conf"),
+        LOG_FILE("tracker.log"),
+        KEY_PAIR_FILE("public_private.keypair");
 
-        private String n;
+        private File f;
 
         FileNames(String name) {
-            this.n = name;
+            this.f = new File(name);
         }
 
-        public String fileName() {
-            return n;
+        public File getFile() {
+            return f;
         }
     }
+
+    //SALT
+    //this has to be generated
+    public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
 
     //this is a singleton although not enforced
     public static App TRACKER_APP;
 
     //These are the imported settings from file
-    public final String netName;
-    public final int auth;
+    private final String netName;
+    private final int auth;
     // database
-    public final String databaseUrl;
-    public final String user;
-    public final String password;
+    private final String databaseUrl;
+    private final String user;
+    private final String password;
     // capacity
-    public final int bncap;
-    public final int pingTime;
-    public final boolean gui;
-    public final boolean log;
+    private final int bncap;
+    private final int pingTime;
+    private final boolean gui;
+    private final boolean log;
+
     //keypair
-    public final KeyPair trackerKeys;
+    //the private key has to be secure at all times!, therefore it is going to be provided as a constructor dependency,
+    //only to the objects requiring it in order to reach
+    //BlueNodeClient, TrackService that use it
+    private final KeyPair trackerKeys;
 
     private App(ReadPreferencesFile pref) {
         this.netName = pref.netName;
@@ -71,7 +77,21 @@ public class App {
         this.gui = pref.gui;
         this.log = pref.log;
 
-        //1. DB object
+        // 1. log file
+        File logFile = null;
+        if (log) {
+            System.out.println("Initializing log file " + FileNames.LOG_FILE.getFile());
+            logFile = FileNames.LOG_FILE.getFile();
+            try (FileWriter fw = new FileWriter(logFile, false)) {
+                fw.write("---------------------------------------------------------------\n");
+            } catch (IOException ex) {
+                System.out.println(
+                        "Log file error! If the error continues disable logging from the " + FileNames.CONFIG_FILE.getFile() + " file.");
+                die();
+            }
+        }
+
+        // 2. DB object
         try {
             Database.newInstance(this.databaseUrl, this.user, this.password);
         } catch (SQLException e) {
@@ -79,25 +99,7 @@ public class App {
             die();
         }
 
-        // 2. BN table
-        System.out.println("Initializing BN table...");
-        BlueNodeTable.newInstance(this.bncap);
-
-        // 3. log
-        File logFile = null;
-        if (log) {
-            System.out.println("Initializing log file " + FileNames.LOG_FILE_NAME.fileName());
-            logFile = new File(FileNames.LOG_FILE_NAME.fileName());
-            try (FileWriter fw = new FileWriter(logFile, false)) {
-                fw.write("---------------------------------------------------------------\n");
-            } catch (IOException ex) {
-                System.out.println(
-                        "Log file error! If the error continues disable logging from the " + FileNames.CONFIG_FILE_NAME.fileName() + " file.");
-                die();
-            }
-        }
-
-        // 4. gui
+        // 3. gui (uses db object)
         if (gui) {
             System.out.println("Checking GUI libraries...");
             try {
@@ -111,7 +113,7 @@ public class App {
                     } catch (Exception ex1) {
                         System.err.println(
                                 "Although requested for GUI there are no Java GUI libs on the system. If you are unable to solve this error you may disable the GUI from the "
-                                        + FileNames.CONFIG_FILE_NAME.fileName() + " config file.");
+                                        + FileNames.CONFIG_FILE.getFile() + " config file.");
                         die();
                     }
                 }
@@ -122,21 +124,13 @@ public class App {
             MainWindow.getInstance().showWindow();
         }
 
-        //5. Logger
+        // 4. Logger (uses gui and log file)
         AppLogger.newInstance(MainWindow.getInstance(), logFile);
+        //Time to verbose App
+        AppLogger.getLogger().consolePrint(this.toString());
 
-        AppLogger.getLogger().consolePrint("");
-        AppLogger.getLogger().consolePrint("NetworkName is " + this.netName);
-        AppLogger.getLogger().consolePrint("AuthPort is " + this.auth);
-        AppLogger.getLogger().consolePrint("Database URL is " + this.databaseUrl);
-        AppLogger.getLogger().consolePrint("BlueNodeLimit is " + this.bncap);
-        AppLogger.getLogger().consolePrint("ping time is " + this.pingTime + " sec");
-        AppLogger.getLogger().consolePrint("gui is " + this.gui);
-        AppLogger.getLogger().consolePrint("logging is " + this.log);
-        AppLogger.getLogger().consolePrint("");
-
-        // 6. RSA key pair
-        File keyPairFile = new File(FileNames.KEY_PAIR_FILE_NAME.fileName());
+        // 5. RSA key pair
+        File keyPairFile = FileNames.KEY_PAIR_FILE.getFile();
         KeyPair keys = null;
         if (keyPairFile.exists()) {
             // the tracker has key pair
@@ -169,40 +163,54 @@ public class App {
         //finalizing!
         trackerKeys = keys;
 
+        // 6. BN table (uses keypair)
+        System.out.println("Initializing BN table...");
+        BlueNodeTable.newInstance(this.bncap, this.trackerKeys);
+
         // 7. database
         AppLogger.getLogger().consolePrint("Testing Database Connection on " + databaseUrl + " ... ");
-        testDbConnection();
+        Database db =Database.getInstance();;
         try {
-            Queries.validateDatabase();
+            db.connect();
+            Queries.validate(db);
+            db.close();
         } catch (SQLException e) {
             AppLogger.getLogger().consolePrint("Database validation failed.");
-            e.printStackTrace();
-            die();
+            AppLogger.getLogger().consolePrint(e.getMessage());
+            try {
+                AppLogger.getLogger().consolePrint("Attempting to close database.");
+                db.close();
+            } catch (SQLException e1) {
+                AppLogger.getLogger().consolePrint(e1.getMessage());
+            } finally {
+                die();
+            }
         }
         AppLogger.getLogger().consolePrint("Database validation complete.");
 
-        // 8. track service
-        AppLogger.getLogger().consolePrint("Initializing AuthService on port " + auth + " ...");
-        try {
-            TrackServer.newInstance(auth).start();
-        } catch (IllegalAccessException e) {
-            AppLogger.getLogger().consolePrint("wrong tcp port range use from 1 to "
-                    + NumericConstraints.MAX_ALLOWED_PORT_NUM.size() + ". Fix the " + FileNames.CONFIG_FILE_NAME.fileName());
-            die();
-        }
-
-        // 9. sonar service
+        // 8. sonar service
         try {
             SonarService.newInstance(pingTime).start();
         } catch (IllegalAccessException e) {
             AppLogger.getLogger().consolePrint("Non valid ping time detected. Please correct the "
-                    + FileNames.CONFIG_FILE_NAME.fileName() + " file");
+                    + FileNames.CONFIG_FILE.getFile() + " file");
             die();
         }
 
+        // 9. track service (uses keypair)
+        AppLogger.getLogger().consolePrint("Initializing Track Service on port " + auth + " ...");
+        try {
+            TrackServer.newInstance(auth, trackerKeys).start();
+        } catch (IllegalAccessException e) {
+            AppLogger.getLogger().consolePrint("wrong tcp port range use from 1 to "
+                    + NumericConstraints.MAX_ALLOWED_PORT_NUM.size() + ". Fix the " + FileNames.CONFIG_FILE.getFile());
+            die();
+        }
     }
 
-    public void terminate() {
+    public synchronized void terminate() {
+        //A tracker's responsibility on a soft exit is to inform all the connected bluenodes
+        //for the upcoming exit
         SonarService.getInstance().kill();
         try {
             Lock lock = BlueNodeTable.getInstance().aquireLock();
@@ -216,56 +224,57 @@ public class App {
         die();
     }
 
-    public static void die() {
+    public synchronized static void die() {
         System.out.println("Tracker is going to exit.");
         System.exit(1);
     }
 
-    private void testDbConnection() {
-        Database db = Database.getInstance();
-        try {
-            db.connect();
-            db.close();
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getMessage());
-            try {
-                db.close();
-            } catch (SQLException e1) {
-                AppLogger.getLogger().consolePrint(e1.getMessage());
-            } finally {
-                die();
-            }
-        }
+    @Override
+    public String toString() {
+        return String.join("\n",
+            "",
+            "NetworkName is " + this.netName,
+            "AuthPort is " + this.auth,
+            "Database URL is " + this.databaseUrl,
+            "BlueNodeLimit is " + this.bncap,
+            "ping time is " + this.pingTime + " sec",
+            "gui is " + this.gui,
+            "logging is " + this.log,
+            //tracker keys not showing
+            ""
+        );
     }
 
     /**
      * The app's main class here
      */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         System.out.println("@Started main at " + Thread.currentThread().getName());
-        System.out.println("Opening configuration file " + FileNames.CONFIG_FILE_NAME.fileName() + "...");
-        File file = new File(FileNames.CONFIG_FILE_NAME.fileName());
+        //Reading configuration settings from file
+        System.out.println("Opening configuration file " + FileNames.CONFIG_FILE.getFile() + "...");
+        File file = FileNames.CONFIG_FILE.getFile();
         ReadPreferencesFile prefFile = null;
         if (file.exists()) {
             try {
                 prefFile = ReadPreferencesFile.ParseFile(file);
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded");
+                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " although existing, could not be loaded");
+                die();
             }
         } else {
-            System.out.println("The " + FileNames.CONFIG_FILE_NAME.fileName()
+            System.out.println("The " + FileNames.CONFIG_FILE.getFile()
                     + " file was not found in the dir. Generating new file with the default settings");
             try {
                 ReadPreferencesFile.GenerateFile(file);
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be created.");
+                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be created.");
                 die();
             }
 
             try {
                 prefFile = ReadPreferencesFile.ParseFile(file);
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE_NAME.fileName() + " could not be loaded.");
+                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be loaded.");
                 die();
             }
         }

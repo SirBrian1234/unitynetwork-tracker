@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.PublicKey;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
@@ -50,13 +51,15 @@ public class TrackService extends Thread {
 	private final String pre = "^TrackService ";
 	private final String prebn = "Bluenode ";
 	private final String prern = "Rednode ";
-	private Socket socket;
+	private final Socket socket;
+	private final KeyPair trackerKeyPair;
 	private DataInputStream reader;
 	private DataOutputStream writer;
 	private SecretKey sessionKey;
 
-	TrackService(Socket connectionSocket) {
-		socket = connectionSocket;
+	TrackService(Socket socket, KeyPair trackerKeyPair) {
+		this.socket = socket;
+		this.trackerKeyPair = trackerKeyPair;
 	}
 
 	@Override
@@ -74,10 +77,10 @@ public class TrackService extends Thread {
 				// plain data transfer no encryption
 				AppLogger.getLogger().consolePrint(pre+"GETPUB"+" from "+socket.getInetAddress().getHostAddress());
 				SocketUtilities.sendPlainStringData(
-						CryptoUtilities.objectToBase64StringRepresentation(App.TRACKER_APP.trackerKeys.getPublic()), writer);
+						CryptoUtilities.objectToBase64StringRepresentation(trackerKeyPair.getPublic()), writer);
 			} else {
 				//client uses server's public key to send a session key
-				String decrypted = CryptoUtilities.decryptWithPrivate(received, App.TRACKER_APP.trackerKeys.getPrivate());
+				String decrypted = CryptoUtilities.decryptWithPrivate(received, trackerKeyPair.getPrivate());
 				sessionKey = (SecretKey) CryptoUtilities.base64StringRepresentationToObject(decrypted);
 				args = SocketUtilities.sendReceiveAESEncryptedStringData("UnityTracker", reader, writer, sessionKey);
 

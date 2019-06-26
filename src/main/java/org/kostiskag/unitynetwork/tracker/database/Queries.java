@@ -210,6 +210,7 @@ public class Queries {
 		db.close();
 	}
 
+	@Deprecated
 	public static void validateDatabase(Database db) throws SQLException {
 		validate(db);
 	}
@@ -218,6 +219,7 @@ public class Queries {
 		Database db = Database.getInstance();
 		db.connect();
 		validate(db);
+		db.close();
 	}
 
 	public static void validate(Database db) throws SQLException {
@@ -256,6 +258,5 @@ public class Queries {
                 + ");";
 	 
 	   db.executeStatement(query);
-	   db.close();
 	}
 }

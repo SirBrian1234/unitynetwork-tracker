@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +41,7 @@ public class BlueNodeClient {
     public static final String PRE = "^BlueNodeClient ";
     public static final int TIMEOUT = 3000;
 
+    private final KeyPair trackerKeyPair;
     private final BlueNodeEntry bn;
     private final Socket socket;
     private final DataInputStream socketReader;
@@ -55,8 +57,9 @@ public class BlueNodeClient {
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 */
-	public BlueNodeClient(BlueNodeEntry bn) throws GeneralSecurityException, IOException {
+	public BlueNodeClient(BlueNodeEntry bn, KeyPair trackerKeyPair) throws GeneralSecurityException, IOException {
     	this.bn = bn;
+    	this.trackerKeyPair = trackerKeyPair;
 
     	socket = SocketUtilities.absoluteConnect(bn.getAddress().asInet(), bn.getPort());
 		socket.setSoTimeout(BlueNodeClient.TIMEOUT);
@@ -83,7 +86,7 @@ public class BlueNodeClient {
 		byte[] question = CryptoUtilities.base64StringTobytes(args[0]);
 
 		//decrypt with private
-		String answer = CryptoUtilities.decryptWithPrivate(question, App.TRACKER_APP.trackerKeys.getPrivate());
+		String answer = CryptoUtilities.decryptWithPrivate(question, trackerKeyPair.getPrivate());
 
 		//send back plain answer
 		args = SocketUtilities.sendReceiveAESEncryptedStringData(answer, socketReader, socketWriter, sessionKey);

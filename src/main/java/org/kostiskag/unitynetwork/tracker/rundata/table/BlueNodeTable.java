@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
@@ -31,23 +32,25 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 	private static final String pre = "^BNTABLE ";
 	private static BlueNodeTable BN_TABLE_INSTANCE;
 	private final int bncap;
+	private final KeyPair trackerKeys;
 
-	private BlueNodeTable() {
-		this(0);
+	private BlueNodeTable(KeyPair trackerKeys) {
+		this(0, trackerKeys);
 	}
 
-	private BlueNodeTable(int bncap) {
+	private BlueNodeTable(int bncap, KeyPair trackerKeys) {
         super();
 		this.bncap = bncap;
+		this.trackerKeys = trackerKeys;
     }
 
-	public static BlueNodeTable newInstance() {
-		return BlueNodeTable.newInstance(0);
+	public static BlueNodeTable newInstance(KeyPair trackerKeys) {
+		return BlueNodeTable.newInstance(0, trackerKeys);
 	}
 
-	public static BlueNodeTable newInstance(int capacity) {
+	public static BlueNodeTable newInstance(int capacity, KeyPair trackerKeys) {
 		if (BN_TABLE_INSTANCE == null) {
-			BN_TABLE_INSTANCE = new BlueNodeTable(capacity);
+			BN_TABLE_INSTANCE = new BlueNodeTable(capacity, trackerKeys);
 		}
 		return BN_TABLE_INSTANCE;
 	}
@@ -236,7 +239,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 			} else {
 				//can we recover connection?
 				try {
-					new BlueNodeClient(bn);
+					new BlueNodeClient(bn, trackerKeys);
 					validConn = true;
 				} catch (GeneralSecurityException | IOException e) {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
@@ -288,7 +291,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 			} else {
 				//can we recover connection?
 				try {
-					new BlueNodeClient(bn);
+					new BlueNodeClient(bn, trackerKeys);
 					validConn = true;
 				} catch (GeneralSecurityException | IOException e) {
 					AppLogger.getLogger().consolePrint(pre+"network error when connecting to bn");
