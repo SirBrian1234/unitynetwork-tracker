@@ -26,7 +26,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 * 
 * @author Konstantinos Kagiampakis
 */
-public class RedNodeActions {
+final class RedNodeActions {
 
 	/*
 	 * To be changed from deprecated methods

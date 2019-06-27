@@ -210,9 +210,10 @@ public class Queries {
 		db.close();
 	}
 
-	@Deprecated
 	public static void validateDatabase(Database db) throws SQLException {
+		db.connect();
 		validate(db);
+		db.close();
 	}
 
 	public static void validateDatabase() throws SQLException {

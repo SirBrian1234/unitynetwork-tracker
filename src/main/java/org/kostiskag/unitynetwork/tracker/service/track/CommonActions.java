@@ -15,7 +15,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
-public class CommonActions {
+final class CommonActions {
 	
 	/**
 	 * For speed and for security the public keys should be retrieved from the active network table.

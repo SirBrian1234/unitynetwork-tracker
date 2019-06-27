@@ -6,63 +6,39 @@ import java.io.File;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runners.MethodSorters;
-import org.junit.FixMethodOrder;
 
 import org.kostiskag.unitynetwork.tracker.App;
 
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabaseTest {
-	
+
 	@BeforeClass
-	public static void testDB() {
-		System.out.println("before class");
+	public static void preSet() {
 		File file = new File("local_database_file.db");
-    	if (file.exists()) {
-    		file.delete();
-    	}
-    	try {
-    		Database db = Database.newInstance("jdbc:sqlite:local_database_file.db","","");
-			db.connect();
-    		db.close();
-		} catch (SQLException e) {			
-			e.printStackTrace();
-			assertTrue(false);
+		if (file.exists()) {
+			file.delete();
 		}
-    	assertTrue( true );
-	}
-	
-	@Before
-    public void testValidateDB() {
-		System.out.println("Before");
-		File file = new File("local_database_file.db");
-    	if (file.exists()) {
-    		file.delete();
-    	}
 		try {
 			Database db = Database.newInstance("jdbc:sqlite:local_database_file.db","","");
 			db.connect();
 			Queries.validateDatabase(db);
-		} catch (SQLException e) {			
+		} catch (SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
-    }
-    
+	}
+
 	@AfterClass
-	public static void testCloseDeleteDb() {
-		System.out.println("After class");
+	public static void clean() throws SQLException {
+		Database db = Database.getInstance();
+		db.close();
 		File file = new File("local_database_file.db");
-    	if (file.exists()) {
-    		file.delete();
-    	}
-    	assertTrue(true);
+		if (file.exists()) {
+			file.delete();
+		}
 	}
 	
 	@Test
@@ -160,9 +136,9 @@ public class DatabaseTest {
     public void test6HostnameUseridQuery() {
     	try {
     		Queries q = new Queries();
-			q.insertEntryHostnamesNoAddr("Pakis", 0,"");
-			q.insertEntryHostnamesNoAddr("Makis", 0,"");
-			q.insertEntryHostnamesNoAddr("Lakis", 1,"");
+			q.insertEntryHostnamesNoAddr("Pakis55", 0,"");
+			q.insertEntryHostnamesNoAddr("Makis44", 0,"");
+			q.insertEntryHostnamesNoAddr("Lakis22", 1,"");
 			q.insertEntryHostnamesNoAddr("Lakis2", 2,"");
 			q.insertEntryHostnamesNoAddr("Lakis3", 4,"");
 			q.insertEntryHostnamesNoAddr("Bamias", 2,"");
@@ -183,8 +159,8 @@ public class DatabaseTest {
     	Queries q;
 		try {
 			q = new Queries();
-			q.insertEntryHostnamesNoAddr("Bamias", 22,"");
-			q.insertEntryHostnamesNoAddr("Pakis", 23,"");
+			q.insertEntryHostnamesNoAddr("Bamias55", 22,"");
+			q.insertEntryHostnamesNoAddr("Pakis44", 23,"");
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    

@@ -2,6 +2,9 @@ package org.kostiskag.unitynetwork.tracker.rundata.serviceoperations;
 
 public enum BlueNodeToTracker {
 
+    GREET("BLUENODE"),
+    OFFERPUB("OFFERPUB"),
+    BN_EXITS_ON_PUBLIC_KEY_NOT_SET("EXIT"),
     LEASE("LEASE"),
     LEASE_RN("LEASE_RN"),
     RELEASE("RELEASE"),
@@ -13,7 +16,10 @@ public enum BlueNodeToTracker {
     LOOKUP_V("LOOKUP_V"),
     GETBNPUB("GETBNPUB"),
     GETRNPUB("GETRNPUB"),
-    REVOKEPUB("REVOKEPUB");
+    REVOKEPUB("REVOKEPUB"),
+
+    TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION("WRONG_COMMAND"),
+    TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH("WRONG_COMMAND");
 
     private String val;
 

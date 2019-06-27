@@ -38,7 +38,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
  *
  * @author Konstantinos Kagiampakis
  */
-public class BlueNodeActions {
+final class BlueNodeActions {
 
     /**
      * lease a bluenode on the network
