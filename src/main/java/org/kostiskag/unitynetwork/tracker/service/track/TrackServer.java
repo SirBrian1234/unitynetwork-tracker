@@ -19,7 +19,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
  *
  * @author Konstantinos Kagiampakis
  */
-public class TrackServer extends Thread {
+public final class TrackServer extends Thread {
 
     private static final String pre = "^TRACK ";
     private static final int TIMEOUT = 3000;

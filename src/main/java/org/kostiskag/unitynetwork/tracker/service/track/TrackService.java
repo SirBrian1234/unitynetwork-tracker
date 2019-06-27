@@ -46,7 +46,7 @@ import org.kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
  *
  * @author Konstantinos Kagiampakis
  */
-public final class TrackService extends Thread {
+final class TrackService extends Thread {
 
 	private final String pre = "^TrackService ";
 	private final Socket socket;
@@ -192,7 +192,6 @@ public final class TrackService extends Thread {
 			 */
 			offerPublicKey(Type.REDNODE, hostname, pub, sessionKey,reader, writer);
 			//this session ends here
-			
 		} else {
 			//public key exists
 			if (!innerAuthentication(pub,sessionKey,reader,writer)){

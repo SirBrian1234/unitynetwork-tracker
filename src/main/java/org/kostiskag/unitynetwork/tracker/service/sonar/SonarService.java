@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.service.sonar;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.rundata.service.SimpleCyclicService;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -17,20 +18,10 @@ import java.util.concurrent.locks.Lock;
  * 
  * @author Konstantinos Kagiampakis
  */
-public class SonarService extends Thread {
+public final class SonarService extends SimpleCyclicService {
 
     private final static String pre = "^SONAR ";
     private static SonarService SONAR_SERVICE;
-
-    private final int time;
-    private final AtomicBoolean kill = new AtomicBoolean(false);
-
-    private SonarService(int time) throws IllegalAccessException {
-        if (time <= 0) {
-            throw new IllegalAccessException("time was 0 or below!");
-        }
-        this.time = time;
-    }
 
     public static SonarService newInstance(int givenTime) throws IllegalAccessException {
         if (SONAR_SERVICE == null) {
@@ -43,31 +34,36 @@ public class SonarService extends Thread {
         return SONAR_SERVICE;
     }
 
+    private SonarService(int time) throws IllegalAccessException {
+        super(time);
+    }
+
     @Override
-    public void run() {
-        AppLogger.getLogger().consolePrint(pre+"Started at thread "+Thread.currentThread()+" with refresh time " + time + " sec");
-        while (!kill.get()) {
-            try {
-                sleep(time*1000);
-            } catch (InterruptedException ex) {
-                AppLogger.getLogger().consolePrint(ex.getMessage());
-            } finally {
-                if (kill.get()) break;
-            }
-            try {
-                Lock lock = BlueNodeTable.getInstance().aquireLock();
-                AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
-                BlueNodeTable.getInstance().rebuildTableViaAuthClient(lock);
-            } catch (InterruptedException e) {
-                AppLogger.getLogger().consolePrint(e.getMessage());
-            } finally {
-                BlueNodeTable.getInstance().releaseLock();
-            }
+    protected void cyclicPayload() {
+        try {
+            Lock lock = BlueNodeTable.getInstance().aquireLock();
+            AppLogger.getLogger().consolePrint(pre + "Updating BN Tables via ping");
+            BlueNodeTable.getInstance().rebuildTableViaAuthClient(lock);
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint(e.getMessage());
+        } finally {
+            BlueNodeTable.getInstance().releaseLock();
         }
+    }
+
+    @Override
+    protected void greetingMessage() {
+        AppLogger.getLogger().consolePrint(pre+"Started at thread "+Thread.currentThread()+" with refresh time " + getTime() + " sec");
+    }
+
+    @Override
+    protected void stopMessage() {
         AppLogger.getLogger().consolePrint(pre + "stopped");
     }
-    
-    public void kill(){
-        kill.set(true);
+
+    @Override
+    protected void interruptedMessage(InterruptedException ex) {
+        AppLogger.getLogger().consolePrint(ex.getMessage());
     }
+
 }

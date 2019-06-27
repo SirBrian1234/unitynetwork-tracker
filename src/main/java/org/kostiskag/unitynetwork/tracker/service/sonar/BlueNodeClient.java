@@ -36,7 +36,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.TrackerToBlu
  *
  *  @author Konstantinos Kagiampakis
  */
-public class BlueNodeClient {
+public final class BlueNodeClient {
 
     public static final String PRE = "^BlueNodeClient ";
     public static final int TIMEOUT = 3000;
