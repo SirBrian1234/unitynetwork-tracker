@@ -32,6 +32,11 @@
 		    <artifactId>bcprov-jdk15on</artifactId>
 		    <version>1.56</version>
 		</dependency>
+		<dependency>
+			<groupId>org.kostiskag.unitynetwork.common</groupId>
+			<artifactId>UnityNetwork_Common</artifactId>
+			<version>3.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>
