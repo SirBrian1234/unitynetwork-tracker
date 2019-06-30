@@ -9,10 +9,10 @@ import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.concurrent.locks.Lock;
 
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 
 import static org.junit.Assert.*;
@@ -92,7 +92,7 @@ public class RedNodeTableTest {
 		}
 		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getHostname(),"pakis3");
 		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress().asString(),"10.200.1.3");
-		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress(),VirtualAddress.valueOf("10.200.1.3"));
+		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress(), VirtualAddress.valueOf("10.200.1.3"));
 
 		assertFalse(rns.getOptionalNodeEntry(lock, "pakis15").isPresent());
 	}

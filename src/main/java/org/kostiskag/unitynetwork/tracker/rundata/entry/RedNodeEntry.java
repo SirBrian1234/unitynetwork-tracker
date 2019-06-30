@@ -3,7 +3,8 @@ package org.kostiskag.unitynetwork.tracker.rundata.entry;
 import java.net.UnknownHostException;
 import java.util.Objects;
 
-import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.entry.NodeEntry;
 
 /**
  * Objects of a RedNodeEntry represent the connected

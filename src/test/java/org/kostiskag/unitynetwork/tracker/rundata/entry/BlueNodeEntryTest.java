@@ -9,9 +9,10 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.Time;
 
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
+
 
 public class BlueNodeEntryTest {
 

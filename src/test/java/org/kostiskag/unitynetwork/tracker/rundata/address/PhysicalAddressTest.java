@@ -2,6 +2,9 @@ package org.kostiskag.unitynetwork.tracker.rundata.address;
 
 import org.junit.Assert.*;
 import org.junit.Test;
+import org.kostiskag.unitynetwork.common.address.NetworkAddress;
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 
 import java.net.UnknownHostException;
 

@@ -7,9 +7,10 @@ import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.concurrent.locks.Lock;
 import java.security.PublicKey;
-import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
 import java.io.IOException;
+
+import org.kostiskag.unitynetwork.common.table.NodeTable;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;

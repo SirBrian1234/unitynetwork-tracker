@@ -13,13 +13,13 @@ import java.util.List;
 
 import javax.crypto.SecretKey;
 
-import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
+import org.kostiskag.unitynetwork.common.serviceoperations.TrackerToBlueNode;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.TrackerToBlueNode;
 
 
 /**

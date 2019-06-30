@@ -17,11 +17,13 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
+
 
 /**
  * 
@@ -219,7 +221,7 @@ public class EditHostname {
 				frmEditHostnameEntry.dispose();
 			
 			} else {
-				label_1.setText("<html>Please provide a Hostname up to "+NumericConstraints.MAX_STR_LEN_SMALL.size() +" characters and a number up to "+NumericConstraints.MAX_INT_STR.size() +" digits.</html>");
+				label_1.setText("<html>Please provide a Hostname up to "+ NumericConstraints.MAX_STR_LEN_SMALL.size() +" characters and a number up to "+NumericConstraints.MAX_INT_STR.size() +" digits.</html>");
 			}
 		} else {
 			label_1.setText("<html>Please fill in all the fields.</html>");

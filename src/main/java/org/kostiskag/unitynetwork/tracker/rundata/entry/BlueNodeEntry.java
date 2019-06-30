@@ -1,15 +1,16 @@
 package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
-import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
-import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
-import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
-
 import java.net.UnknownHostException;
 import java.security.PublicKey;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
+
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.common.entry.NodeEntry;
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+
+import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
+import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 
 /**
  * Each connected bluenode is represented by a BlueNode entry!
