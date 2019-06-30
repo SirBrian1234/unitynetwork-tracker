@@ -8,11 +8,12 @@ import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
+import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.database.logic.KeyState;
+import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
@@ -54,28 +55,5 @@ final class RedNodeActions {
 			str.append(fetched[i][0]+" "+fetched[i][1]+" "+fetched[i][2]+" "+fetched[i][3]+"\n");
 		}	
 		SocketUtilities.sendAESEncryptedStringData(str.toString(), writer, sessionKey);
-	}
-
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
-		KeyState k = KeyState.NOT_SET;
-		try {
-			k = HostnameLogic.offerPublicKey(hostname, ticket, publicKey);
-		} catch (SQLException | InterruptedException e) {
-			k = KeyState.NOT_SET;
-		} finally {
-			SocketUtilities.sendAESEncryptedStringData(k.toString(), writer, sessionKey);
-		}
-	}
-
-	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
-		KeyState answer = KeyState.SYSTEM_ERROR;
-		try {
-			HostnameLogic.revokePublicKey(hostname);
-			answer = KeyState.KEY_REVOKED;
-		} catch (InterruptedException | SQLException e) {
-			answer = KeyState.SYSTEM_ERROR;
-		} finally {
-			SocketUtilities.sendAESEncryptedStringData(answer.toString(), writer, sessionKey);
-		}
 	}
 }

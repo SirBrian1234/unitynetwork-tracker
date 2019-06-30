@@ -13,6 +13,7 @@ import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
+import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.serviceoperations.RedNodeToTracker;
 import org.kostiskag.unitynetwork.common.serviceoperations.SomeoneToTracker;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
@@ -23,6 +24,7 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 import org.kostiskag.unitynetwork.tracker.database.logic.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
@@ -106,8 +108,8 @@ final class TrackService extends Thread {
 		}
 	}
 
-	public void BlueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws IOException, GeneralSecurityException, IllegalAccessException, SQLException {
-		PublicKey pub = BluenodeLogic.fetchPubKey(BlueNodeHostname);
+	public void BlueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, IOException, GeneralSecurityException, IllegalAccessException, SQLException {
+		PublicKey pub = Logic.fetchPublicKey(NodeType.BLUENODE, BlueNodeHostname);
 		if (pub == null) {
 			/*
 			 * the bn is a member however he has not set a public key
@@ -186,7 +188,7 @@ final class TrackService extends Thread {
 	}
 
 	private void RedNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
-		PublicKey pub = HostnameLogic.fetchPublicKey(hostname);
+		PublicKey pub = Logic.fetchPublicKey(NodeType.REDNODE, hostname);
 		if (pub == null) {
 			/*
 			 * null indicates that
@@ -221,7 +223,7 @@ final class TrackService extends Thread {
 				} else if (args.length == 1 && args[0].equals(RedNodeToTracker.REVOKE_PUBLIC_KEY.value())) {
 					//rn may be compromised and decides to revoke its public
 					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.REVOKE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
-					RedNodeActions.revokePublicKey(hostname, writer, sessionKey);
+					CommonActions.revokePublicKey(NodeType.REDNODE, hostname, writer, sessionKey);
 				} else if (BlueNodeTable.getInstance().isOnlineRnByHostname(bnTableLock, hostname)) {
 					//Only if a RN is leased inside the network it may colect another's public key
 					if (args.length == 2 && args[0].equals(RedNodeToTracker.GET_REDNODE_PUBLIC_KEY.value())) {
@@ -259,11 +261,7 @@ final class TrackService extends Thread {
 		} else if (args.length == 3 && args[0].equals(SomeoneToTracker.OFFERPUB.value())) {
 			// client offers its pub based on a ticket
 			AppLogger.getLogger().consolePrint(pre+Type.BLUENODE+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
-			if (type == Type.BLUENODE) {
-				BlueNodeActions.offerPublicKey(hostname, args[1], args[2], writer, sessionKey);
-			} else {
-				RedNodeActions.offerPublicKey(hostname, args[1], args[2], writer, sessionKey);
-			}
+			CommonActions.offerPublicKey(NodeType.BLUENODE, hostname, args[1], args[2], writer, sessionKey);
 		} else {
 			SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_PUBLIC_FAILED_SUBMISSION_AUTHENTICATION.value(), writer, sessionKey);
 		}

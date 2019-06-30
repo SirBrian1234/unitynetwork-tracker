@@ -6,6 +6,7 @@ import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
@@ -68,51 +69,5 @@ public class HostnameLogic {
         }
     }
 
-    public static PublicKey fetchPublicKey(String hostname) throws InterruptedException, GeneralSecurityException, SQLException, IOException, IllegalAccessException {
-        try (Queries q = Queries.getInstance()) {
-            ResultSet getResults = q.selectAllFromHostnames();
-            while (getResults.next()) {
-                if (getResults.getString("hostname").equals(hostname)) {
-                    String key = getResults.getString("public");
-                    String[] parts = key.split("\\s+");
-                    if (!parts[0].equals("NOT_SET")) {
-                        return  (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
-                    }
-                }
-            }
-            throw new IllegalAccessException("The RN " + hostname + " is not a network member.");
-        } catch (InterruptedException | IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
-            throw e;
-        }
-    }
 
-    public static KeyState offerPublicKey(String hostname, String ticket, String publicKey) throws SQLException, InterruptedException {
-        try (Queries q = Queries.getInstance()) {
-            ResultSet r = q.selectAllFromHostnames(hostname);
-            if (r.next()) {
-                String storedKey = r.getString("public");
-                String args[] = storedKey.split("\\s+");
-                if (args[0].equals(KeyState.NOT_SET) && args[1].equals(ticket)) {
-                    q.updateEntryHostnamesPublic(hostname, KeyState.KEY_SET + " " + publicKey);
-                    return KeyState.KEY_SET;
-                } else if (args[0].equals("KEY_SET")) {
-                    return KeyState.KEY_IS_SET;
-                } else {
-                    return KeyState.WRONG_TICKET;
-                }
-            }
-            return KeyState.NOT_SET;
-        } catch (InterruptedException | SQLException e) {
-            throw e;
-        }
-    }
-
-    public static void revokePublicKey(String hostname) throws InterruptedException, SQLException {
-        String key = KeyState.NOT_SET.toString()+" "+ CryptoUtilities.generateQuestion();
-        try (Queries q = Queries.getInstance()) {
-            q.updateEntryHostnamesPublic(hostname, key);
-        } catch (InterruptedException | SQLException e) {
-            throw e;
-        }
-    }
 }

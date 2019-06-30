@@ -14,7 +14,7 @@ import java.util.concurrent.locks.Lock;
 import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
-import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
@@ -393,69 +393,12 @@ final class BlueNodeActions {
         }
     }
 
-    public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
-        try (Queries q = Queries.getInstance()) {
-            ResultSet r = q.selectAllFromBluenodes(blueNodeHostname);
-            if (r.next()) {
-                String storedKey = r.getString("public");
-                String args[] = storedKey.split("\\s+");
-                if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
-                    q.updateEntryBluenodesPublic(blueNodeHostname, "KEY_SET" + " " + publicKey);
-                    try {
-                        SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
-                    }  catch (GeneralSecurityException | IOException e) {
-                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                        return;
-                    }
-                } else if (args[0].equals("KEY_SET")) {
-                    try {
-                        SocketUtilities.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
-                    }  catch (GeneralSecurityException | IOException e) {
-                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                        return;
-                    }
-                } else {
-                    try {
-                        SocketUtilities.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
-                    }  catch (GeneralSecurityException | IOException e) {
-                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                        return;
-                    }
-                }
-            }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-        }
-    }
-
-    public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IllegalAccessException {
+    public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IllegalAccessException, GeneralSecurityException, IOException {
         //first check whether the bn is a member and release from the network
         Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, blueNodeHostname);
         if (b.isPresent()) {
             BlueNodeTable.getInstance().release(lock, b.get());
         }
-
-        String key = "NOT_SET " + CryptoUtilities.generateQuestion();
-        try (Queries q = Queries.getInstance()) {
-            q.updateEntryBluenodesPublic(blueNodeHostname, key);
-            try {
-                SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
-            } catch (GeneralSecurityException | IOException e) {
-                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                return;
-            }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-        }
-
-        try {
-            SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
-        } catch (GeneralSecurityException | IOException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-        }
+        CommonActions.revokePublicKey(NodeType.BLUENODE, blueNodeHostname, writer, sessionKey);
     }
 }

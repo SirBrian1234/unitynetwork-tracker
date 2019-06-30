@@ -1,10 +1,15 @@
 package org.kostiskag.unitynetwork.tracker.database.logic;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.PublicKey;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.kostiskag.unitynetwork.common.entry.NodeType;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
@@ -16,7 +21,73 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
  * @author Konstantinos Kagiampakis
  */
 public final class Logic {
-	
+
+	public static PublicKey fetchPublicKey(NodeType type, String hostname) throws InterruptedException, GeneralSecurityException, SQLException, IOException {
+		try (Queries q = Queries.getInstance()) {
+			ResultSet r = null;
+			if (type == NodeType.REDNODE) {
+				r = q.selectHostnamePublicKeyFromHostnames(hostname);
+			} else if (type == NodeType.BLUENODE) {
+				r = q.selectNamePublicKeyFromBluenodes(hostname);
+			}
+			if (r.next()) {
+				if (r.getString("hostname").equals(hostname)) {
+					String key = r.getString("public");
+					String[] parts = key.split("\\s+");
+					if (!parts[0].equals("NOT_SET")) {
+						return  (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
+					}
+				}
+			}
+			return null;
+		} catch (InterruptedException | GeneralSecurityException | IOException | SQLException e) {
+			throw e;
+		}
+	}
+
+	public static KeyState offerPublicKey(NodeType type, String hostname, String ticket, String publicKey) throws SQLException, InterruptedException {
+		try (Queries q = Queries.getInstance()) {
+			ResultSet r;
+			if (type == NodeType.REDNODE) {
+				r = q.selectAllFromHostnames(hostname);
+			} else {
+				r = q.selectAllFromBluenodes(hostname);
+			}
+			if (r.next()) {
+				String storedKey = r.getString("public");
+				String args[] = storedKey.split("\\s+");
+				if (args[0].equals(KeyState.NOT_SET) && args[1].equals(ticket)) {
+					if (type == NodeType.REDNODE) {
+						q.updateEntryHostnamesPublic(hostname, KeyState.KEY_SET + " " + publicKey);
+					} else {
+						q.updateEntryBluenodesPublic(hostname, "KEY_SET" + " " + publicKey);
+					}
+					return KeyState.KEY_SET;
+				} else if (args[0].equals("KEY_SET")) {
+					return KeyState.KEY_IS_SET;
+				} else {
+					return KeyState.WRONG_TICKET;
+				}
+			}
+			return KeyState.NOT_SET;
+		} catch (InterruptedException | SQLException e) {
+			throw e;
+		}
+	}
+
+	public static void revokePublicKey(NodeType type, String hostname) throws InterruptedException, SQLException {
+		String key = KeyState.NOT_SET.toString()+" "+ CryptoUtilities.generateQuestion();
+		try (Queries q = Queries.getInstance()) {
+			if (type == NodeType.REDNODE) {
+				q.updateEntryHostnamesPublic(hostname, key);
+			} else {
+				q.updateEntryBluenodesPublic(hostname, key);
+			}
+		} catch (InterruptedException | SQLException e) {
+			throw e;
+		}
+	}
+
 	public static LinkedList<String[][]> buildGUIObject() {
 		// reload database on gui
 		LinkedList<String[][]> list = new LinkedList<>();
