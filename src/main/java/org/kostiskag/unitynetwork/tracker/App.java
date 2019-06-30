@@ -3,13 +3,10 @@ package org.kostiskag.unitynetwork.tracker;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 import javax.swing.*;
 
-import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
@@ -93,7 +90,7 @@ public final class App {
 
         // 2. DB object
         try {
-            Database.newInstance(this.databaseUrl, this.user, this.password);
+            Queries.setDatabaseInstance(this.databaseUrl, this.user, this.password);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             die();
@@ -169,22 +166,12 @@ public final class App {
 
         // 7. database
         AppLogger.getLogger().consolePrint("Testing Database Connection on " + databaseUrl + " ... ");
-        Database db =Database.getInstance();;
-        try {
-            db.connect();
-            Queries.validate(db);
-            db.close();
+        try (Queries q = Queries.getInstance()) {
+            q.validate();
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
         } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint("Database validation failed.");
-            AppLogger.getLogger().consolePrint(e.getMessage());
-            try {
-                AppLogger.getLogger().consolePrint("Attempting to close database.");
-                db.close();
-            } catch (SQLException e1) {
-                AppLogger.getLogger().consolePrint(e1.getMessage());
-            } finally {
-                die();
-            }
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
         AppLogger.getLogger().consolePrint("Database validation complete.");
 

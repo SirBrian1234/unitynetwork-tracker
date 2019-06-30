@@ -12,7 +12,7 @@ import org.junit.runners.MethodSorters;
 import org.kostiskag.unitynetwork.tracker.App;
 
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabaseTest {
 
 	@BeforeClass
@@ -21,11 +21,17 @@ public class DatabaseTest {
 		if (file.exists()) {
 			file.delete();
 		}
+
 		try {
-			Database db = Database.newInstance("jdbc:sqlite:local_database_file.db","","");
-			db.connect();
-			Queries.validateDatabase(db);
+			Queries.setDatabaseInstance("jdbc:sqlite:local_database_file.db","","");
 		} catch (SQLException e) {
+			e.printStackTrace();
+			assertTrue(false);
+		}
+
+		try (Queries q = Queries.getInstance()) {
+			q.validate();
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -33,8 +39,6 @@ public class DatabaseTest {
 
 	@AfterClass
 	public static void clean() throws SQLException {
-		Database db = Database.getInstance();
-		db.close();
 		File file = new File("local_database_file.db");
 		if (file.exists()) {
 			file.delete();
@@ -43,35 +47,32 @@ public class DatabaseTest {
 	
 	@Test
     public void test1QueryObj() {
-    	try {
-			Queries q = new Queries();
-			q.closeQueries();
-		} catch (SQLException e) {			
+		try (Queries q = Queries.getInstance()) {
+
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
     	assertTrue( true );
     }
-    
+
 	@Test
     public void test2SelectAll() {
-    	try {
-			Queries q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.selectAllFromBluenodes();
 			q.selectAllFromUsers();
 			q.selectAllFromHostnames();
-			q.closeQueries();
-		} catch (SQLException e) {			
+
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
+		assertTrue( true );
     }
     
 	@Test
     public void test3UserQuery() {
-    	try {
-    		Queries q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryUsers("Pakis", "hahaha", 0, "P Pakis");
 			q.insertEntryUsers("Lakis", "hohoho", 1, "sir Lakis");
 			q.insertEntryUsers("Makis", "hihihihi", 1, "Dr Makis");
@@ -83,18 +84,16 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("scope"));
 			    System.out.println(s.getString("fullname"));
 			}
-			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
+		assertTrue( true );
     }
 	
 	@Test
     public void test4HostnameQuery() {
-    	try {
-    		Queries q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryHostnamesNoAddr("Pakis", 0,"");
 			q.insertEntryHostnamesNoAddr("Makis", 0,"");
 			q.insertEntryHostnamesNoAddr("Lakis", 1,"");
@@ -104,18 +103,16 @@ public class DatabaseTest {
 			    System.out.println(s.getString("hostname"));
 			    System.out.println(s.getInt("userid"));
 			}
-			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
+		assertTrue( true );
     }
 	
     @Test
     public void test5BluenodeQuery() {
-    	try {
-    		Queries q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryBluenodes("3Pakis", 0,"");
 			q.insertEntryBluenodes("Lakis", 15,"");
 			q.insertEntryBluenodes("Makis", 2,"");
@@ -124,18 +121,16 @@ public class DatabaseTest {
 			    System.out.println(s.getString("name"));
 			    System.out.println(s.getInt("userid"));
 			}
-			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
+		assertTrue( true );
     }
     
     @Test
     public void test6HostnameUseridQuery() {
-    	try {
-    		Queries q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryHostnamesNoAddr("Pakis55", 0,"");
 			q.insertEntryHostnamesNoAddr("Makis44", 0,"");
 			q.insertEntryHostnamesNoAddr("Lakis22", 1,"");
@@ -146,31 +141,28 @@ public class DatabaseTest {
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
 			}
-			q.closeQueries();
-		} catch (SQLException e) {			
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue( true );
+		assertTrue( true );
     }    
     
     @Test
     public void test7UpdateHostnames() {
-    	Queries q;
-		try {
-			q = new Queries();
-			q.insertEntryHostnamesNoAddr("Bamias55", 22,"");
-			q.insertEntryHostnamesNoAddr("Pakis44", 23,"");
-			ResultSet s = q.selectAllFromHostnames();			
-			while (s.next()) {              
-			    System.out.println(s.getString("hostname"));			    
+		try (Queries q = Queries.getInstance()) {
+			q.insertEntryHostnamesNoAddr("Bamias55", 22, "");
+			q.insertEntryHostnamesNoAddr("Pakis44", 23, "");
+			ResultSet s = q.selectAllFromHostnames();
+			while (s.next()) {
+				System.out.println(s.getString("hostname"));
 			}
 			q.updateEntryHostnamesWithHostname("Bamias", 44);
 			s = q.selectAllFromHostnames();
-			while (s.next()) {              
-			    System.out.println(s.getString("hostname"));			    
+			while (s.next()) {
+				System.out.println(s.getString("hostname"));
 			}
-		} catch (SQLException e) {
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
@@ -179,9 +171,7 @@ public class DatabaseTest {
     
     @Test
     public void test8UpdateUsers() {
-    	Queries q;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryUsers("bamias", "1234", 0, "mr bamias");
 			q.insertEntryUsers("Baaamias", "1424344", 0, "dr bamias");
 			ResultSet s = q.selectAllFromUsers();			
@@ -201,18 +191,16 @@ public class DatabaseTest {
 			    System.out.println(s.getInt("scope"));
 			    System.out.println(s.getString("fullname"));
 			}
-		} catch (SQLException e) {
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue(true);
+		assertTrue( true );
     }
     
     @Test
     public void test8burned() {
-    	Queries q = null;
-    	try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.insertEntryBurned(15);
 			q.insertEntryBurned(22);
 			q.insertEntryBurned(125);
@@ -228,11 +216,12 @@ public class DatabaseTest {
 			while(r.next()) {
 				System.out.println(""+r.getInt("address"));
 			}
-			q.closeQueries();
-		} catch (SQLException e) {
+
+		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-    	assertTrue(true);
+		assertTrue( true );
     }
+
 }

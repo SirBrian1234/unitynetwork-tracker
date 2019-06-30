@@ -20,7 +20,6 @@ import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.SomeoneToTra
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
-import org.kostiskag.unitynetwork.tracker.service.BlueNodeGlobalFunctions;
 
 /**
  * CENTRAL TRACK SERVICE
@@ -92,7 +91,7 @@ final class TrackService extends Thread {
 					SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_IMPROPER_GREETING.value(), writer, sessionKey);
 				}
 			}
-		} catch (IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
+		} catch (InterruptedException | IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
 			AppLogger.getLogger().consolePrint(pre+e.getMessage());
 		} finally {
 			try {
@@ -104,7 +103,7 @@ final class TrackService extends Thread {
 	}
 
 	public void BlueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws IOException, GeneralSecurityException, IllegalAccessException, SQLException {
-		PublicKey pub = BlueNodeGlobalFunctions.fetchPubKey(BlueNodeHostname);
+		PublicKey pub = BlueNodeActions.fetchPubKey(BlueNodeHostname);
 		if (pub == null) {
 			/*
 			 * the bn is a member however he has not set a public key
@@ -182,7 +181,7 @@ final class TrackService extends Thread {
 		}
 	}
 
-	private void RedNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws GeneralSecurityException, IOException, IllegalAccessException, SQLException {
+	private void RedNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
 		PublicKey pub = RedNodeActions.fetchPubKey(hostname);
 		if (pub == null) {
 			/*

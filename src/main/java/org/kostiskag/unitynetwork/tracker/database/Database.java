@@ -10,12 +10,13 @@ import java.sql.Statement;
 /**
  * This is the database low level. An external method 
  * should no call methods from here it should use Queries and Logic instead.
- * 
+ *
+ * This class should not be visible outside of package!
+ * Queries is the wrapper class!!!
+ *
  * @author Konstantinos Kagiampakis
  */
-public class Database {
-
-	private static Database DATABASE;
+final class Database {
 
 	private final String url;
 	private final String user;
@@ -23,18 +24,7 @@ public class Database {
 
 	private Connection con;
 
-    public static Database newInstance(String url, String user, String password) throws SQLException {
-    	if (DATABASE == null) {
-    		DATABASE = new Database(url,user,password);
-		}
-    	return DATABASE;
-	}
-
-	public static Database getInstance() {
-    	return DATABASE;
-	}
-
-    private Database(String url, String user, String password) throws SQLException {
+	public Database(String url, String user, String password) {
     	this.url = url;
     	this.user = user;
     	this.password = password;
@@ -98,7 +88,7 @@ public class Database {
 	    pst.execute();
 	}
 	
-	public void executePreparedStatement2ArgsStringString(String query, String arg1, String arg2) throws SQLException {
+	public synchronized void executePreparedStatement2ArgsStringString(String query, String arg1, String arg2) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setString(2, arg2);
@@ -130,7 +120,7 @@ public class Database {
 	    pst.execute();		
 	}
 	
-	public void executePreparedStatement3ArgsStringIntString(String query, String arg1, int arg2, String arg3) throws SQLException {
+	public synchronized void executePreparedStatement3ArgsStringIntString(String query, String arg1, int arg2, String arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
@@ -157,7 +147,7 @@ public class Database {
 	    pst.execute();		
 	}
 
-	public void executePreparedStatement4ArgsIntStringIntString(String query, int arg1, String arg2, int arg3, String arg4) throws SQLException {
+	public synchronized void executePreparedStatement4ArgsIntStringIntString(String query, int arg1, String arg2, int arg3, String arg4) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);

@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Database;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 
@@ -33,21 +32,35 @@ public class BlueNodeTableTest {
         if (file.exists()) {
             file.delete();
         }
-        Database db = Database.newInstance("jdbc:sqlite:bn_test.db", "", "");
-        db.connect();
-        Queries.validateDatabase(db);
-        Queries q = new Queries();
-        q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
-        ResultSet r = q.selectAllFromUsers();
-        int id = 0;
-        while (r.next()) {
-            id = r.getInt("id");
+
+        try {
+            Queries.setDatabaseInstance("jdbc:sqlite:local_database_file.db","","");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        q.insertEntryBluenodes("pakis1", id, "");
-        q.insertEntryBluenodes("pakis2", id, "");
-        q.insertEntryBluenodes("pakis3", id, "");
-        q.insertEntryBluenodes("pakis4", id, "");
-        //q.closeQueries();
+
+        try (Queries q = Queries.getInstance()) {
+            q.validate();
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        try (Queries q = Queries.getInstance()) {
+            q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
+            ResultSet r = q.selectAllFromUsers();
+            int id = 0;
+            while (r.next()) {
+                id = r.getInt("id");
+            }
+            q.insertEntryBluenodes("pakis1", id, "");
+            q.insertEntryBluenodes("pakis2", id, "");
+            q.insertEntryBluenodes("pakis3", id, "");
+            q.insertEntryBluenodes("pakis4", id, "");
+
+        } catch (InterruptedException | SQLException e) {
+            e.printStackTrace();
+        }
+
         BlueNodeTable.newInstance(2, null);
     }
 

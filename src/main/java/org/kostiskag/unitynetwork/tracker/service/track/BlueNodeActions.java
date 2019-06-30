@@ -41,6 +41,45 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
 final class BlueNodeActions {
 
     /**
+     * Collects a bluenode's public key.
+     *
+     * @returns the public key if its set OR null for a not set key
+     * @throws  IllegalAccessException when fetch bn key is called for a non member
+     * @throws  SQLException can not connect to database or db error
+     */
+    public static PublicKey fetchPubKey(String BlueNodeHostname) throws IllegalAccessException, GeneralSecurityException, IOException {
+        PublicKey pub = null;
+        boolean found = false;
+        try (Queries q = Queries.getInstance()) {
+            ResultSet getResults = q.selectAllFromBluenodes();
+
+            while (getResults.next()) {
+                if (getResults.getString("name").equals(BlueNodeHostname)) {
+                    found = true;
+                    String key = getResults.getString("public");
+                    String[] parts = key.split("\\s+");
+                    if (!parts[0].equals("NOT_SET")) {
+                        pub = (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
+                    }
+                    //break; //remember to break if you dont return!
+                }
+            }
+
+            if (!found) {
+                throw new IllegalAccessException("The Bn " + BlueNodeHostname + " is not a network member.");
+            }
+            return pub;
+
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+            return null;
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+            return null;
+        }
+    }
+
+    /**
      * lease a bluenode on the network
      *
      * @throws
@@ -48,11 +87,10 @@ final class BlueNodeActions {
     public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
 
         String data = null;
-        Queries q = null;
+
         ResultSet getResults = null;
 
-        try {
-            q = new Queries();
+        try (Queries q = Queries.getInstance()) {
             getResults = q.selectNameFromBluenodes();
 
             boolean found = false;
@@ -81,12 +119,6 @@ final class BlueNodeActions {
             }
         } catch (InterruptedException | SQLException ex) {
             data = "SYSTEM_ERROR";
-        } finally {
-            try {
-                q.closeQueries();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -104,15 +136,14 @@ final class BlueNodeActions {
         Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
         if (b.isPresent()) {
             String data = null;
-            Queries q = null;
+
             ResultSet getResults = null;
 
             if (userauth > 0) {
                 boolean found = false;
-                try {
-                    q = new Queries();
-                    getResults = q.selectAllFromHostnamesWhereUserid(userauth);
 
+                try (Queries q = Queries.getInstance()) {
+                    getResults = q.selectAllFromHostnamesWhereUserid(userauth);
                     if (getResults == null) {
                         data = "SYSTEM_ERROR";
                     } else {
@@ -158,14 +189,8 @@ final class BlueNodeActions {
                 } catch (SQLException | GeneralSecurityException | IOException e) {
                     SocketUtilities.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
                     throw e;
-
-                } finally {
-                    try {
-                        q.closeQueries();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
                 }
+
             } else {
                 SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
             }
@@ -283,13 +308,12 @@ final class BlueNodeActions {
      */
     public static int checkUser(String outhash) {
         String data = null;
-        Queries q = null;
+
         ResultSet getResults;
 
-        try {
-            q = new Queries();
-            getResults = q.selectIdUsernamePasswordFromUsers();
+        try (Queries q = Queries.getInstance()) {
 
+            getResults = q.selectIdUsernamePasswordFromUsers();
             if (getResults == null) {
                 return -1;
             }
@@ -306,26 +330,21 @@ final class BlueNodeActions {
                     return getResults.getInt("id");
                 }
             }
-            q.closeQueries();
             return 0;
+        }  catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+            return -1;
         } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                q.closeQueries();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-                return -1;
-            }
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             return -1;
         }
     }
 
     public static void LookupByHn(String hostname, DataOutputStream writer, SecretKey sessionKey) {
-        Queries q = null;
         String vaddress = null;
         String retrievedHostname = null;
-        try {
-            q = new Queries();
+
+        try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAllFromHostnames();
             while (r.next()) {
                 retrievedHostname = r.getString("hostname");
@@ -335,45 +354,37 @@ final class BlueNodeActions {
 
                     try {
                         vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
+                        try {
+                            SocketUtilities.sendAESEncryptedStringData(vaddress, writer, sessionKey);
+                        }  catch (GeneralSecurityException | IOException e) {
+                            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                            return;
+                        }
+                        return;
                     } catch (UnknownHostException e) {
                         AppLogger.getLogger().consolePrint("Failed lookup by hosntame for BN " + hostname + " " + e.getMessage());
                         return;
-                    } finally {
-                        q.closeQueries();
                     }
 
-                    try {
-                        SocketUtilities.sendAESEncryptedStringData(vaddress, writer, sessionKey);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return;
                 }
             }
-            q.closeQueries();
+
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (GeneralSecurityException | IOException ex) {
+                AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                q.closeQueries();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+        } catch (InterruptedException | SQLException e) {
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            } catch (GeneralSecurityException | IOException ex) {
+                AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
             }
         }
     }
 
     public static void LookupByAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) {
-        Queries q = null;
         String hostname = null;
         int addr_num = 0;
         try {
@@ -384,50 +395,42 @@ final class BlueNodeActions {
         }
         int retrieved_addr_num = -1;
 
-        try {
-            q = new Queries();
+        try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAllFromHostnames();
             while (r.next()) {
                 retrieved_addr_num = r.getInt("address");
                 if (retrieved_addr_num == addr_num) {
                     //found!!!
                     hostname = r.getString("hostname");
-
-                    q.closeQueries();
                     try {
                         SocketUtilities.sendAESEncryptedStringData(hostname, writer, sessionKey);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } catch (GeneralSecurityException | IOException e) {
+                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                        return;
                     }
                     return;
                 }
             }
-            q.closeQueries();
+
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (GeneralSecurityException | IOException e) {
+                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                q.closeQueries();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+        } catch (InterruptedException | SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            }  catch (GeneralSecurityException | IOException ex) {
+                AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
+                return;
             }
         }
     }
 
     public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
-        Queries q = null;
-        try {
-            q = new Queries();
+        try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAllFromBluenodesWhereName(blueNodeHostname);
             if (r.next()) {
                 String storedKey = r.getString("public");
@@ -436,32 +439,30 @@ final class BlueNodeActions {
                     q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET" + " " + publicKey);
                     try {
                         SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    }  catch (GeneralSecurityException | IOException e) {
+                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                        return;
                     }
                 } else if (args[0].equals("KEY_SET")) {
                     try {
                         SocketUtilities.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    }  catch (GeneralSecurityException | IOException e) {
+                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                        return;
                     }
                 } else {
                     try {
                         SocketUtilities.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    }  catch (GeneralSecurityException | IOException e) {
+                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                        return;
                     }
                 }
             }
-            q.closeQueries();
-            return;
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
         } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                q.closeQueries();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
     }
 
@@ -473,28 +474,24 @@ final class BlueNodeActions {
         }
 
         String key = "NOT_SET " + CryptoUtilities.generateQuestion();
-        Queries q = null;
-        try {
-            q = new Queries();
+        try (Queries q = Queries.getInstance()) {
             q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
-            q.closeQueries();
             try {
                 SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (GeneralSecurityException | IOException e) {
+                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                return;
             }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
         } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                q.closeQueries();
-            } catch (SQLException e1) {
-                e1.printStackTrace();
-            }
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
+
         try {
             SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (GeneralSecurityException | IOException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
     }
 }

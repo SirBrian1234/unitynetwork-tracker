@@ -36,7 +36,7 @@ final class CommonActions {
 		}
 	}
 
-	public static void getRedNodesPublic(String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IllegalAccessException, SQLException, IOException {
+	public static void getRedNodesPublic(String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IllegalAccessException, SQLException, IOException {
 		try {
 			PublicKey pub = RedNodeActions.fetchPubKey(hostname);
 			if (pub != null) {

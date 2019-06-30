@@ -62,10 +62,8 @@ final class RedNodeActions {
 	/*
 	 * To be changed from send plain string data into AES
 	 */
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) throws SQLException {
-		Queries q = null;
-		try {
-			q = new Queries();
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
+		try (Queries q = Queries.getInstance()) {
 			ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
 			if (r.next()) {
 				String storedKey = r.getString("public");
@@ -92,50 +90,33 @@ final class RedNodeActions {
 				}
 			}
 
-		} catch (SQLException e) {
+		} catch (InterruptedException | SQLException e) {
 			try {
 				SocketUtilities.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
 			} catch (GeneralSecurityException | IOException ex) {
 				ex.printStackTrace();
 			}
-			throw e;
-		} finally {
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
 		}
 	}
 
-	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException, SQLException {
+	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
 		String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
-		Queries q = null;
-		try {
-			q = new Queries();
+
+		try (Queries q = Queries.getInstance()) {
 			q.updateEntryHostnamesPublicWithHostname(hostname, key);
-
 			SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
-
-		} catch (SQLException | GeneralSecurityException | IOException e) {
+		} catch (InterruptedException | SQLException | GeneralSecurityException | IOException e) {
 			throw e;
-		} finally {
-			try {
-				q.closeQueries();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
 		}
 
+		//unreachable!
 		SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
 	}
 
-	public static PublicKey fetchPubKey(String hostname) throws GeneralSecurityException, SQLException, IOException, IllegalAccessException {
+	public static PublicKey fetchPubKey(String hostname) throws InterruptedException, GeneralSecurityException, SQLException, IOException, IllegalAccessException {
 		PublicKey pub = null;
 		boolean found = false;
-		Queries q = null;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			ResultSet getResults = q.selectAllFromHostnames();
 
 			while (getResults.next()) {
@@ -155,10 +136,8 @@ final class RedNodeActions {
 			}
 
 			return pub;
-		} catch (IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
+		} catch (InterruptedException | IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
 			throw e;
-		} finally {
-			q.closeQueries();
 		}
 	}
 }

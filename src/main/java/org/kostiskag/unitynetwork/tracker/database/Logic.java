@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.HashUtilities;
 
@@ -15,7 +16,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.utilities.HashUtilities;
  * 
  * @author Konstantinos Kagiampakis
  */
-public class Logic {
+public final class Logic {
 	
 	/*
 	 * the prblem is that when an exception is occured 
@@ -31,24 +32,18 @@ public class Logic {
 		//pass = hash(salt+pass)
 		try {
 			password = HashUtilities.SHA256(App.SALT + password);
-		} catch (GeneralSecurityException e2) {
-			e2.printStackTrace();
+		} catch (GeneralSecurityException e) {
+			AppLogger.getLogger().consolePrint(Queries.class.getSimpleName() +": " + e.getLocalizedMessage());
 			return;
 		}
-		
-		Queries q = null;
-		try {
-			q = new Queries();
+		//repetitive code
+
+		try (Queries q = Queries.getInstance();) {
 			q.insertEntryUsers(username, password, scope, fullname);
-			q.closeQueries();
+		}  catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			throw e;
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 		}
 	}
 	
@@ -62,27 +57,19 @@ public class Logic {
 			e2.printStackTrace();
 			return;
 		}
-		
-		Queries q = null;
-		try {
-			q = new Queries();
+		//repetitive code
+
+		try (Queries q = Queries.getInstance();) {
 			q.updateEntryUsersWithUsername(username, password, scope, fullname);
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			throw e;
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 		}
 	}
 	
 	public static void removeUserAndAllHisItems(String username) throws SQLException {
-		Queries q = null;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			int id = 0;
 			LinkedList li = new LinkedList<>();
 			ResultSet r = q.selectIdFromUsersWhereUsername(username);
@@ -101,24 +88,18 @@ public class Logic {
 				q.deleteAllBluenodesWithUserid(id);
 				q.deleteEntryUsersWithUsername(username);
 			}
-			q.closeQueries();
+
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			throw e;
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 		}
 	}
 	
 	
 	
 	public static void addNewHostname(String hostname, int userid) throws Exception {
-		Queries q = null;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			if (q.checkIfUserWithIdExists(userid)) {
 				String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
 				ResultSet r = q.selectAddressFromBurned();
@@ -131,48 +112,31 @@ public class Logic {
 					q.insertEntryHostnamesNoAddr(hostname, userid, publicStr);
 				}
 			} else {
-				q.closeQueries();
 				throw new Exception("no user found");
 			}
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			throw e;
-		}	
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+		}
 	}
 	
 	public static void updateHostname(String hostname, int userid) throws Exception {
-		
-		Queries q = null;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			if (q.checkIfUserWithIdExists(userid)) {
 				q.updateEntryHostnamesWithHostname(hostname, userid);
 			} else {
-				q.closeQueries();
 				throw new Exception("no user found");
 			}
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			throw e;
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 		}
 	}
 	
 	public static void removeHostname(String hostname) throws SQLException {
-		Queries q = null;
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			int addressToStore = 0;
 			ResultSet r = q.selectAddressFromHostnamesWithHostname(hostname);
 			if (r.next()) {
@@ -182,31 +146,21 @@ public class Logic {
 			} else {
 				q.deleteEntryHostnamesWithHostname(hostname);
 			}
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			throw e;
 		}
 	}
 	
 	public static void removeBluenode(String name) throws SQLException {
-		Queries q = null;
-		try {
-			q =new Queries();
+		try (Queries q = Queries.getInstance()) {
 			q.deleteEntryBluenodesWitName(name);
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			throw e;
 		}
 	}
@@ -218,10 +172,8 @@ public class Logic {
 		String[][] hostnamesDbData = new String[3][1];
 		String[][] blunodesDbData = new String[2][1];
 		ResultSet bns = null, hnms = null, usrs = null;
-		Queries q = null;
 
-		try {
-			q = new Queries();
+		try (Queries q = Queries.getInstance()) {
 			usrs = q.selectAllFromUsers();
 			hnms = q.selectAllFromHostnames();
 			bns = q.selectAllFromBluenodes();
@@ -291,15 +243,12 @@ public class Logic {
 				i++;
 			}
 
-			q.closeQueries();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
-			e.printStackTrace();
-			try {
-				q.closeQueries();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 		}
+
 		list.add(usersDbData);
 		list.add(hostnamesDbData);
 		list.add(blunodesDbData);

@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
@@ -59,33 +60,31 @@ public class EditHostname {
 			btnAddNewEntry.setText("Update hostname entry");
 			textField_1.setText(hostname);
 			textField_1.setEditable(false);
-			
-			Queries q = null;
-			try {
-				q = new Queries();
-				ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
-				while(r.next()) {
-					textField_2.setText(""+r.getInt("userid"));
-					String key = r.getString("public");
-					String args[] = key.split("\\s+");
-					textField.setText(args[0]);
-					textArea.setText(args[1]);
-					if (args[0].equals("NOT_SET")) {
-						lblNewLabel.setText("<html>Copy this session ticket in the rednode in order to upload its public key.</html>");
-						btnNewButton.setEnabled(false);
-					}
-				}
-				q.closeQueries();
-			} catch (SQLException e) {
-				e.printStackTrace();
-				try {
-					q.closeQueries();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-			}
+
+			updateHostnameEntry(hostname);
 		}
 		frmEditHostnameEntry.setVisible(true);
+	}
+
+	void updateHostnameEntry(String hostname) {
+		try (Queries q = Queries.getInstance()) {
+			ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
+			while(r.next()) {
+				textField_2.setText(""+r.getInt("userid"));
+				String key = r.getString("public");
+				String args[] = key.split("\\s+");
+				textField.setText(args[0]);
+				textArea.setText(args[1]);
+				if (args[0].equals("NOT_SET")) {
+					lblNewLabel.setText("<html>Copy this session ticket in the rednode in order to upload its public key.</html>");
+					btnNewButton.setEnabled(false);
+				}
+			}
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
+		} catch (SQLException e) {
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+		}
 	}
 
 	/**
@@ -230,18 +229,13 @@ public class EditHostname {
 	private void resetKey() {
 		if (type==1 && textField.getText().equals("KEY_SET")) {			
 			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
-			Queries q = null;
-			try {
-				q = new Queries();
+
+			try (Queries q = Queries.getInstance()) {
 				q.updateEntryHostnamesPublicWithHostname(hostname, key);
-				q.closeQueries();
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint("Could not aquire lock!");
 			} catch (SQLException e) {
-				e.printStackTrace();
-				try {
-					q.closeQueries();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
+				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			}
 			frmEditHostnameEntry.dispose();
 		} 

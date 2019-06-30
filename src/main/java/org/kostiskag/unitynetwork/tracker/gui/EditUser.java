@@ -22,6 +22,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
@@ -72,23 +73,18 @@ public class EditUser {
 			chckbxSetANew.setSelected(false);
 			passwordField.setEditable(false);
 
-			Queries q = null;
-			try {
-				q = new Queries();
+			try (Queries q = Queries.getInstance()) {
 				ResultSet r = q.selectIdScopeFullnameFromUsersWhereUsername(username);
 				while (r.next()) {
 					textField.setText("" + r.getInt("id"));
 					comboBox.setSelectedIndex(r.getInt("scope"));
 					textField_3.setText(r.getString("fullname"));
 				}
-				q.closeQueries();
+
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint("Could not acquire lock!");
 			} catch (SQLException e) {
-				e.printStackTrace();
-				try {
-					q.closeQueries();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
+				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			}
 		}
 		frmEditUserEntry.setVisible(true);
@@ -238,19 +234,13 @@ public class EditUser {
 				} else {
 					// we have to provide all the other fields without
 					// username and password
-					Queries q = null;
-					try {
-						q = new Queries();
+					try (Queries q = Queries.getInstance()) {
 						q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(),
 								givenFullname);
-						q.closeQueries();
-					} catch (SQLException ex) {
-						ex.printStackTrace();
-						try {
-							q.closeQueries();
-						} catch (SQLException ex1) {
-
-						}
+					} catch (InterruptedException e1) {
+						AppLogger.getLogger().consolePrint("Could not acquire lock!");
+					} catch (SQLException e2) {
+						AppLogger.getLogger().consolePrint(e2.getLocalizedMessage());
 					}
 				}
 				

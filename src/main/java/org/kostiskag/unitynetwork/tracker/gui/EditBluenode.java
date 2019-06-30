@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
@@ -62,9 +63,7 @@ public class EditBluenode {
 			textField_1.setText(name);
 			textField_1.setEditable(false);
 
-			Queries q = null;
-			try {
-				q = new Queries();
+			try (Queries q = Queries.getInstance()) {
 				ResultSet r = q.selectAllFromBluenodesWhereName(name);
 				while (r.next()) {
 					textField_2.setText("" + r.getInt("userid"));
@@ -77,14 +76,10 @@ public class EditBluenode {
 					textField.setText(args[0]);
 					textArea.setText(args[1]);					
 				}
-				q.closeQueries();
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint("Could not acquire lock!");
 			} catch (SQLException e) {
-				e.printStackTrace();
-				try {
-					q.closeQueries();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
+				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			}
 		}
 		frmEditBluenodeEntry.setVisible(true);
@@ -194,9 +189,7 @@ public class EditBluenode {
 					return;
 				}
 
-				Queries q = null;
-				try {
-					q = new Queries();
+				try (Queries q = Queries.getInstance()) {
 					if (q.checkIfUserWithIdExists(userid)) {
 						if (type == 0) {
 							String givenBluenodeName = textField_1.getText();
@@ -205,7 +198,6 @@ public class EditBluenode {
 							if (!matcher.matches()) {
 								lblNewLabel.setText(
 										"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
-								q.closeQueries();
 								return;
 							}
 							String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
@@ -215,22 +207,12 @@ public class EditBluenode {
 						}
 					} else {
 						lblNewLabel.setText("<html>The given userid does not exist.</html>");
-						q.closeQueries();
 						return;
 					}
-					q.closeQueries();
+				} catch (InterruptedException e) {
+					AppLogger.getLogger().consolePrint("Could not acquire lock!");
 				} catch (SQLException e) {
-					if (e.getErrorCode() == 19) {
-						lblNewLabel.setText("<html>The given bluenode name is already used.</html>");
-						return;
-					} else {
-						e.printStackTrace();
-					}
-					try {
-						q.closeQueries();
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
+					AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 				}
 
 				MainWindow.getInstance().updateDatabaseGUI();
@@ -248,19 +230,14 @@ public class EditBluenode {
 	private void resetKey() {
 		if (type==1 && textField.getText().equals("KEY_SET")) {			
 			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
-			Queries q = null;
-			try {
-				q = new Queries();
+			try (Queries q = Queries.getInstance()) {
 				q.updateEntryBluenodesPublicWithName(name, key);
-				q.closeQueries();
+			} catch (InterruptedException e) {
+				AppLogger.getLogger().consolePrint("Could not acquire lock!");
 			} catch (SQLException e) {
-				e.printStackTrace();
-				try {
-					q.closeQueries();
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
+				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
 			}
+
 			frmEditBluenodeEntry.dispose();
 		} 
 	}
