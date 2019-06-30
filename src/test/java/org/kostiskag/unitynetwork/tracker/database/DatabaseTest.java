@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.junit.*;
+import org.kostiskag.unitynetwork.tracker.database.logic.KeyState;
 
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -41,7 +42,12 @@ public class DatabaseTest {
 			file.delete();
 		}
 	}
-	
+
+	@Test
+	public void aaaaaaaaa() {
+		System.out.println(KeyState.KEY_SET);
+	}
+
 	@Test
     public void test1QueryObj() {
 		try (Queries q = Queries.getInstance()) {

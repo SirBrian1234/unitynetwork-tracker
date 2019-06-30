@@ -24,8 +24,9 @@ import javax.swing.JTextField;
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.logic.UserLogic;
 
 
 /**
@@ -202,7 +203,7 @@ public class EditUser {
 					}
 					
 					try {
-						Logic.addNewUser(givenUsername, givenPassword, comboBox.getSelectedIndex(), givenFullname);
+						UserLogic.addNewUser(givenUsername, givenPassword, comboBox.getSelectedIndex(), givenFullname);
 					} catch (SQLException ex) {
 						if (ex.getErrorCode() == 19) {
 							label.setText("<html>The given username is already used.</html>");
@@ -226,7 +227,7 @@ public class EditUser {
 						}
 
 						try {
-							Logic.updateUserAndPassword(username, givenPassword, comboBox.getSelectedIndex(),
+							UserLogic.updateUserAndPassword(username, givenPassword, comboBox.getSelectedIndex(),
 									givenFullname);
 						} catch (SQLException ex) {
 							ex.printStackTrace();

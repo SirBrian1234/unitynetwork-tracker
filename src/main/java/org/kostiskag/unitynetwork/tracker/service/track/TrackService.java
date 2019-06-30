@@ -21,6 +21,8 @@ import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 
+import org.kostiskag.unitynetwork.tracker.database.logic.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
@@ -105,7 +107,7 @@ final class TrackService extends Thread {
 	}
 
 	public void BlueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws IOException, GeneralSecurityException, IllegalAccessException, SQLException {
-		PublicKey pub = BlueNodeActions.fetchPubKey(BlueNodeHostname);
+		PublicKey pub = BluenodeLogic.fetchPubKey(BlueNodeHostname);
 		if (pub == null) {
 			/*
 			 * the bn is a member however he has not set a public key
@@ -184,7 +186,7 @@ final class TrackService extends Thread {
 	}
 
 	private void RedNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
-		PublicKey pub = RedNodeActions.fetchPubKey(hostname);
+		PublicKey pub = HostnameLogic.fetchPublicKey(hostname);
 		if (pub == null) {
 			/*
 			 * null indicates that
@@ -207,7 +209,7 @@ final class TrackService extends Thread {
 				if (args.length == 1 && args[0].equals(RedNodeToTracker.GET_RECOMENDED_BLUENODE.value())) {
 					//rn collects a recommended bn based on the lowest load
 					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_RECOMENDED_BLUENODE.value()+" from "+socket.getInetAddress().getHostAddress());
-					RedNodeActions.getRecomendedBlueNode(bnTableLock, writer, sessionKey);
+					RedNodeActions.getARecomendedBlueNode(bnTableLock, writer, sessionKey);
 				} else if (args.length == 1 && args[0].equals(RedNodeToTracker.GET_ALL_BLUENODES.value())) {
 					//rn collects a list of all the available bns
 					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_ALL_BLUENODES.value()+" from "+socket.getInetAddress().getHostAddress());

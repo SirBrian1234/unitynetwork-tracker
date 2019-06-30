@@ -13,6 +13,7 @@ import javax.crypto.SecretKey;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
+import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
@@ -39,7 +40,7 @@ final class CommonActions {
 
 	public static void getRedNodesPublic(String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IllegalAccessException, SQLException, IOException {
 		try {
-			PublicKey pub = RedNodeActions.fetchPubKey(hostname);
+			PublicKey pub = HostnameLogic.fetchPublicKey(hostname);
 			if (pub != null) {
 				SocketUtilities.sendAESEncryptedStringData(CryptoUtilities.objectToBase64StringRepresentation(pub), writer, sessionKey);
 			} else {

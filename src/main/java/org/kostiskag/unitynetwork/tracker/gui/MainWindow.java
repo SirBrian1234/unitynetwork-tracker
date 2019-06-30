@@ -20,7 +20,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.logic.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
+import org.kostiskag.unitynetwork.tracker.database.logic.UserLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -362,7 +365,7 @@ public class MainWindow extends javax.swing.JFrame {
 						// lockDbEdit = true;
 						String username = (String) table.getValueAt(row, 1);
 						try {
-							Logic.removeUserAndAllHisItems(username);
+							UserLogic.removeUserAndAllHisItems(username);
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
@@ -444,7 +447,7 @@ public class MainWindow extends javax.swing.JFrame {
 					int row = table_1.getSelectedRow();
 					if (row != -1) {
 						try {
-							Logic.removeHostname((String) table_1.getValueAt(row, 1));
+							HostnameLogic.removeHostname((String) table_1.getValueAt(row, 1));
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}
@@ -517,7 +520,7 @@ public class MainWindow extends javax.swing.JFrame {
 					int row = table_2.getSelectedRow();
 					if (row != -1) {
 						try {
-							Logic.removeBluenode((String) table_2.getValueAt(row, 0));
+							BluenodeLogic.removeBluenode((String) table_2.getValueAt(row, 0));
 						} catch (SQLException e1) {
 							e1.printStackTrace();
 						}

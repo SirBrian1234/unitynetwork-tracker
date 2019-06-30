@@ -3,8 +3,6 @@ package org.kostiskag.unitynetwork.tracker.service.track;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.security.PublicKey;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 
@@ -13,26 +11,24 @@ import javax.crypto.SecretKey;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.KeyState;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
 * Rednode queries:
 *
-* GETBNS
-* GETRBN
-* REVOKEPUB
-* OFFERPUB
+* getARecomendedBlueNode
+* getAllConnectedBlueNodes
+* offerPublicKey
+* revokePublicKey
 * 
 * @author Konstantinos Kagiampakis
 */
 final class RedNodeActions {
 
-	/*
-	 * To be changed from deprecated methods
-	 */
-	public static void getRecomendedBlueNode(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
+	public static void getARecomendedBlueNode(Lock lock, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
 		String data;
 		if (BlueNodeTable.getInstance().getSize(lock) > 0) {
 			BlueNodeEntry recomended = BlueNodeTable.getInstance().getBlueNodeEntryByLowestLoad(lock);
@@ -59,86 +55,27 @@ final class RedNodeActions {
 		}	
 		SocketUtilities.sendAESEncryptedStringData(str.toString(), writer, sessionKey);
 	}
-	
-	/*
-	 * To be changed from send plain string data into AES
-	 */
-	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
-		try (Queries q = Queries.getInstance()) {
-			ResultSet r = q.selectAllFromHostnames(hostname);
-			if (r.next()) {
-				String storedKey = r.getString("public");
-				String args[] = storedKey.split("\\s+");
-				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
-					q.updateEntryHostnamesPublic(hostname, "KEY_SET"+" "+publicKey);
-					try {
-						SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else if (args[0].equals("KEY_SET")) {
-					try {
-						SocketUtilities.sendAESEncryptedStringData("KEY_IS_SET", writer, sessionKey);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				} else {
-					try {
-						SocketUtilities.sendAESEncryptedStringData("WRONG_TICKET", writer, sessionKey);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
 
+	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
+		KeyState k = KeyState.NOT_SET;
+		try {
+			k = HostnameLogic.offerPublicKey(hostname, ticket, publicKey);
+		} catch (SQLException | InterruptedException e) {
+			k = KeyState.NOT_SET;
+		} finally {
+			SocketUtilities.sendAESEncryptedStringData(k.toString(), writer, sessionKey);
+		}
+	}
+
+	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
+		KeyState answer = KeyState.SYSTEM_ERROR;
+		try {
+			HostnameLogic.revokePublicKey(hostname);
+			answer = KeyState.KEY_REVOKED;
 		} catch (InterruptedException | SQLException e) {
-			try {
-				SocketUtilities.sendAESEncryptedStringData("NOT_SET",writer, sessionKey);
-			} catch (GeneralSecurityException | IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-	}
-
-	public static void revokePublicKey(String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
-		String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
-
-		try (Queries q = Queries.getInstance()) {
-			q.updateEntryHostnamesPublic(hostname, key);
-			SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
-		} catch (InterruptedException | SQLException | GeneralSecurityException | IOException e) {
-			throw e;
-		}
-
-		//unreachable!
-		SocketUtilities.sendAESEncryptedStringData("NOT_SET", writer, sessionKey);
-	}
-
-	public static PublicKey fetchPubKey(String hostname) throws InterruptedException, GeneralSecurityException, SQLException, IOException, IllegalAccessException {
-		PublicKey pub = null;
-		boolean found = false;
-		try (Queries q = Queries.getInstance()) {
-			ResultSet getResults = q.selectAllFromHostnames();
-
-			while (getResults.next()) {
-				if (getResults.getString("hostname").equals(hostname)) {
-					found = true;
-					String key = getResults.getString("public");
-					String[] parts = key.split("\\s+");
-					if (!parts[0].equals("NOT_SET")) {
-						pub = (PublicKey) CryptoUtilities.base64StringRepresentationToObject(parts[1]);
-					}
-					break;
-				}
-			}
-
-			if (!found) {
-				throw new IllegalAccessException("The RN " + hostname + " is not a network member.");
-			}
-
-			return pub;
-		} catch (InterruptedException | IllegalAccessException | GeneralSecurityException | IOException | SQLException e) {
-			throw e;
+			answer = KeyState.SYSTEM_ERROR;
+		} finally {
+			SocketUtilities.sendAESEncryptedStringData(answer.toString(), writer, sessionKey);
 		}
 	}
 }

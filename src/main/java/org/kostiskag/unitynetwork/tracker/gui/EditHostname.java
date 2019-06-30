@@ -21,7 +21,8 @@ import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
+import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 
 
@@ -201,9 +202,9 @@ public class EditHostname {
 					    	label_1.setText("<html>In order to define a hostname, you are allowed to enter only digit numbers from 0 to 9, small capital letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
 					    	return;
 					    }
-					    Logic.addNewHostname(givenHostname, userid);
+					    HostnameLogic.addNewHostname(givenHostname, userid);
 					} else {
-						Logic.updateHostname(hostname, userid);
+						HostnameLogic.updateHostname(hostname, userid);
 					}
 				} catch (SQLException e) {
 					if (e.getErrorCode() == 19) { 
