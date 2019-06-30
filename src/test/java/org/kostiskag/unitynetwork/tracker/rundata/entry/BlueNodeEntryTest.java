@@ -17,7 +17,7 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
 public class BlueNodeEntryTest {
 
 	static String hostname = "ouiou";
-	static String address = "10.0.0.1";
+	static String address = "11.0.0.1";
 	static int port = 4440;
 	static PublicKey pub;
 

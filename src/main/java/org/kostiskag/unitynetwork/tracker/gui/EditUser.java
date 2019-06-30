@@ -75,7 +75,7 @@ public class EditUser {
 			passwordField.setEditable(false);
 
 			try (Queries q = Queries.getInstance()) {
-				ResultSet r = q.selectIdScopeFullnameFromUsersWhereUsername(username);
+				ResultSet r = q.selectIdScopeFullnameFromUsers(username);
 				while (r.next()) {
 					textField.setText("" + r.getInt("id"));
 					comboBox.setSelectedIndex(r.getInt("scope"));
@@ -236,7 +236,7 @@ public class EditUser {
 					// we have to provide all the other fields without
 					// username and password
 					try (Queries q = Queries.getInstance()) {
-						q.updateEntryUsersWhitoutPasswordWithUsername(username, comboBox.getSelectedIndex(),
+						q.updateEntryUsers(username, comboBox.getSelectedIndex(),
 								givenFullname);
 					} catch (InterruptedException e1) {
 						AppLogger.getLogger().consolePrint("Could not acquire lock!");

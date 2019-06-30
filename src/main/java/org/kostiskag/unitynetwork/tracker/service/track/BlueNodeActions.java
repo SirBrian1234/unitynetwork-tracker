@@ -144,7 +144,7 @@ final class BlueNodeActions {
                 boolean found = false;
 
                 try (Queries q = Queries.getInstance()) {
-                    getResults = q.selectAllFromHostnamesWhereUserid(userauth);
+                    getResults = q.selectAllFromHostnames(userauth);
                     if (getResults == null) {
                         data = "SYSTEM_ERROR";
                     } else {
@@ -432,12 +432,12 @@ final class BlueNodeActions {
 
     public static void offerPublicKey(String blueNodeHostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
         try (Queries q = Queries.getInstance()) {
-            ResultSet r = q.selectAllFromBluenodesWhereName(blueNodeHostname);
+            ResultSet r = q.selectAllFromBluenodes(blueNodeHostname);
             if (r.next()) {
                 String storedKey = r.getString("public");
                 String args[] = storedKey.split("\\s+");
                 if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
-                    q.updateEntryBluenodesPublicWithName(blueNodeHostname, "KEY_SET" + " " + publicKey);
+                    q.updateEntryBluenodesPublic(blueNodeHostname, "KEY_SET" + " " + publicKey);
                     try {
                         SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
                     }  catch (GeneralSecurityException | IOException e) {
@@ -476,7 +476,7 @@ final class BlueNodeActions {
 
         String key = "NOT_SET " + CryptoUtilities.generateQuestion();
         try (Queries q = Queries.getInstance()) {
-            q.updateEntryBluenodesPublicWithName(blueNodeHostname, key);
+            q.updateEntryBluenodesPublic(blueNodeHostname, key);
             try {
                 SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
             } catch (GeneralSecurityException | IOException e) {

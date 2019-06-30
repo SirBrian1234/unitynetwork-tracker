@@ -70,7 +70,7 @@ public class EditHostname {
 
 	void updateHostnameEntry(String hostname) {
 		try (Queries q = Queries.getInstance()) {
-			ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
+			ResultSet r = q.selectAllFromHostnames(hostname);
 			while(r.next()) {
 				textField_2.setText(""+r.getInt("userid"));
 				String key = r.getString("public");
@@ -233,7 +233,7 @@ public class EditHostname {
 			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 
 			try (Queries q = Queries.getInstance()) {
-				q.updateEntryHostnamesPublicWithHostname(hostname, key);
+				q.updateEntryHostnamesPublic(hostname, key);
 			} catch (InterruptedException e) {
 				AppLogger.getLogger().consolePrint("Could not aquire lock!");
 			} catch (SQLException e) {

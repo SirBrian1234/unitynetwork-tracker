@@ -62,7 +62,7 @@ public final class Logic {
 		//repetitive code
 
 		try (Queries q = Queries.getInstance();) {
-			q.updateEntryUsersWithUsername(username, password, scope, fullname);
+			q.updateEntryUsers(username, password, scope, fullname);
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {
@@ -74,21 +74,21 @@ public final class Logic {
 		try (Queries q = Queries.getInstance()) {
 			int id = 0;
 			LinkedList li = new LinkedList<>();
-			ResultSet r = q.selectIdFromUsersWhereUsername(username);
+			ResultSet r = q.selectIdFromUsers(username);
 			if (r.next()) {
 				id = r.getInt("id");
-				r = q.selectAllFromHostnamesWhereUserid(id);
+				r = q.selectAllFromHostnames(id);
 				if (r.next()) {
 					int address = r.getInt("address");
 					li.add(address);
 				}
-				q.deleteAllHostnamesWithUserid(id);
+				q.deleteEntryHostname(id);
 				while(!li.isEmpty()) {
 					int address = (int) li.pop();
 					q.insertEntryBurned(address);
 				}
-				q.deleteAllBluenodesWithUserid(id);
-				q.deleteEntryUsersWithUsername(username);
+				q.deleteEntryBluenodes(id);
+				q.deleteEntryUsers(username);
 			}
 
 		} catch (InterruptedException e) {
@@ -102,16 +102,16 @@ public final class Logic {
 	
 	public static void addNewHostname(String hostname, int userid) throws Exception {
 		try (Queries q = Queries.getInstance()) {
-			if (q.checkIfUserWithIdExists(userid)) {
+			if (q.checkIfUserExists(userid)) {
 				String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
 				ResultSet r = q.selectAddressFromBurned();
 				if (r.next()) {
 					int address = r.getInt("address");
 					q.deleteEntryAddressFromBurned(address);					
-					q.insertEntryHostnamesWithAddr(address, hostname, userid, publicStr);										
+					q.insertEntryHostnames(address, hostname, userid, publicStr);
 				} else {
 					System.out.println("no address");
-					q.insertEntryHostnamesNoAddr(hostname, userid, publicStr);
+					q.insertEntryHostnames(hostname, userid, publicStr);
 				}
 			} else {
 				throw new Exception("no user found");
@@ -125,8 +125,8 @@ public final class Logic {
 	
 	public static void updateHostname(String hostname, int userid) throws Exception {
 		try (Queries q = Queries.getInstance()) {
-			if (q.checkIfUserWithIdExists(userid)) {
-				q.updateEntryHostnamesWithHostname(hostname, userid);
+			if (q.checkIfUserExists(userid)) {
+				q.updateEntryHostnamesUserId(hostname, userid);
 			} else {
 				throw new Exception("no user found");
 			}
@@ -140,13 +140,13 @@ public final class Logic {
 	public static void removeHostname(String hostname) throws SQLException {
 		try (Queries q = Queries.getInstance()) {
 			int addressToStore = 0;
-			ResultSet r = q.selectAddressFromHostnamesWithHostname(hostname);
+			ResultSet r = q.selectAddressFromHostnames(hostname);
 			if (r.next()) {
 				addressToStore = r.getInt("address");
-				q.deleteEntryHostnamesWithHostname(hostname);
+				q.deleteEntryHostname(hostname);
 				q.insertEntryBurned(addressToStore);
 			} else {
-				q.deleteEntryHostnamesWithHostname(hostname);
+				q.deleteEntryHostname(hostname);
 			}
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint("Could not acquire lock!");
@@ -158,7 +158,7 @@ public final class Logic {
 	
 	public static void removeBluenode(String name) throws SQLException {
 		try (Queries q = Queries.getInstance()) {
-			q.deleteEntryBluenodesWitName(name);
+			q.deleteEntryBluenodes(name);
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint("Could not acquire lock!");
 		} catch (SQLException e) {

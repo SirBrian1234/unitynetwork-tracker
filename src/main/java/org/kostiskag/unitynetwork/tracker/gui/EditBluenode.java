@@ -66,7 +66,7 @@ public class EditBluenode {
 			textField_1.setEditable(false);
 
 			try (Queries q = Queries.getInstance()) {
-				ResultSet r = q.selectAllFromBluenodesWhereName(name);
+				ResultSet r = q.selectAllFromBluenodes(name);
 				while (r.next()) {
 					textField_2.setText("" + r.getInt("userid"));
 					String key = r.getString("public");
@@ -192,7 +192,7 @@ public class EditBluenode {
 				}
 
 				try (Queries q = Queries.getInstance()) {
-					if (q.checkIfUserWithIdExists(userid)) {
+					if (q.checkIfUserExists(userid)) {
 						if (type == 0) {
 							String givenBluenodeName = textField_1.getText();
 							Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
@@ -205,7 +205,7 @@ public class EditBluenode {
 							String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
 							q.insertEntryBluenodes(givenBluenodeName, userid, publicKey);
 						} else {
-							q.updateEntryBluenodesWithName(name, userid);
+							q.updateEntryBluenodesUserId(name, userid);
 						}
 					} else {
 						lblNewLabel.setText("<html>The given userid does not exist.</html>");
@@ -233,7 +233,7 @@ public class EditBluenode {
 		if (type==1 && textField.getText().equals("KEY_SET")) {			
 			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 			try (Queries q = Queries.getInstance()) {
-				q.updateEntryBluenodesPublicWithName(name, key);
+				q.updateEntryBluenodesPublic(name, key);
 			} catch (InterruptedException e) {
 				AppLogger.getLogger().consolePrint("Could not acquire lock!");
 			} catch (SQLException e) {

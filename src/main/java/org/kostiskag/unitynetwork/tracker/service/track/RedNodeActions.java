@@ -65,12 +65,12 @@ final class RedNodeActions {
 	 */
 	public static void offerPublicKey(String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) {
 		try (Queries q = Queries.getInstance()) {
-			ResultSet r = q.selectAllFromHostnamesWhereHostname(hostname);
+			ResultSet r = q.selectAllFromHostnames(hostname);
 			if (r.next()) {
 				String storedKey = r.getString("public");
 				String args[] = storedKey.split("\\s+");
 				if (args[0].equals("NOT_SET") && args[1].equals(ticket)) {
-					q.updateEntryHostnamesPublicWithHostname(hostname, "KEY_SET"+" "+publicKey);
+					q.updateEntryHostnamesPublic(hostname, "KEY_SET"+" "+publicKey);
 					try {
 						SocketUtilities.sendAESEncryptedStringData("KEY_SET", writer, sessionKey);
 					} catch (Exception e) {
@@ -104,7 +104,7 @@ final class RedNodeActions {
 		String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
 
 		try (Queries q = Queries.getInstance()) {
-			q.updateEntryHostnamesPublicWithHostname(hostname, key);
+			q.updateEntryHostnamesPublic(hostname, key);
 			SocketUtilities.sendAESEncryptedStringData("KEY_REVOKED", writer, sessionKey);
 		} catch (InterruptedException | SQLException | GeneralSecurityException | IOException e) {
 			throw e;

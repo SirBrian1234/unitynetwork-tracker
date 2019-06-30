@@ -7,9 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.junit.*;
-import org.junit.runners.MethodSorters;
-
-import org.kostiskag.unitynetwork.tracker.App;
 
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -94,9 +91,9 @@ public class DatabaseTest {
 	@Test
     public void test4HostnameQuery() {
 		try (Queries q = Queries.getInstance()) {
-			q.insertEntryHostnamesNoAddr("Pakis", 0,"");
-			q.insertEntryHostnamesNoAddr("Makis", 0,"");
-			q.insertEntryHostnamesNoAddr("Lakis", 1,"");
+			q.insertEntryHostnames("Pakis", 0,"");
+			q.insertEntryHostnames("Makis", 0,"");
+			q.insertEntryHostnames("Lakis", 1,"");
 			ResultSet s = q.selectAllFromHostnames();			
 			while (s.next()) {              
 				System.out.println(s.getString("address"));
@@ -131,13 +128,13 @@ public class DatabaseTest {
     @Test
     public void test6HostnameUseridQuery() {
 		try (Queries q = Queries.getInstance()) {
-			q.insertEntryHostnamesNoAddr("Pakis55", 0,"");
-			q.insertEntryHostnamesNoAddr("Makis44", 0,"");
-			q.insertEntryHostnamesNoAddr("Lakis22", 1,"");
-			q.insertEntryHostnamesNoAddr("Lakis2", 2,"");
-			q.insertEntryHostnamesNoAddr("Lakis3", 4,"");
-			q.insertEntryHostnamesNoAddr("Bamias", 2,"");
-			ResultSet s = q.selectAllFromHostnamesWhereUserid(2);			
+			q.insertEntryHostnames("Pakis55", 0,"");
+			q.insertEntryHostnames("Makis44", 0,"");
+			q.insertEntryHostnames("Lakis22", 1,"");
+			q.insertEntryHostnames("Lakis2", 2,"");
+			q.insertEntryHostnames("Lakis3", 4,"");
+			q.insertEntryHostnames("Bamias", 2,"");
+			ResultSet s = q.selectAllFromHostnames(2);
 			while (s.next()) {              
 			    System.out.println(s.getString("hostname"));			    
 			}
@@ -151,13 +148,13 @@ public class DatabaseTest {
     @Test
     public void test7UpdateHostnames() {
 		try (Queries q = Queries.getInstance()) {
-			q.insertEntryHostnamesNoAddr("Bamias55", 22, "");
-			q.insertEntryHostnamesNoAddr("Pakis44", 23, "");
+			q.insertEntryHostnames("Bamias55", 22, "");
+			q.insertEntryHostnames("Pakis44", 23, "");
 			ResultSet s = q.selectAllFromHostnames();
 			while (s.next()) {
 				System.out.println(s.getString("hostname"));
 			}
-			q.updateEntryHostnamesWithHostname("Bamias", 44);
+			q.updateEntryHostnamesUserId("Bamias", 44);
 			s = q.selectAllFromHostnames();
 			while (s.next()) {
 				System.out.println(s.getString("hostname"));
@@ -182,7 +179,7 @@ public class DatabaseTest {
 				 System.out.println(s.getInt("scope"));
 				 System.out.println(s.getString("fullname"));			    
 			}
-			q.updateEntryUsersWithUsername("bamias", "1234", 1, "miss putty");
+			q.updateEntryUsers("bamias", "1234", 1, "miss putty");
 			s = q.selectAllFromUsers();
 			while (s.next()) {              
 				System.out.println(s.getInt("id"));

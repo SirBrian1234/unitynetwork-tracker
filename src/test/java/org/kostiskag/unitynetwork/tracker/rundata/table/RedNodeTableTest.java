@@ -44,12 +44,12 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueHosnameTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "11.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		try {
 			Lock lock = rns.aquireLock();
-			rns.lease(lock, "pakis", "10.200.1.1");
-			rns.lease(lock, "pakis", "10.200.1.2");
+			rns.lease(lock, "pakis", "11.200.1.1");
+			rns.lease(lock, "pakis", "11.200.1.2");
 		} catch (Exception e) {
 			assertTrue(true);
 			return;
@@ -60,7 +60,7 @@ public class RedNodeTableTest {
 	@Test
 	public void uniqueAddressTest() throws GeneralSecurityException, IllegalAccessException, UnknownHostException, InterruptedException {
 		PublicKey pub = CryptoUtilities.generateRSAkeyPair().getPublic();
-		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "10.200.1.1", 33);
+		BlueNodeEntry bn = new BlueNodeEntry("pakis", pub, "11.200.1.1", 33);
 		RedNodeTable rns = new RedNodeTable(bn);
 		Lock lock = rns.aquireLock();
 

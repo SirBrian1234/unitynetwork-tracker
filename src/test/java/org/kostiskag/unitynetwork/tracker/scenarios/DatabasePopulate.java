@@ -64,13 +64,13 @@ public class DatabasePopulate {
     @Test
     public void test2InsertHostnames() {
 		try (Queries q = Queries.getInstance()) {
-			ResultSet s = q.selectAllFromUsersWhereUsername("pakis");
+			ResultSet s = q.selectAllFromUsers("pakis");
 			int id = 0;
 			while (s.next()) {
 				id = s.getInt("id");
 			}
 			for (int i=0; i<100; i++) {
-				q.insertEntryHostnamesNoAddr("pakis-laptop"+i, id,"");
+				q.insertEntryHostnames("pakis-laptop"+i, id,"");
 			}
 		} catch (InterruptedException | SQLException e) {
 			e.printStackTrace();

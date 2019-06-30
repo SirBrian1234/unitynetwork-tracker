@@ -1,14 +1,12 @@
 package org.kostiskag.unitynetwork.tracker.database;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
-
-import java.io.Closeable;
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 /**
  * This is the database middle level
@@ -87,120 +85,136 @@ public final class Queries implements AutoCloseable {
 	}
 
 	//user queries
+	//select all
 	public ResultSet selectAllFromUsers() throws SQLException {		
 		return DATABASE.getResultSet("SELECT * FROM users");
 	}
-	
-	public ResultSet selectIdUsernamePasswordFromUsers() throws SQLException {		
+
+	public ResultSet selectAllFromUsers(int id) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM users WHERE id = ?", id);
+	}
+
+	public ResultSet selectAllFromUsers(String username) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM users WHERE username = ?", username);
+	}
+
+	//select id
+	public ResultSet selectIdFromUsers(String username) throws SQLException {
+		return DATABASE.getResultSet("SELECT id FROM users WHERE username = ?", username);
+	}
+
+	//select username password
+	public ResultSet selectIdUsernamePasswordFromUsers() throws SQLException {
 		return DATABASE.getResultSet("SELECT id, username, password FROM users");
 	}
-	
-	public ResultSet selectIdScopeFullnameFromUsersWhereUsername(String username) throws SQLException {
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT id, scope, fullname FROM users WHERE username = ?", username);
-	}	
-	
-	public ResultSet selectAllFromUsersWhereId(int id) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM users WHERE id = ?", id);
+
+	//select id scope fullname
+	public ResultSet selectIdScopeFullnameFromUsers(String username) throws SQLException {
+		return DATABASE.getResultSet("SELECT id, scope, fullname FROM users WHERE username = ?", username);
 	}
-	
-	public ResultSet selectIdFromUsersWhereUsername(String username) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT * FROM users WHERE username = ?", username);
+
+	//insert entry
+	public void insertEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
+		DATABASE.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
 	}
-	
-	public boolean checkIfUserWithIdExists(int id) throws SQLException {		
-		ResultSet r = DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT username FROM users WHERE id = ?", id);
+
+	//update entry
+	public void updateEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
+		DATABASE.executePreparedStatement4ArgsStrIntStrStr("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
+	}
+
+	public void updateEntryUsers(String username, int scope, String fullname) throws SQLException {
+		DATABASE.executeStatement("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
+	}
+
+	//delete entry
+	public void deleteEntryUsers(String username) throws SQLException {
+		DATABASE.executeStatement("DELETE FROM users where username = ?", username);
+	}
+
+	//check if user exists
+	public boolean checkIfUserExists(int id) throws SQLException {
+		ResultSet r = DATABASE.getResultSet("SELECT username FROM users WHERE id = ?", id);
 		if (r.next()){
 			if (r.getString("username") != null)
 				return true;
 		}
 		return false;
 	}
-	
-	public ResultSet selectAllFromUsersWhereUsername(String username) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT * FROM users WHERE username = ?", username);
-	}
-	
-	public void insertEntryUsers(String username, String password, int scope, String fullname) throws SQLException {		
-		DATABASE.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
-	}
-	
-	public void updateEntryUsersWithUsername(String username, String password, int scope, String fullname) throws SQLException {
-		DATABASE.executePreparedStatement4ArgsStrIntStrStr("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
-	}
-	
-	public void updateEntryUsersWhitoutPasswordWithUsername(String username, int scope, String fullname) throws SQLException {
-		DATABASE.executePreparedStatement3ArgsIntStringString("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
-	}	
-	
-	public void deleteEntryUsersWithUsername(String username) throws SQLException {
-		DATABASE.executePreparedStatement1ArgString("DELETE FROM users where username = ?", username);
-	}
-	
+
 	//hostname queries
-	public ResultSet selectAllFromHostnames() throws SQLException {				
+	//select all
+	public ResultSet selectAllFromHostnames() throws SQLException {
 		return DATABASE.getResultSet("SELECT * FROM hostnames");
 	}
-	
-	public ResultSet selectAddressFromHostnames() throws SQLException {				
-		return DATABASE.getResultSet("SELECT address FROM hostnames");
+
+	public ResultSet selectAllFromHostnames(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM hostnames WHERE userid = ?", userid);
 	}
-	
-	public ResultSet selectHostnameFromHostnames() throws SQLException {				
-		return DATABASE.getResultSet("SELECT hostname FROM hostnames");
+
+	public ResultSet selectAllFromHostnames(String hostname) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM hostnames WHERE hostname = ?", hostname);
 	}
-	
-	public ResultSet selectUseridFromHostnames() throws SQLException {				
+
+	public ResultSet selectAllFromHostnamesWhereAddress(int address) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM hostnames WHERE address = ?", address);
+	}
+
+	//select userid
+	public ResultSet selectUseridFromHostnames() throws SQLException {
 		return DATABASE.getResultSet("SELECT userid FROM hostnames");
 	}
-	
-	public ResultSet selectAllFromHostnamesWhereAddress(int address) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE address = ?", address);
+
+	public ResultSet selectUseridFromHostnames(String hostname) throws SQLException {
+		return DATABASE.getResultSet("SELECT userid FROM hostnames WHERE hostname = ?", hostname);
 	}
-	
-	public ResultSet selectAllFromHostnamesWhereHostname(String hostname) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT * FROM hostnames WHERE hostname = ?", hostname);
+
+	//select hostname
+	public ResultSet selectHostnameFromHostnames() throws SQLException {
+		return DATABASE.getResultSet("SELECT hostname FROM hostnames");
 	}
-	
-	public ResultSet selectAllFromHostnamesWhereUserid(int userid) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM hostnames WHERE userid = ?", userid);
+
+	public ResultSet selectHostnameFromHostnames(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT hostname FROM hostnames WHERE userid = ?", userid);
 	}
-	
-	public ResultSet selectAddressFromHostnamesWithHostname(String hostname) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT address FROM hostnames WHERE hostname = ?", hostname);
+
+	//select address
+	public ResultSet selectAddressFromHostnames() throws SQLException {
+		return DATABASE.getResultSet("SELECT address FROM hostnames");
 	}
-	
-	public ResultSet selectUseridFromHostnamesWithHostname(String hostname) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT userid FROM hostnames WHERE hostname = ?", hostname);
+
+	public ResultSet selectAddressFromHostnames(String hostname) throws SQLException {
+		return DATABASE.getResultSet("SELECT address FROM hostnames WHERE hostname = ?", hostname);
 	}
-	
-	public ResultSet selectHostnameFromHostnamesWithUserid(int userid) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT hostname FROM hostnames WHERE userid = ?", userid);
-	}
-	
-	public void insertEntryHostnamesWithAddr(int address, String hostname, int userid, String publicText) throws SQLException {		
+
+	//insert entry
+	public void insertEntryHostnames(int address, String hostname, int userid, String publicText) throws SQLException {
 		DATABASE.executePreparedStatement4ArgsIntStringIntString("INSERT INTO hostnames VALUES (?, ?, ?, ?)", address, hostname, userid, publicText);
 	}
 	
-	public void insertEntryHostnamesNoAddr(String hostname, int userid, String publicText) throws SQLException {		
-		DATABASE.executePreparedStatement3ArgsStringIntString("INSERT INTO hostnames VALUES (NULL, ?, ?, ?)", hostname, userid, publicText);
+	public void insertEntryHostnames(String hostname, int userid, String publicText) throws SQLException {
+		DATABASE.executeStatement("INSERT INTO hostnames VALUES (NULL, ?, ?, ?)", hostname, userid, publicText);
 	}
-	
-	public void updateEntryHostnamesWithHostname(String hostname, int userid) throws SQLException {		
-		DATABASE.executePreparedStatement2ArgsIntString("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
+
+	//update userid
+	public void updateEntryHostnamesUserId(String hostname, int userid) throws SQLException {
+		DATABASE.executeStatement("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
 	}
-	
-	public void updateEntryHostnamesPublicWithHostname(String hostname, String publicText) throws SQLException {		
-		DATABASE.executePreparedStatement2ArgsStringString("UPDATE hostnames SET public = ? WHERE hostname = ?", publicText, hostname);
+
+	//update public
+	public void updateEntryHostnamesPublic(String hostname, String publicText) throws SQLException {
+		DATABASE.executeStatement("UPDATE hostnames SET public = ? WHERE hostname = ?", publicText, hostname);
 	}
-	
-	public void deleteEntryHostnamesWithHostname(String hostname) throws SQLException {
-		DATABASE.executePreparedStatement1ArgString("DELETE FROM hostnames where hostname = ?", hostname);
+
+	//delete entry
+	public void deleteEntryHostname(int userid) throws SQLException {
+		DATABASE.executeStatement("DELETE FROM hostnames where userid = ?", userid);
 	}
-	
-	public void deleteAllHostnamesWithUserid(int userid) throws SQLException {
-		DATABASE.executePreparedStatement1ArgInt("DELETE FROM hostnames where userid = ?", userid);
+
+	public void deleteEntryHostname(String hostname) throws SQLException {
+		DATABASE.executeStatement("DELETE FROM hostnames where hostname = ?", hostname);
 	}
-	
+
 	//burned
 	//retrieve address
 	public ResultSet selectAddressFromBurned() throws SQLException {				
@@ -210,62 +224,69 @@ public final class Queries implements AutoCloseable {
 	//store address
 	public void insertEntryBurned(int address) throws SQLException {	
 		if (address > 0) {
-			DATABASE.executePreparedStatement1ArgInt("INSERT INTO burned VALUES (?)", address);
+			DATABASE.executeStatement("INSERT INTO burned VALUES (?)", address);
 		}
 	}
 	
 	//delete address
 	public void deleteEntryAddressFromBurned(int address) throws SQLException {
-		DATABASE.executePreparedStatement1ArgInt("DELETE FROM burned where address = ?", address);
+		DATABASE.executeStatement("DELETE FROM burned where address = ?", address);
 	}	
 	
 	//bluenode queries
+	//select all
 	public ResultSet selectAllFromBluenodes() throws SQLException {				
 		return DATABASE.getResultSet("SELECT * FROM bluenodes");
 	}
-	
-	public ResultSet selectNameFromBluenodes() throws SQLException {				
+
+	public ResultSet selectAllFromBluenodes(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM bluenodes WHERE userid = ?", userid);
+	}
+
+	public ResultSet selectAllFromBluenodes(String name) throws SQLException {
+		return DATABASE.getResultSet("SELECT * FROM bluenodes WHERE name = ?", name);
+	}
+
+	//select name
+	public ResultSet selectNameFromBluenodes() throws SQLException {
 		return DATABASE.getResultSet("SELECT name FROM bluenodes");
 	}
-	
-	public ResultSet selectUseridFromBluenodes() throws SQLException {		
+
+	public ResultSet selectNameFromBluenodes(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT name FROM bluenodes WHERE userid = ?", userid);
+	}
+
+	//select userid
+	public ResultSet selectUseridFromBluenodes() throws SQLException {
 		return DATABASE.getResultSet("SELECT userid FROM bluenodes");
 	}
-	
-	public ResultSet selectAllFromBluenodesWhereName(String name) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT * FROM bluenodes WHERE name = ?", name);
+
+	public ResultSet selectUseridFromBluenodes(String name) throws SQLException {
+		return DATABASE.getResultSet("SELECT userid FROM bluenodes WHERE name = ?", name);
 	}
-	
-	public ResultSet selectAllFromBluenodesWhereUserid(int userid) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT * FROM bluenodes WHERE userid = ?", userid);
-	}
-	
-	public ResultSet selectUseridFromBluenodesWhereName(String name) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgString("SELECT userid FROM bluenodes WHERE name = ?", name);
-	}
-	
-	public ResultSet selectNameFromBluenodesWhereUserid(int userid) throws SQLException {		
-		return DATABASE.getResultSetFromPreparedStatement1ArgInt("SELECT name FROM bluenodes WHERE userid = ?", userid);
-	}
-	
+
+	//insert entry
 	public void insertEntryBluenodes(String name, int userid, String publicKey) throws SQLException {		
-		DATABASE.executePreparedStatement3ArgsStringIntString("INSERT INTO bluenodes VALUES (?, ?, ?)", name, userid, publicKey);
+		DATABASE.executeStatement("INSERT INTO bluenodes VALUES (?, ?, ?)", name, userid, publicKey);
 	}
-	
-	public void updateEntryBluenodesWithName(String name, int userid) throws SQLException {		
-		DATABASE.executePreparedStatement2ArgsIntString("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
+
+	//update userid
+	public void updateEntryBluenodesUserId(String name, int userid) throws SQLException {
+		DATABASE.executeStatement("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
 	}
-	
-	public void updateEntryBluenodesPublicWithName(String name, String publicKey) throws SQLException {		
-		DATABASE.executePreparedStatement2ArgsStringString("UPDATE bluenodes SET public = ? WHERE name = ?", publicKey, name);
+
+	//update public
+	public void updateEntryBluenodesPublic(String name, String publicKey) throws SQLException {
+		DATABASE.executeStatement("UPDATE bluenodes SET public = ? WHERE name = ?", publicKey, name);
 	}
-	
-	public void deleteEntryBluenodesWitName(String name) throws SQLException {
-		DATABASE.executePreparedStatement1ArgString("DELETE FROM bluenodes where name = ?", name);
+
+	//delete entry
+	public void deleteEntryBluenodes(int userid) throws SQLException {
+		DATABASE.executeStatement("DELETE FROM bluenodes where userid = ?", userid);
 	}
-	
-	public void deleteAllBluenodesWithUserid(int userid) throws SQLException {
-		DATABASE.executePreparedStatement1ArgInt("DELETE FROM bluenodes where userid = ?", userid);
+
+	public void deleteEntryBluenodes(String name) throws SQLException {
+		DATABASE.executeStatement("DELETE FROM bluenodes where name = ?", name);
 	}
 
 	public void validate() throws SQLException {

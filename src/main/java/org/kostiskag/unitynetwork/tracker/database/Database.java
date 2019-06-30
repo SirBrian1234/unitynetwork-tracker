@@ -16,7 +16,7 @@ import java.sql.Statement;
  *
  * @author Konstantinos Kagiampakis
  */
-final class Database {
+final class Database implements AutoCloseable {
 
 	private final String url;
 	private final String user;
@@ -37,65 +37,67 @@ final class Database {
     public synchronized void close() throws SQLException {
     	con.close();
     }
-   
+
+    //get result set
 	public synchronized ResultSet getResultSet(String Query) throws SQLException {
 	    Statement st = null;
 	    st = con.createStatement();
 	    return st.executeQuery(Query);        
 	}
 	
-	public synchronized void executeStatement(String Query) throws SQLException {
-	    Statement st = null;	           	              
-	    st = con.createStatement();
-	    st.execute(Query);	    
+	public synchronized ResultSet getResultSet(String query, int arg) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);
+	    pst.setInt(1, arg);
+	    return pst.executeQuery();
 	}
-	
-	public synchronized ResultSet getResultSetFromPreparedStatement1ArgInt(String query, int arg) throws SQLException {
+
+	public synchronized ResultSet getResultSet(String query, String arg) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);
+	    pst.setString(1, arg);
+	    return pst.executeQuery();
+	}
+
+	//execute statement
+	public synchronized void executeStatement(String Query) throws SQLException {
+		Statement st = null;
+		st = con.createStatement();
+		st.execute(Query);
+	}
+
+	public synchronized void executeStatement(String query, String arg) throws SQLException{
+		PreparedStatement pst = con.prepareStatement(query);
+	    pst.setString(1, arg);
+	    pst.execute();
+	}
+
+	public synchronized void executeStatement(String query, int arg) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg);
-	    return pst.executeQuery();	    
-	}
-	
-	public synchronized ResultSet getResultSetFromPreparedStatement1ArgString(String query, String arg) throws SQLException {
-		PreparedStatement pst = con.prepareStatement(query);	           	              
-	    pst.setString(1, arg);
-	    return pst.executeQuery();	   
-	}
-	
-	public synchronized void executePreparedStatement1ArgString(String query, String arg1) throws SQLException{
-		PreparedStatement pst = con.prepareStatement(query);	           	              
-	    pst.setString(1, arg1);
 	    pst.execute();
 	}
 	
-	public synchronized void executePreparedStatement1ArgInt(String query, int arg1) throws SQLException{
-		PreparedStatement pst = con.prepareStatement(query);	           	              
-	    pst.setInt(1, arg1);
-	    pst.execute();
-	}
-	
-	public synchronized void executePreparedStatement2ArgsStringInt(String query, String arg1, int arg2) throws SQLException{
+	public synchronized void executeStatement(String query, String arg1, int arg2) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
 	    pst.execute();
 	}
 	
-	public synchronized void executePreparedStatement2ArgsIntString(String query, int arg1, String arg2) throws SQLException {
+	public synchronized void executeStatement(String query, int arg1, String arg2) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
 	    pst.execute();
 	}
 	
-	public synchronized void executePreparedStatement2ArgsStringString(String query, String arg1, String arg2) throws SQLException {
+	public synchronized void executeStatement(String query, String arg1, String arg2) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setString(2, arg2);
 	    pst.execute();		
 	}
 	
-	public synchronized void executePreparedStatement3ArgsIntStringInt(String query, int arg1, String arg2, int arg3) throws SQLException {
+	public synchronized void executeStatement(String query, int arg1, String arg2, int arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
@@ -103,7 +105,7 @@ final class Database {
 	    pst.execute();
 	}
 	
-	public synchronized void executePreparedStatement3ArgsStringIntInt(String query, String arg1, int arg2, int arg3) throws SQLException {
+	public synchronized void executeStatement(String query, String arg1, int arg2, int arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
@@ -111,8 +113,8 @@ final class Database {
 	    pst.execute();
 	}
 	
-	public synchronized void executePreparedStatement3ArgsIntStringString(String query, int arg1, String arg2,
-			String arg3) throws SQLException {
+	public synchronized void executeStatement(String query, int arg1, String arg2,
+											  String arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
@@ -120,7 +122,7 @@ final class Database {
 	    pst.execute();		
 	}
 	
-	public synchronized void executePreparedStatement3ArgsStringIntString(String query, String arg1, int arg2, String arg3) throws SQLException {
+	public synchronized void executeStatement(String query, String arg1, int arg2, String arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
