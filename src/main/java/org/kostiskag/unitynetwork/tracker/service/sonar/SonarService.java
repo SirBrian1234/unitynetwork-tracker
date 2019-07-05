@@ -52,12 +52,12 @@ public final class SonarService extends SimpleCyclicService {
     }
 
     @Override
-    protected void greetingMessage() {
+    protected void preActions() {
         AppLogger.getLogger().consolePrint(pre+"Started at thread "+Thread.currentThread()+" with refresh time " + getTime() + " sec");
     }
 
     @Override
-    protected void stopMessage() {
+    protected void postActions() {
         AppLogger.getLogger().consolePrint(pre + "stopped");
     }
 
