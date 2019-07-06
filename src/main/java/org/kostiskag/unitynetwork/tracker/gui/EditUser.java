@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,11 +22,8 @@ import javax.swing.JTextField;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.database.logic.UserLogic;
-
+import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
+import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 
 /**
  * 
@@ -45,16 +41,16 @@ public class EditUser {
 	private final String username;
 
 	private JFrame frmEditUserEntry;
-	private JTextField textField;
+	private JTextField useridField;
 	private JLabel lblUsername;
-	private JTextField textField_1;
+	private JTextField usernameField;
 	private JLabel lblPassword;
 	private JLabel lblType;
-	private JTextField textField_3;
+	private JTextField fullnameField;
 	private JPasswordField passwordField;
 	private JButton btnNewButton;
 	private JLabel label;
-	private JComboBox<String> comboBox;
+	private JComboBox<String> scopeComboBox;
 	private JCheckBox chckbxSetANew;
 
 	/**
@@ -70,23 +66,16 @@ public class EditUser {
 			chckbxSetANew.setEnabled(false);
 		} else if (type == EditUser.UPDATE){
 			btnNewButton.setText("Update entry");
-			textField_1.setText(username);
-			textField_1.setEditable(false);
+			usernameField.setText(username);
+			usernameField.setEditable(false);
 			chckbxSetANew.setSelected(false);
 			passwordField.setEditable(false);
 
-			try (Queries q = Queries.getInstance()) {
-				ResultSet r = q.selectIdScopeFullnameFromUsers(username);
-				while (r.next()) {
-					textField.setText("" + r.getInt("id"));
-					comboBox.setSelectedIndex(r.getInt("scope"));
-					textField_3.setText(r.getString("fullname"));
-				}
-
-			} catch (InterruptedException e) {
-				AppLogger.getLogger().consolePrint("Could not acquire lock!");
-			} catch (SQLException e) {
-				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+			Tuple<Integer, Integer, String> details = UserLogic.getUserDetails(username);
+			if (details != null) {
+				useridField.setText("" + details.getVal1());
+				scopeComboBox.setSelectedIndex(details.getVal2());
+				fullnameField.setText(details.getVal3());
 			}
 		}
 		frmEditUserEntry.setVisible(true);
@@ -108,20 +97,20 @@ public class EditUser {
 		lblId.setBounds(10, 14, 17, 14);
 		frmEditUserEntry.getContentPane().add(lblId);
 
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setBounds(76, 11, 75, 20);
-		frmEditUserEntry.getContentPane().add(textField);
-		textField.setColumns(10);
+		useridField = new JTextField();
+		useridField.setEditable(false);
+		useridField.setBounds(76, 11, 75, 20);
+		frmEditUserEntry.getContentPane().add(useridField);
+		useridField.setColumns(10);
 
 		lblUsername = new JLabel("username");
 		lblUsername.setBounds(10, 58, 93, 14);
 		frmEditUserEntry.getContentPane().add(lblUsername);
 
-		textField_1 = new JTextField();
-		textField_1.setBounds(115, 55, 279, 20);
-		frmEditUserEntry.getContentPane().add(textField_1);
-		textField_1.setColumns(10);
+		usernameField = new JTextField();
+		usernameField.setBounds(115, 55, 279, 20);
+		frmEditUserEntry.getContentPane().add(usernameField);
+		usernameField.setColumns(10);
 
 		lblPassword = new JLabel("password");
 		lblPassword.setBounds(10, 128, 56, 14);
@@ -131,26 +120,26 @@ public class EditUser {
 		lblType.setBounds(10, 169, 46, 14);
 		frmEditUserEntry.getContentPane().add(lblType);
 
-		comboBox = new JComboBox<String>();
-		comboBox.setModel(new DefaultComboBoxModel<String>(
+		scopeComboBox = new JComboBox<String>();
+		scopeComboBox.setModel(new DefaultComboBoxModel<String>(
 				new String[] { "system", "user", "robot", "goverment service/organisation/company " }));
-		comboBox.setBounds(76, 166, 257, 20);
-		frmEditUserEntry.getContentPane().add(comboBox);
+		scopeComboBox.setBounds(76, 166, 257, 20);
+		frmEditUserEntry.getContentPane().add(scopeComboBox);
 
 		JLabel lblFullName = new JLabel("full name");
 		lblFullName.setBounds(10, 211, 56, 14);
 		frmEditUserEntry.getContentPane().add(lblFullName);
 
-		textField_3 = new JTextField();
-		textField_3.setColumns(10);
-		textField_3.setBounds(76, 208, 257, 20);
-		frmEditUserEntry.getContentPane().add(textField_3);
+		fullnameField = new JTextField();
+		fullnameField.setColumns(10);
+		fullnameField.setBounds(76, 208, 257, 20);
+		frmEditUserEntry.getContentPane().add(fullnameField);
 
 		btnNewButton = new JButton("Add new entry");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				String givenFullname = textField_3.getText();
+				String givenFullname = fullnameField.getText();
 				if (givenFullname.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
 					label.setText("<html>Please set a fullname not more than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
 					return;
@@ -170,7 +159,7 @@ public class EditUser {
 				}
 
 				if (type == 0) {
-					String givenUsername = textField_1.getText();
+					String givenUsername = usernameField.getText();
 					if (givenUsername.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
 						label.setText("<html>Please provide one username which is less than " + NumericConstraints.MAX_STR_LEN_SMALL.size()
 								+ " characters.</html>");
@@ -203,7 +192,7 @@ public class EditUser {
 					}
 					
 					try {
-						UserLogic.addNewUser(givenUsername, givenPassword, comboBox.getSelectedIndex(), givenFullname);
+						UserLogic.addNewUser(givenUsername, givenPassword, scopeComboBox.getSelectedIndex(), givenFullname);
 					} catch (SQLException ex) {
 						if (ex.getErrorCode() == 19) {
 							label.setText("<html>The given username is already used.</html>");
@@ -227,23 +216,15 @@ public class EditUser {
 						}
 
 						try {
-							UserLogic.updateUserAndPassword(username, givenPassword, comboBox.getSelectedIndex(),
+							UserLogic.updateUserAndPassword(username, givenPassword, scopeComboBox.getSelectedIndex(),
 									givenFullname);
 						} catch (SQLException ex) {
 							ex.printStackTrace();
 						}
 
 				} else {
-					// we have to provide all the other fields without
-					// username and password
-					try (Queries q = Queries.getInstance()) {
-						q.updateEntryUsers(username, comboBox.getSelectedIndex(),
-								givenFullname);
-					} catch (InterruptedException e1) {
-						AppLogger.getLogger().consolePrint("Could not acquire lock!");
-					} catch (SQLException e2) {
-						AppLogger.getLogger().consolePrint(e2.getLocalizedMessage());
-					}
+					// we have to provide all the other fields without password
+					UserLogic.updateUserScopeFullName(username, scopeComboBox.getSelectedIndex(), givenFullname);
 				}
 				
 				MainWindow.getInstance().updateDatabaseGUI();

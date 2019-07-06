@@ -1,20 +1,34 @@
-package org.kostiskag.unitynetwork.tracker.database.logic;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
 
 public class BluenodeLogic {
 
-    public static boolean findBluenode(String bluenodeHostname) throws SQLException, InterruptedException {
+    public static Pair<Integer, String> selectBluenodeDetails(String name) {
+        try (Queries q = Queries.getInstance()) {
+            ResultSet r = q.selectAllFromBluenodes(name);
+            if (r.next()) {
+                return new Pair<>(r.getInt("userid"), r.getString("public"));
+            }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return null;
+    }
+
+    public static boolean findIfBluenodeExists(String bluenodeHostname) throws SQLException, InterruptedException {
         ResultSet getResults = null;
         try (Queries q = Queries.getInstance()) {
-            getResults = q.selectNameFromBluenodes();
+            getResults = q.selectNameFromBluenodes(bluenodeHostname);
             boolean found = false;
-            while (getResults.next() && !found) {
+            if (getResults.next() && !found) {
                 if (getResults.getString("name").equals(bluenodeHostname)) {
                     return true;
                 }

@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.database.logic;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.security.GeneralSecurityException;
 import java.sql.ResultSet;
@@ -8,10 +8,24 @@ import java.util.LinkedList;
 import org.kostiskag.unitynetwork.common.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 
 public final class UserLogic {
+
+    public static Tuple<Integer, Integer, String> getUserDetails(String username) {
+        try (Queries q = Queries.getInstance()) {
+            ResultSet r = q.selectIdScopeFullnameFromUsers(username);
+            if (r.next()) {
+                return new Tuple<>(r.getInt("id"), r.getInt("scope"), r.getString("fullname"));
+            }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return null;
+    }
 
     public static void addNewUser(String username, String password, int scope, String fullname) throws SQLException {
         //we have to provide a salted and hashed password in the db along with the rest of the updates
@@ -52,6 +66,16 @@ public final class UserLogic {
             AppLogger.getLogger().consolePrint("Could not acquire lock!");
         } catch (SQLException e) {
             AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+    }
+
+    public static void updateUserScopeFullName(String username, int scope, String fullName) {
+        try (Queries q = Queries.getInstance()) {
+            q.updateEntryUsers(username, scope, fullName);
+        } catch (InterruptedException e1) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e2) {
+            AppLogger.getLogger().consolePrint(e2.getLocalizedMessage());
         }
     }
 

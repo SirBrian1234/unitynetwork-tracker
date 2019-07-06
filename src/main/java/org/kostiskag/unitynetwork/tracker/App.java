@@ -10,7 +10,7 @@ import javax.swing.*;
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.SonarService;
@@ -91,7 +91,7 @@ public final class App {
 
         // 2. DB object
         try {
-            Queries.setDatabaseInstance(this.databaseUrl, this.user, this.password);
+            Logic.setDatabaseInstanceWrapper(this.databaseUrl, this.user, this.password);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             die();
@@ -167,14 +167,12 @@ public final class App {
 
         // 7. database
         AppLogger.getLogger().consolePrint("Testing Database Connection on " + databaseUrl + " ... ");
-        try (Queries q = Queries.getInstance()) {
-            q.validate();
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        if (Logic.validateDatabase()) {
+            AppLogger.getLogger().consolePrint("Database validation complete.");
+        } else {
+            AppLogger.getLogger().consolePrint("Failed to validate database.");
+            die();
         }
-        AppLogger.getLogger().consolePrint("Database validation complete.");
 
         // 8. sonar service
         try {

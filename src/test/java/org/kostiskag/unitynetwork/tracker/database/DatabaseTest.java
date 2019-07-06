@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.junit.*;
-import org.kostiskag.unitynetwork.tracker.database.logic.KeyState;
+import org.kostiskag.unitynetwork.tracker.database.data.KeyState;
 
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)

@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,10 +17,14 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
 
 /**
@@ -30,58 +33,54 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
  */
 public class EditBluenode {
 
-	private final int type;
+	private static final Pattern NAME_PATTERN = Pattern.compile("^[a-z0-9-_]+$");
+
+	private final EditType type;
 	private final String name;
 
 	private JFrame frmEditBluenodeEntry;
-	private JTextField textField_1;
-	private JTextField textField_2;
-	private JTextArea textArea;
-	private JButton button;
-	private JLabel lblNewLabel;
-	private JTextField textField;
 	private JPanel panel;
-	private JButton btnResetKey;
 	private JPanel panel_1;
-	private JLabel lblNewLabel_1;
+	private JTextField nameField;
+	private JTextField idField;
+	private JTextField publicKeyStatusField;
+	private JTextArea publicKeyArea;
+	private JLabel infoLabel;
+	private JLabel keyInfoLabel;
+	private JButton btnResetKey;
+	private JButton button;
 
 	/**
 	 * Create the application.
 	 */
-	public EditBluenode(int type, String name) {
+	public EditBluenode(EditType type, String name) {
 		this.type = type;
 		this.name = name;
 		initialize();
 
 		// new
-		if (type == 0) {
+		if (type == EditType.NEW_ENTRY) {
 			button.setText("Add new entry");
-			textField.setEnabled(false);
-			textArea.setEnabled(false);
+			publicKeyStatusField.setEnabled(false);
+			publicKeyArea.setEnabled(false);
 			btnResetKey.setEnabled(false);
 			
 		} else {
 			button.setText("Update entry");
-			textField_1.setText(name);
-			textField_1.setEditable(false);
+			nameField.setText(name);
+			nameField.setEditable(false);
 
-			try (Queries q = Queries.getInstance()) {
-				ResultSet r = q.selectAllFromBluenodes(name);
-				while (r.next()) {
-					textField_2.setText("" + r.getInt("userid"));
-					String key = r.getString("public");
-					String args[] = key.split("\\s+");
-					if (args[0].equals("NOT_SET")) {
-						lblNewLabel_1.setText("<html>Copy this session ticket in the bluenode in order to upload its public key.</html>");
-						btnResetKey.setEnabled(false);
-					}
-					textField.setText(args[0]);
-					textArea.setText(args[1]);					
+			Pair<Integer, String> details = BluenodeLogic.selectBluenodeDetails(name);
+			if (details != null) {
+				idField.setText("" + details.getVal1());
+				String key = details.getVal2();
+				String args[] = key.split("\\s+");
+				if (args[0].equals("NOT_SET")) {
+					keyInfoLabel.setText("<html>Copy this session ticket in the bluenode in order to upload its public key.</html>");
+					btnResetKey.setEnabled(false);
 				}
-			} catch (InterruptedException e) {
-				AppLogger.getLogger().consolePrint("Could not acquire lock!");
-			} catch (SQLException e) {
-				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+				publicKeyStatusField.setText(args[0]);
+				publicKeyArea.setText(args[1]);
 			}
 		}
 		frmEditBluenodeEntry.setVisible(true);
@@ -108,17 +107,17 @@ public class EditBluenode {
 		lblPublicKeyStatus.setBounds(10, 17, 110, 14);
 		panel.add(lblPublicKeyStatus);
 
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setBounds(130, 11, 126, 20);
-		panel.add(textField);
-		textField.setColumns(10);
+		publicKeyStatusField = new JTextField();
+		publicKeyStatusField.setEditable(false);
+		publicKeyStatusField.setBounds(130, 11, 126, 20);
+		panel.add(publicKeyStatusField);
+		publicKeyStatusField.setColumns(10);
 
-		textArea = new JTextArea();
-		textArea.setBounds(10, 42, 455, 70);
-		panel.add(textArea);
-		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		textArea.setLineWrap(true);
+		publicKeyArea = new JTextArea();
+		publicKeyArea.setBounds(10, 42, 455, 70);
+		panel.add(publicKeyArea);
+		publicKeyArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		publicKeyArea.setLineWrap(true);
 
 		btnResetKey = new JButton("Reset Key");
 		btnResetKey.addActionListener(new ActionListener() {
@@ -129,9 +128,9 @@ public class EditBluenode {
 		btnResetKey.setBounds(290, 190, 175, 23);
 		panel.add(btnResetKey);
 
-		lblNewLabel_1 = new JLabel("");
-		lblNewLabel_1.setBounds(10, 123, 455, 56);
-		panel.add(lblNewLabel_1);
+		keyInfoLabel = new JLabel("");
+		keyInfoLabel.setBounds(10, 123, 455, 56);
+		panel.add(keyInfoLabel);
 
 		panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -143,25 +142,25 @@ public class EditBluenode {
 		lblName.setBounds(10, 14, 110, 14);
 		panel_1.add(lblName);
 
-		textField_1 = new JTextField();
-		textField_1.setBounds(130, 11, 257, 20);
-		panel_1.add(textField_1);
-		textField_1.setColumns(10);
+		nameField = new JTextField();
+		nameField.setBounds(130, 11, 257, 20);
+		panel_1.add(nameField);
+		nameField.setColumns(10);
 
 		JLabel lblUserId = new JLabel("User ID");
 		lblUserId.setBounds(10, 66, 56, 14);
 		panel_1.add(lblUserId);
 
-		textField_2 = new JTextField();
-		textField_2.setBounds(78, 63, 75, 20);
-		panel_1.add(textField_2);
-		textField_2.setColumns(10);				
+		idField = new JTextField();
+		idField.setBounds(78, 63, 75, 20);
+		panel_1.add(idField);
+		idField.setColumns(10);
 
-		lblNewLabel = new JLabel("");
-		lblNewLabel.setBounds(10, 91, 464, 88);
-		panel_1.add(lblNewLabel);
-		lblNewLabel.setForeground(new Color(204, 0, 0));
-		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
+		infoLabel = new JLabel("");
+		infoLabel.setBounds(10, 91, 464, 88);
+		panel_1.add(infoLabel);
+		infoLabel.setForeground(new Color(204, 0, 0));
+		infoLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 
 		button = new JButton("Add new entry");
 		button.setBounds(299, 190, 175, 23);
@@ -174,31 +173,30 @@ public class EditBluenode {
 	}
 
 	private void updateEntry() {
-		if (!textField_1.getText().isEmpty() && !textField_2.getText().isEmpty()) {
-			if (textField_1.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()
-					&& textField_2.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
+		if (!nameField.getText().isEmpty() && !idField.getText().isEmpty()) {
+			if (nameField.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()
+					&& idField.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
 
 				int userid = -1;
 				try {
-					userid = Integer.parseInt(textField_2.getText());
+					userid = Integer.parseInt(idField.getText());
 				} catch (NumberFormatException ex) {
-					lblNewLabel.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
+					infoLabel.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
 					return;
 				}
-
 				if (userid <= 0) {
-					lblNewLabel.setText("<html>Please provide a number greater than 0.</html>");
+					infoLabel.setText("<html>Please provide a number greater than 0.</html>");
 					return;
 				}
 
 				try (Queries q = Queries.getInstance()) {
 					if (q.checkIfUserExists(userid)) {
-						if (type == 0) {
-							String givenBluenodeName = textField_1.getText();
+						if (type == EditType.NEW_ENTRY) {
+							String givenBluenodeName = nameField.getText();
 							Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
 							Matcher matcher = pattern.matcher(givenBluenodeName);
 							if (!matcher.matches()) {
-								lblNewLabel.setText(
+								infoLabel.setText(
 										"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
 								return;
 							}
@@ -208,7 +206,7 @@ public class EditBluenode {
 							q.updateEntryBluenodesUserId(name, userid);
 						}
 					} else {
-						lblNewLabel.setText("<html>The given userid does not exist.</html>");
+						infoLabel.setText("<html>The given userid does not exist.</html>");
 						return;
 					}
 				} catch (InterruptedException e) {
@@ -221,25 +219,21 @@ public class EditBluenode {
 				frmEditBluenodeEntry.dispose();
 
 			} else {
-				lblNewLabel.setText("<html>Please provide a Hostname up to " + NumericConstraints.MAX_STR_LEN_SMALL.size()
+				infoLabel.setText("<html>Please provide a Hostname up to " + NumericConstraints.MAX_STR_LEN_SMALL.size()
 						+ " characters and a number up to " + NumericConstraints.MAX_INT_STR.size() + " digits.</html>");
 			}
 		} else {
-			lblNewLabel.setText("<html>Please fill in all the fields.</html>");
+			infoLabel.setText("<html>Please fill in all the fields.</html>");
 		}
 	}
 	
 	private void resetKey() {
-		if (type==1 && textField.getText().equals("KEY_SET")) {			
-			String key = "NOT_SET "+ CryptoUtilities.generateQuestion();
-			try (Queries q = Queries.getInstance()) {
-				q.updateEntryBluenodesPublic(name, key);
-			} catch (InterruptedException e) {
-				AppLogger.getLogger().consolePrint("Could not acquire lock!");
-			} catch (SQLException e) {
-				AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+		if (type== EditType.UPDATE && publicKeyStatusField.getText().equals("KEY_SET")) {
+			try {
+				Logic.revokePublicKey(NodeType.BLUENODE, name);
+			} catch (InterruptedException | SQLException e) {
+				AppLogger.getLogger().consolePrint(e.getMessage());
 			}
-
 			frmEditBluenodeEntry.dispose();
 		} 
 	}

@@ -20,6 +20,8 @@ import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
@@ -41,44 +43,27 @@ import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
  */
 final class BlueNodeActions {
 
-
-
     /**
      * lease a bluenode on the network
      *
      * @throws
      */
     public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
-
         String data = null;
-
-        ResultSet getResults = null;
-
-        try (Queries q = Queries.getInstance()) {
-            getResults = q.selectNameFromBluenodes();
-
-            boolean found = false;
-            while (getResults.next() && !found) {
-                if (getResults.getString("name").equals(bluenodeHostname)) {
-                    String address = socket.getInetAddress().getHostAddress();
-                    int port = Integer.parseInt(givenPort);
-                    if (!BlueNodeTable.getInstance().getOptionalNodeEntry(lock, bluenodeHostname).isPresent()) {
-                        // normal connect for a non associated BN
-                        try {
-                            BlueNodeTable.getInstance().lease(lock, bluenodeHostname, pub, address, port);
-                            data = "LEASED " + address;
-                            found = true;
-                            break;
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            data = "LEASE_FAILED";
-                            break;
-                        }
+        try {
+            if (BluenodeLogic.findIfBluenodeExists(bluenodeHostname)) {
+                String address = socket.getInetAddress().getHostAddress();
+                int port = Integer.parseInt(givenPort);
+                if (!BlueNodeTable.getInstance().getOptionalNodeEntry(lock, bluenodeHostname).isPresent()) {
+                    // normal connect for a non associated BN
+                    try {
+                        BlueNodeTable.getInstance().lease(lock, bluenodeHostname, pub, address, port);
+                        data = "LEASED " + address;
+                    } catch (Exception e) {
+                        data = "LEASE_FAILED";
                     }
                 }
-            }
-
-            if (!found) {
+            } else {
                 data = "LEASE_FAILED";
             }
         } catch (InterruptedException | SQLException ex) {
@@ -253,7 +238,6 @@ final class BlueNodeActions {
      * @throws
      */
     public static void CheckRnAddr(Lock lock, String vaddress, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
-        Queries q = null;
         String data = null;
         String hostname = null;
 
@@ -304,86 +288,47 @@ final class BlueNodeActions {
         }
     }
 
-    public static void LookupByHn(String hostname, DataOutputStream writer, SecretKey sessionKey) {
-        String vaddress = null;
-        String retrievedHostname = null;
-
-        try (Queries q = Queries.getInstance()) {
-            ResultSet r = q.selectAllFromHostnames();
-            while (r.next()) {
-                retrievedHostname = r.getString("hostname");
-                if (retrievedHostname.equals(hostname)) {
-                    //found!!!
-                    int num_addr = r.getInt("address");
-
-                    try {
-                        vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
-                        try {
-                            SocketUtilities.sendAESEncryptedStringData(vaddress, writer, sessionKey);
-                        }  catch (GeneralSecurityException | IOException e) {
-                            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                            return;
-                        }
-                        return;
-                    } catch (UnknownHostException e) {
-                        AppLogger.getLogger().consolePrint("Failed lookup by hosntame for BN " + hostname + " " + e.getMessage());
-                        return;
-                    }
-
-                }
-            }
-
+    public static void LookupByHostname(String hostname, DataOutputStream writer, SecretKey sessionKey) {
+        VirtualAddress vaddr = HostnameLogic.lookupVaddress(hostname);
+        if(vaddr != null) {
             try {
-                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
-            } catch (GeneralSecurityException | IOException ex) {
-                AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
+                SocketUtilities.sendAESEncryptedStringData(vaddr.asString(), writer, sessionKey);
+            } catch (GeneralSecurityException | IOException e) {
+                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                return;
             }
-
-        } catch (InterruptedException | SQLException e) {
+        } else {
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             } catch (GeneralSecurityException | IOException ex) {
                 AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
             }
         }
+
     }
 
     public static void LookupByAddr(String vaddress, DataOutputStream writer, SecretKey sessionKey) {
-        String hostname = null;
-        int addr_num = 0;
+        VirtualAddress v = null;
         try {
-            addr_num = VirtualAddress._10IpAddrToNumber(vaddress);
+             v = VirtualAddress.valueOf(vaddress);
         } catch (UnknownHostException e) {
-            AppLogger.getLogger().consolePrint("Failed lookup by Address for address: " + vaddress + " " + e.getMessage());
-            return;
-        }
-        int retrieved_addr_num = -1;
-
-        try (Queries q = Queries.getInstance()) {
-            ResultSet r = q.selectAllFromHostnames();
-            while (r.next()) {
-                retrieved_addr_num = r.getInt("address");
-                if (retrieved_addr_num == addr_num) {
-                    //found!!!
-                    hostname = r.getString("hostname");
-                    try {
-                        SocketUtilities.sendAESEncryptedStringData(hostname, writer, sessionKey);
-                    } catch (GeneralSecurityException | IOException e) {
-                        AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-                        return;
-                    }
-                    return;
-                }
-            }
-
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+            }  catch (GeneralSecurityException | IOException ex) {
+                AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
+                return;
+            }
+        }
+
+        String hostname = HostnameLogic.lookupHostname(v);
+        if (hostname != null) {
+            try {
+                SocketUtilities.sendAESEncryptedStringData(hostname, writer, sessionKey);
             } catch (GeneralSecurityException | IOException e) {
                 AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                return;
             }
-
-        } catch (InterruptedException | SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        } else {
             try {
                 SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
             }  catch (GeneralSecurityException | IOException ex) {

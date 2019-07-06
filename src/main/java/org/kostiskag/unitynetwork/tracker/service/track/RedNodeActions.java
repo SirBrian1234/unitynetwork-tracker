@@ -3,17 +3,13 @@ package org.kostiskag.unitynetwork.tracker.service.track;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
-import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.database.logic.KeyState;
-import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 

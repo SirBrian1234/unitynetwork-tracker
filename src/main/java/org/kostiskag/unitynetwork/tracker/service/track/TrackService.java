@@ -22,9 +22,7 @@ import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 
-import org.kostiskag.unitynetwork.tracker.database.logic.BluenodeLogic;
-import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
-import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
@@ -150,7 +148,7 @@ final class TrackService extends Thread {
 						BlueNodeActions.CheckRnAddr(bnTableLock, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LOOKUP_H.value())) {
 						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LOOKUP_H.value() + " from " + socket.getInetAddress().getHostAddress());
-						BlueNodeActions.LookupByHn(args[1], writer, sessionKey);
+						BlueNodeActions.LookupByHostname(args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LOOKUP_V.value())) {
 						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LOOKUP_V.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.LookupByAddr(args[1], writer, sessionKey);

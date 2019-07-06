@@ -57,47 +57,47 @@ final class Database implements AutoCloseable {
 	    return pst.executeQuery();
 	}
 
-	//execute statement
-	public synchronized void executeStatement(String Query) throws SQLException {
+	//execute prepared statement
+	public synchronized void executePreparedStatement(String Query) throws SQLException {
 		Statement st = null;
 		st = con.createStatement();
 		st.execute(Query);
 	}
 
-	public synchronized void executeStatement(String query, String arg) throws SQLException{
+	public synchronized void executePreparedStatement(String query, int arg) throws SQLException{
+		PreparedStatement pst = con.prepareStatement(query);
+		pst.setInt(1, arg);
+		pst.execute();
+	}
+
+	public synchronized void executePreparedStatement(String query, String arg) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);
 	    pst.setString(1, arg);
 	    pst.execute();
 	}
 
-	public synchronized void executeStatement(String query, int arg) throws SQLException{
-		PreparedStatement pst = con.prepareStatement(query);	           	              
-	    pst.setInt(1, arg);
-	    pst.execute();
-	}
-	
-	public synchronized void executeStatement(String query, String arg1, int arg2) throws SQLException{
+	public synchronized void executePreparedStatement(String query, String arg1, int arg2) throws SQLException{
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
 	    pst.execute();
 	}
 	
-	public synchronized void executeStatement(String query, int arg1, String arg2) throws SQLException {
+	public synchronized void executePreparedStatement(String query, int arg1, String arg2) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
 	    pst.execute();
 	}
-	
-	public synchronized void executeStatement(String query, String arg1, String arg2) throws SQLException {
+
+	public synchronized void executePreparedStatement(String query, String arg1, String arg2) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setString(2, arg2);
 	    pst.execute();		
 	}
 	
-	public synchronized void executeStatement(String query, int arg1, String arg2, int arg3) throws SQLException {
+	public synchronized void executePreparedStatement(String query, int arg1, String arg2, int arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
@@ -105,7 +105,7 @@ final class Database implements AutoCloseable {
 	    pst.execute();
 	}
 	
-	public synchronized void executeStatement(String query, String arg1, int arg2, int arg3) throws SQLException {
+	public synchronized void executePreparedStatement(String query, String arg1, int arg2, int arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
@@ -113,8 +113,8 @@ final class Database implements AutoCloseable {
 	    pst.execute();
 	}
 	
-	public synchronized void executeStatement(String query, int arg1, String arg2,
-											  String arg3) throws SQLException {
+	public synchronized void executePreparedStatement(String query, int arg1, String arg2,
+													  String arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setInt(1, arg1);
 	    pst.setString(2, arg2);
@@ -122,7 +122,7 @@ final class Database implements AutoCloseable {
 	    pst.execute();		
 	}
 	
-	public synchronized void executeStatement(String query, String arg1, int arg2, String arg3) throws SQLException {
+	public synchronized void executePreparedStatement(String query, String arg1, int arg2, String arg3) throws SQLException {
 		PreparedStatement pst = con.prepareStatement(query);	           	              
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
@@ -130,8 +130,17 @@ final class Database implements AutoCloseable {
 	    pst.execute();	
 	}
 
-	public synchronized void executePreparedStatement4ArgsStrStrIntStr(String query, String arg1, String arg2, int arg3, String arg4) throws SQLException{
-		PreparedStatement pst = con.prepareStatement(query);	           	              
+	public synchronized void executePreparedStatement(String query, int arg1, String arg2, int arg3, String arg4) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);
+		pst.setInt(1, arg1);
+		pst.setString(2, arg2);
+		pst.setInt(3, arg3);
+		pst.setString(4, arg4);
+		pst.execute();
+	}
+
+	public synchronized void executePreparedStatement(String query, String arg1, String arg2, int arg3, String arg4) throws SQLException{
+		PreparedStatement pst = con.prepareStatement(query);
 	    pst.setString(1, arg1);
 	    pst.setString(2, arg2);
 	    pst.setInt(3, arg3);
@@ -139,22 +148,13 @@ final class Database implements AutoCloseable {
 	    pst.execute();
 	}
 
-	public synchronized void executePreparedStatement4ArgsStrIntStrStr(String query, String arg1, int arg2, String arg3,
-			String arg4) throws SQLException {
-		PreparedStatement pst = con.prepareStatement(query);	           	              
+	public synchronized void executePreparedStatement(String query, String arg1, int arg2, String arg3,
+													  String arg4) throws SQLException {
+		PreparedStatement pst = con.prepareStatement(query);
 	    pst.setString(1, arg1);
 	    pst.setInt(2, arg2);
 	    pst.setString(3, arg3);
 	    pst.setString(4, arg4);
-	    pst.execute();		
+	    pst.execute();
 	}
-
-	public synchronized void executePreparedStatement4ArgsIntStringIntString(String query, int arg1, String arg2, int arg3, String arg4) throws SQLException {
-		PreparedStatement pst = con.prepareStatement(query);	           	              
-	    pst.setInt(1, arg1);
-	    pst.setString(2, arg2);
-	    pst.setInt(3, arg3);
-	    pst.setString(4, arg4);
-	    pst.execute();	
-	}		
 }

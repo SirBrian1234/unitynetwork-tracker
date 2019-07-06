@@ -115,21 +115,21 @@ public final class Queries implements AutoCloseable {
 
 	//insert entry
 	public void insertEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
-		DATABASE.executePreparedStatement4ArgsStrStrIntStr("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
+		DATABASE.executePreparedStatement("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
 	}
 
 	//update entry
 	public void updateEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
-		DATABASE.executePreparedStatement4ArgsStrIntStrStr("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
+		DATABASE.executePreparedStatement("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
 	}
 
 	public void updateEntryUsers(String username, int scope, String fullname) throws SQLException {
-		DATABASE.executeStatement("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
+		DATABASE.executePreparedStatement("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
 	}
 
 	//delete entry
 	public void deleteEntryUsers(String username) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM users where username = ?", username);
+		DATABASE.executePreparedStatement("DELETE FROM users where username = ?", username);
 	}
 
 	//check if user exists
@@ -174,6 +174,10 @@ public final class Queries implements AutoCloseable {
 		return DATABASE.getResultSet("SELECT hostname FROM hostnames");
 	}
 
+	public ResultSet selectHostnameFromHostnames(String hostname) throws SQLException {
+		return DATABASE.getResultSet("SELECT hostname FROM hostnames WHERE hostname = ?", hostname);
+	}
+
 	public ResultSet selectHostnameFromHostnames(int userid) throws SQLException {
 		return DATABASE.getResultSet("SELECT hostname FROM hostnames WHERE userid = ?", userid);
 	}
@@ -194,30 +198,30 @@ public final class Queries implements AutoCloseable {
 
 	//insert entry
 	public void insertEntryHostnames(int address, String hostname, int userid, String publicText) throws SQLException {
-		DATABASE.executePreparedStatement4ArgsIntStringIntString("INSERT INTO hostnames VALUES (?, ?, ?, ?)", address, hostname, userid, publicText);
+		DATABASE.executePreparedStatement("INSERT INTO hostnames VALUES (?, ?, ?, ?)", address, hostname, userid, publicText);
 	}
 	
 	public void insertEntryHostnames(String hostname, int userid, String publicText) throws SQLException {
-		DATABASE.executeStatement("INSERT INTO hostnames VALUES (NULL, ?, ?, ?)", hostname, userid, publicText);
+		DATABASE.executePreparedStatement("INSERT INTO hostnames VALUES (NULL, ?, ?, ?)", hostname, userid, publicText);
 	}
 
 	//update userid
 	public void updateEntryHostnamesUserId(String hostname, int userid) throws SQLException {
-		DATABASE.executeStatement("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
+		DATABASE.executePreparedStatement("UPDATE hostnames SET userid = ? WHERE hostname = ?", userid, hostname);
 	}
 
 	//update public
 	public void updateEntryHostnamesPublic(String hostname, String publicText) throws SQLException {
-		DATABASE.executeStatement("UPDATE hostnames SET public = ? WHERE hostname = ?", publicText, hostname);
+		DATABASE.executePreparedStatement("UPDATE hostnames SET public = ? WHERE hostname = ?", publicText, hostname);
 	}
 
 	//delete entry
 	public void deleteEntryHostname(int userid) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM hostnames where userid = ?", userid);
+		DATABASE.executePreparedStatement("DELETE FROM hostnames where userid = ?", userid);
 	}
 
 	public void deleteEntryHostname(String hostname) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM hostnames where hostname = ?", hostname);
+		DATABASE.executePreparedStatement("DELETE FROM hostnames where hostname = ?", hostname);
 	}
 
 	//burned
@@ -229,13 +233,13 @@ public final class Queries implements AutoCloseable {
 	//store address
 	public void insertEntryBurned(int address) throws SQLException {	
 		if (address > 0) {
-			DATABASE.executeStatement("INSERT INTO burned VALUES (?)", address);
+			DATABASE.executePreparedStatement("INSERT INTO burned VALUES (?)", address);
 		}
 	}
 	
 	//delete address
 	public void deleteEntryAddressFromBurned(int address) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM burned where address = ?", address);
+		DATABASE.executePreparedStatement("DELETE FROM burned where address = ?", address);
 	}	
 	
 	//bluenode queries
@@ -255,6 +259,10 @@ public final class Queries implements AutoCloseable {
 	//select name
 	public ResultSet selectNameFromBluenodes() throws SQLException {
 		return DATABASE.getResultSet("SELECT name FROM bluenodes");
+	}
+
+	public ResultSet selectNameFromBluenodes(String name) throws SQLException {
+		return DATABASE.getResultSet("SELECT name FROM bluenodes WHERE name = ?", name);
 	}
 
 	public ResultSet selectNameFromBluenodes(int userid) throws SQLException {
@@ -277,26 +285,26 @@ public final class Queries implements AutoCloseable {
 
 	//insert entry
 	public void insertEntryBluenodes(String name, int userid, String publicKey) throws SQLException {		
-		DATABASE.executeStatement("INSERT INTO bluenodes VALUES (?, ?, ?)", name, userid, publicKey);
+		DATABASE.executePreparedStatement("INSERT INTO bluenodes VALUES (?, ?, ?)", name, userid, publicKey);
 	}
 
 	//update userid
 	public void updateEntryBluenodesUserId(String name, int userid) throws SQLException {
-		DATABASE.executeStatement("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
+		DATABASE.executePreparedStatement("UPDATE bluenodes SET userid = ? WHERE name = ?", userid, name);
 	}
 
 	//update public
 	public void updateEntryBluenodesPublic(String name, String publicKey) throws SQLException {
-		DATABASE.executeStatement("UPDATE bluenodes SET public = ? WHERE name = ?", publicKey, name);
+		DATABASE.executePreparedStatement("UPDATE bluenodes SET public = ? WHERE name = ?", publicKey, name);
 	}
 
 	//delete entry
 	public void deleteEntryBluenodes(int userid) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM bluenodes where userid = ?", userid);
+		DATABASE.executePreparedStatement("DELETE FROM bluenodes where userid = ?", userid);
 	}
 
 	public void deleteEntryBluenodes(String name) throws SQLException {
-		DATABASE.executeStatement("DELETE FROM bluenodes where name = ?", name);
+		DATABASE.executePreparedStatement("DELETE FROM bluenodes where name = ?", name);
 	}
 
 	public void validate() throws SQLException {
@@ -308,7 +316,7 @@ public final class Queries implements AutoCloseable {
                + "	fullname CHAR(256) \n"
                + ");";
        
-	    DATABASE.executeStatement(query);
+	    DATABASE.executePreparedStatement(query);
 	
 	    query = "CREATE TABLE IF NOT EXISTS hostnames (\n"
 	    		+ "	address INTEGER PRIMARY KEY AUTOINCREMENT, \n"
@@ -317,7 +325,7 @@ public final class Queries implements AutoCloseable {
                 + "	public TEXT \n"
                 + ");";
         
-	    DATABASE.executeStatement(query);
+	    DATABASE.executePreparedStatement(query);
 	    
 	    //when a hostname is deleted the address has to bee stored
 	    //in order to be used again. this table keeps
@@ -326,7 +334,7 @@ public final class Queries implements AutoCloseable {
 	    		+ "	address INTEGER PRIMARY KEY \n"
                 + ");";
         
-	    DATABASE.executeStatement(query);
+	    DATABASE.executePreparedStatement(query);
     
 	   query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
                 + "	name CHAR(128) PRIMARY KEY, \n"
@@ -334,6 +342,6 @@ public final class Queries implements AutoCloseable {
                 + "	public TEXT \n"
                 + ");";
 	 
-	   DATABASE.executeStatement(query);
+	   DATABASE.executePreparedStatement(query);
 	}
 }

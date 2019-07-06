@@ -20,10 +20,10 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.logic.BluenodeLogic;
-import org.kostiskag.unitynetwork.tracker.database.logic.HostnameLogic;
-import org.kostiskag.unitynetwork.tracker.database.logic.Logic;
-import org.kostiskag.unitynetwork.tracker.database.logic.UserLogic;
+import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 import javax.swing.LayoutStyle.ComponentPlacement;
@@ -488,7 +488,7 @@ public class MainWindow extends javax.swing.JFrame {
 				// new bluenode
 				if (!lockDbEdit) {
 					// lockDbEdit = true;
-					new EditBluenode(0, "");
+					new EditBluenode(EditType.NEW_ENTRY, "");
 				}
 			}
 		});
@@ -503,7 +503,7 @@ public class MainWindow extends javax.swing.JFrame {
 					// lockDbEdit = true;
 					int row = table_2.getSelectedRow();
 					if (row != -1) {
-						new EditBluenode(1, (String) table_2.getValueAt(row, 0));
+						new EditBluenode(EditType.UPDATE, (String) table_2.getValueAt(row, 0));
 					}
 				}
 			}

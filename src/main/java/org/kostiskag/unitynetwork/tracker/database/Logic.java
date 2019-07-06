@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.database.logic;
+package org.kostiskag.unitynetwork.tracker.database;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -12,7 +12,7 @@ import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.data.KeyState;
 
 
 /**
@@ -21,6 +21,24 @@ import org.kostiskag.unitynetwork.tracker.database.Queries;
  * @author Konstantinos Kagiampakis
  */
 public final class Logic {
+
+	public static void setDatabaseInstanceWrapper (String url, String user, String password) throws SQLException {
+		Queries.setDatabaseInstance(url, user, password);
+	}
+
+	public static boolean validateDatabase() {
+		var valid = true;
+		try (Queries q = Queries.getInstance()) {
+			q.validate();
+		} catch (InterruptedException e) {
+			AppLogger.getLogger().consolePrint("Could not acquire lock!");
+			valid = false;
+		} catch (SQLException e) {
+			AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+			valid = false;
+		}
+		return valid;
+	}
 
 	public static PublicKey fetchPublicKey(NodeType type, String hostname) throws InterruptedException, GeneralSecurityException, SQLException, IOException {
 		try (Queries q = Queries.getInstance()) {

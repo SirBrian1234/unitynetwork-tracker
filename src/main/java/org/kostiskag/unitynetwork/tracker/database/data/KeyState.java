@@ -1,4 +1,4 @@
-package org.kostiskag.unitynetwork.tracker.database.logic;
+package org.kostiskag.unitynetwork.tracker.database.data;
 
 public enum KeyState {
     NOT_SET,
