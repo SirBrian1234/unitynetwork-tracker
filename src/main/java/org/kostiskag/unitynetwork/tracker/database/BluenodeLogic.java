@@ -3,6 +3,7 @@ package org.kostiskag.unitynetwork.tracker.database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
@@ -37,6 +38,38 @@ public class BluenodeLogic {
         } catch (InterruptedException | SQLException ex) {
             throw ex;
         }
+    }
+
+    public static boolean addNewBluenode(String name, int userId) {
+        try (Queries q = Queries.getInstance()) {
+            ResultSet r = q.selectIdFromUsers(userId);
+            if (r.next()){
+                String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
+                q.insertEntryBluenodes(name, userId, publicKey);
+                return true;
+            }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return false;
+    }
+
+    public static boolean updateBluenode(String name, int userId) {
+        try (Queries q = Queries.getInstance()) {
+            ResultSet r = q.selectIdFromUsers(userId);
+            if (r.next()){
+                String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
+                q.insertEntryBluenodes(name, userId, publicKey);
+                return true;
+            }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return false;
     }
 
     public static void removeBluenode(String name) throws SQLException {

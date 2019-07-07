@@ -23,7 +23,7 @@ import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
 
@@ -67,8 +67,11 @@ public class EditBluenode {
 			
 		} else {
 			button.setText("Update entry");
+			button.setEnabled(false);
 			nameField.setText(name);
 			nameField.setEditable(false);
+			idField.setEditable(false);
+			infoLabel.setText("<html>You are not allowed to update a bluenode please delete it and create a new one!</html>");
 
 			Pair<Integer, String> details = BluenodeLogic.selectBluenodeDetails(name);
 			if (details != null) {
@@ -189,30 +192,23 @@ public class EditBluenode {
 					return;
 				}
 
-				try (Queries q = Queries.getInstance()) {
-					if (q.checkIfUserExists(userid)) {
-						if (type == EditType.NEW_ENTRY) {
-							String givenBluenodeName = nameField.getText();
-							Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
-							Matcher matcher = pattern.matcher(givenBluenodeName);
-							if (!matcher.matches()) {
-								infoLabel.setText(
-										"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
-								return;
-							}
-							String publicKey = "NOT_SET " + CryptoUtilities.generateQuestion();
-							q.insertEntryBluenodes(givenBluenodeName, userid, publicKey);
-						} else {
-							q.updateEntryBluenodesUserId(name, userid);
+				if (UserLogic.checkExistingUserId(userid)) {
+					if (type == EditType.NEW_ENTRY) {
+						String givenBluenodeName = nameField.getText();
+						Matcher matcher = NAME_PATTERN.matcher(givenBluenodeName);
+						if (!matcher.matches()) {
+							infoLabel.setText(
+									"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
+							return;
 						}
+						BluenodeLogic.addNewBluenode(givenBluenodeName, userid);
 					} else {
-						infoLabel.setText("<html>The given userid does not exist.</html>");
+						//you can't update
 						return;
 					}
-				} catch (InterruptedException e) {
-					AppLogger.getLogger().consolePrint("Could not acquire lock!");
-				} catch (SQLException e) {
-					AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+				} else {
+					infoLabel.setText("<html>The given userid does not exist.</html>");
+					return;
 				}
 
 				MainWindow.getInstance().updateDatabaseGUI();

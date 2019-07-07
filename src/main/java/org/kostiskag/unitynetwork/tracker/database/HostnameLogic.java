@@ -37,9 +37,9 @@ public class HostnameLogic {
         return null;
     }
 
-    public static void addNewHostname(String hostname, int userid) throws Exception {
-        try (Queries q = Queries.getInstance()) {
-            if (q.checkIfUserExists(userid)) {
+    public static boolean addNewHostname(String hostname, int userid) throws Exception {
+        if (UserLogic.checkExistingUserId(userid)) {
+            try (Queries q = Queries.getInstance()) {
                 String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
                 ResultSet r = q.selectAddressFromBurned();
                 if (r.next()) {
@@ -47,31 +47,31 @@ public class HostnameLogic {
                     q.deleteEntryAddressFromBurned(address);
                     q.insertEntryHostnames(address, hostname, userid, publicStr);
                 } else {
-                    System.out.println("no address");
+                    AppLogger.getLogger().consolePrint("No address on burned list!");
                     q.insertEntryHostnames(hostname, userid, publicStr);
                 }
-            } else {
-                throw new Exception("no user found");
+                return true;
+            } catch (InterruptedException e) {
+                AppLogger.getLogger().consolePrint("Could not acquire lock!");
+            } catch (SQLException e) {
+                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
+        return false;
     }
 
-    public static void updateHostname(String hostname, int userid) throws Exception {
-        try (Queries q = Queries.getInstance()) {
-            if (q.checkIfUserExists(userid)) {
+    public static boolean updateHostname(String hostname, int userid) {
+        if (UserLogic.checkExistingUserId(userid)) {
+            try (Queries q = Queries.getInstance()) {
                 q.updateEntryHostnamesUserId(hostname, userid);
-            } else {
-                throw new Exception("no user found");
+                return true;
+            } catch (InterruptedException e) {
+                AppLogger.getLogger().consolePrint("Could not acquire lock!");
+            } catch (SQLException e) {
+                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
+        return false;
     }
 
     public static Pair<Integer, String> getHostnameEntry(String hostname) {

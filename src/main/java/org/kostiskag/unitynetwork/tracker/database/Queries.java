@@ -20,7 +20,7 @@ import org.kostiskag.unitynetwork.tracker.AppLogger;
  * 
  * @author Konstantinos Kagiampakis
  */
-public final class Queries implements AutoCloseable {
+final class Queries implements AutoCloseable {
 
 	private static Database DATABASE;
 	private static int TIMEOUT_SECONDS = 4;
@@ -99,26 +99,32 @@ public final class Queries implements AutoCloseable {
 	}
 
 	//select id
+	//select username password
+	//select id scope fullname
+	//insert entry
+	//update entry
+	//delete entry
+
+	public ResultSet selectIdFromUsers(int id) throws SQLException {
+		return DATABASE.getResultSet("SELECT id FROM users WHERE id = ?", id);
+	}
+
 	public ResultSet selectIdFromUsers(String username) throws SQLException {
 		return DATABASE.getResultSet("SELECT id FROM users WHERE username = ?", username);
 	}
 
-	//select username password
 	public ResultSet selectIdUsernamePasswordFromUsers() throws SQLException {
 		return DATABASE.getResultSet("SELECT id, username, password FROM users");
 	}
 
-	//select id scope fullname
 	public ResultSet selectIdScopeFullnameFromUsers(String username) throws SQLException {
 		return DATABASE.getResultSet("SELECT id, scope, fullname FROM users WHERE username = ?", username);
 	}
 
-	//insert entry
 	public void insertEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
 		DATABASE.executePreparedStatement("INSERT INTO users VALUES (NULL, ?, ?, ?, ?)", username, password, scope, fullname);
 	}
 
-	//update entry
 	public void updateEntryUsers(String username, String password, int scope, String fullname) throws SQLException {
 		DATABASE.executePreparedStatement("UPDATE users SET password = ?, scope = ?, fullname = ? WHERE username = ?", password, scope, fullname, username);
 	}
@@ -127,19 +133,8 @@ public final class Queries implements AutoCloseable {
 		DATABASE.executePreparedStatement("UPDATE users SET scope = ?, fullname = ? WHERE username = ?", scope, fullname, username);
 	}
 
-	//delete entry
 	public void deleteEntryUsers(String username) throws SQLException {
 		DATABASE.executePreparedStatement("DELETE FROM users where username = ?", username);
-	}
-
-	//check if user exists
-	public boolean checkIfUserExists(int id) throws SQLException {
-		ResultSet r = DATABASE.getResultSet("SELECT username FROM users WHERE id = ?", id);
-		if (r.next()){
-			if (r.getString("username") != null)
-				return true;
-		}
-		return false;
 	}
 
 	//hostname queries
@@ -180,6 +175,10 @@ public final class Queries implements AutoCloseable {
 
 	public ResultSet selectHostnameFromHostnames(int userid) throws SQLException {
 		return DATABASE.getResultSet("SELECT hostname FROM hostnames WHERE userid = ?", userid);
+	}
+
+	public ResultSet selectAddressFromHostnames(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT address FROM hostnames WHERE userid = ?", userid);
 	}
 
 	//select hostname publickey

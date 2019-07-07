@@ -1,14 +1,12 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
 import static java.lang.Thread.sleep;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.concurrent.locks.Lock;
 
@@ -18,7 +16,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
+import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 
 public class BlueNodeTableTest {
 
@@ -34,32 +34,21 @@ public class BlueNodeTableTest {
         }
 
         try {
-            Queries.setDatabaseInstance("jdbc:sqlite:local_database_file.db","","");
+            Logic.setDatabaseInstanceWrapper("jdbc:sqlite:local_database_file.db","","");
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        try (Queries q = Queries.getInstance()) {
-            q.validate();
-        } catch (InterruptedException | SQLException e) {
-            e.printStackTrace();
-        }
+        if (!Logic.validateDatabase()) {
+            assertFalse(true);
+        };
 
-        try (Queries q = Queries.getInstance()) {
-            q.insertEntryUsers("Pakis", "1234", 2, "Dr. Pakis");
-            ResultSet r = q.selectAllFromUsers();
-            int id = 0;
-            while (r.next()) {
-                id = r.getInt("id");
-            }
-            q.insertEntryBluenodes("pakis1", id, "");
-            q.insertEntryBluenodes("pakis2", id, "");
-            q.insertEntryBluenodes("pakis3", id, "");
-            q.insertEntryBluenodes("pakis4", id, "");
+        int id = UserLogic.addNewUser("Pakis", "1234", 2, "Dr. Pakis");
 
-        } catch (InterruptedException | SQLException e) {
-            e.printStackTrace();
-        }
+        BluenodeLogic.addNewBluenode("pakis1", id);
+        BluenodeLogic.addNewBluenode("pakis2", id);
+        BluenodeLogic.addNewBluenode("pakis3", id);
+        BluenodeLogic.addNewBluenode("pakis4", id);
 
         BlueNodeTable.newInstance(2, null);
     }

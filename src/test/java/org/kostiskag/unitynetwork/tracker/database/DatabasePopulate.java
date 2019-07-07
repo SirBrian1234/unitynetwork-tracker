@@ -1,5 +1,6 @@
-package org.kostiskag.unitynetwork.tracker.scenarios;
+package org.kostiskag.unitynetwork.tracker.database;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -7,7 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.junit.*;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.Logic;
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DatabasePopulate {
@@ -20,18 +21,15 @@ public class DatabasePopulate {
 		}
 
 		try {
-			Queries.setDatabaseInstance("jdbc:sqlite:local_database_file.db","","");
+			Logic.setDatabaseInstanceWrapper("jdbc:sqlite:local_database_file.db","","");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			assertTrue(false);
 		}
 
-		try (Queries q = Queries.getInstance()) {
-			q.validate();
-		} catch (InterruptedException | SQLException e) {
-			e.printStackTrace();
-			assertTrue(false);
-		}
+		if (!Logic.validateDatabase()) {
+			assertFalse(true);
+		};
 	}
 
 	@AfterClass

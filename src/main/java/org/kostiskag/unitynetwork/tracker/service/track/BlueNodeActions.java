@@ -15,14 +15,12 @@ import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
-import org.kostiskag.unitynetwork.common.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
-import org.kostiskag.unitynetwork.tracker.database.Queries;
+import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
@@ -78,74 +76,36 @@ final class BlueNodeActions {
      *
      * @throws
      */
-    public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String password,
+    public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String givenHash,
                                 DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
-        int userauth = checkUser(password);
-
+        String data;
         Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
         if (b.isPresent()) {
-            String data = null;
-
-            ResultSet getResults = null;
-
-            if (userauth > 0) {
-                boolean found = false;
-
-                try (Queries q = Queries.getInstance()) {
-                    getResults = q.selectAllFromHostnames(userauth);
-                    if (getResults == null) {
-                        data = "SYSTEM_ERROR";
-                    } else {
-                        while (getResults.next() && !found) {
-                            String hostname = getResults.getString("hostname");
-                            if (hostname.equals(givenHostname)) {
-                                found = true;
-                                if (!BlueNodeTable.getInstance().isOnlineRnByHostname(bnTableLock, hostname)) {
-                                    //the id from hostnames is the hostname's virtual address
-                                    int num_addr = getResults.getInt("address");
-                                    int inuserid = getResults.getInt("userid");
-                                    if (userauth == inuserid) {
-                                        try {
-                                            String vaddress = VirtualAddress.numberTo10ipAddr(num_addr);
-                                            RedNodeTable rns = b.get().getRedNodes();
-                                            try {
-                                                Lock rl = rns.aquireLock();
-                                                rns.lease(rl,hostname, vaddress);
-                                                data = "LEASED " + vaddress;
-                                            } finally {
-                                                rns.releaseLock();
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            data = "ALLREADY_LEASED";
-                                        }
-                                    } else {
-                                        //a user tried to lease another user's hostname
-                                        data = "USER_HOSTNAME_MISSMATCH";
-                                    }
-                                } else {
-                                    data = "ALLREADY_LEASED";
-                                }
-                            }
+            VirtualAddress vAddress = UserLogic.validateUserHostname(username, givenHostname, givenHash);
+            if (vAddress != null) {
+                if (!BlueNodeTable.getInstance().isOnlineRnByHostname(bnTableLock, givenHostname)) {
+                    RedNodeTable rns = b.get().getRedNodes();
+                    try {
+                        Lock rl = rns.aquireLock();
+                        try {
+                            rns.lease(rl, givenHostname, vAddress);
+                            data = "LEASED " + vAddress.asString();
+                        } catch (IllegalAccessException e) {
+                            data = "AUTH_FAILED " + vAddress.asString();
                         }
-
-                        if (!found) {
-                            data = "LEASE_FAILED";
-                        }
+                    } finally {
+                        rns.releaseLock();
                     }
-                    SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
-
-                } catch (SQLException | GeneralSecurityException | IOException e) {
-                    SocketUtilities.sendAESEncryptedStringData("SYSTEM_ERROR", writer, sessionKey);
-                    throw e;
+                } else {
+                    data = "ALLREADY_LEASED";
                 }
-
             } else {
-                SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
+                data = "AUTH_FAILED";
             }
         } else {
-            SocketUtilities.sendAESEncryptedStringData("AUTH_FAILED", writer, sessionKey);
+            data = "AUTH_FAILED";
         }
+        SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
 
     /**
@@ -251,42 +211,7 @@ final class BlueNodeActions {
     }
 
 
-    /**
-     * validates a network user to a bluenode
-     */
-    public static int checkUser(String outhash) {
-        String data = null;
 
-        ResultSet getResults;
-
-        try (Queries q = Queries.getInstance()) {
-
-            getResults = q.selectIdUsernamePasswordFromUsers();
-            if (getResults == null) {
-                return -1;
-            }
-
-            int i = 0;
-            while (getResults.next()) {
-                try {
-                    data = HashUtilities.SHA256(App.SALT) + HashUtilities.SHA256(getResults.getString("username")) + getResults.getString("password");
-                    data = HashUtilities.SHA256(data);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-                if (outhash.equals(data)) {
-                    return getResults.getInt("id");
-                }
-            }
-            return 0;
-        }  catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-            return -1;
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-            return -1;
-        }
-    }
 
     public static void LookupByHostname(String hostname, DataOutputStream writer, SecretKey sessionKey) {
         VirtualAddress vaddr = HostnameLogic.lookupVaddress(hostname);
