@@ -1,7 +1,6 @@
 package org.kostiskag.unitynetwork.tracker.gui;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,40 +30,34 @@ import org.kostiskag.unitynetwork.tracker.database.UserLogic;
  */
 public class EditUser {
 
-	// type is
-	// 0 for new entry
-	// 1 for update
-	public static final int NEW_ENTRY = 0;
-	public static final int UPDATE = 1;
-
-	private final int type;
 	private final String username;
+	private final EditType type;
 
 	private JFrame frmEditUserEntry;
-	private JTextField useridField;
 	private JLabel lblUsername;
-	private JTextField usernameField;
 	private JLabel lblPassword;
 	private JLabel lblType;
+	private JLabel label;
+	private JTextField useridField;
+	private JTextField usernameField;
 	private JTextField fullnameField;
 	private JPasswordField passwordField;
-	private JButton btnNewButton;
-	private JLabel label;
 	private JComboBox<String> scopeComboBox;
 	private JCheckBox chckbxSetANew;
+	private JButton btnNewButton;
 
 	/**
 	 * Create the application.
 	 */
-	public EditUser(int type, String username) {
+	public EditUser(EditType type, String username) {
 		this.type = type;
 		this.username = username;
 		initialize();
-		if (type == EditUser.NEW_ENTRY) {
+		if (type == EditType.NEW_ENTRY) {
 			btnNewButton.setText("Add new entry");
 			chckbxSetANew.setSelected(true);
 			chckbxSetANew.setEnabled(false);
-		} else if (type == EditUser.UPDATE){
+		} else if (type == EditType.UPDATE){
 			btnNewButton.setText("Update entry");
 			usernameField.setText(username);
 			usernameField.setEditable(false);
@@ -138,97 +131,7 @@ public class EditUser {
 		btnNewButton = new JButton("Add new entry");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
-				String givenFullname = fullnameField.getText();
-				if (givenFullname.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
-					label.setText("<html>Please set a fullname not more than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
-					return;
-				}
-
-				if (givenFullname.length() < NumericConstraints.MIN_USERNAME.size()) {
-					label.setText("<html>Please set a fullname " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
-					return;
-				}
-
-				Pattern pattern = Pattern.compile("^[a-zA-Z0-9\\.\\ \\-\\_]+$");
-				Matcher matcher = pattern.matcher(givenFullname);
-				if (!matcher.matches()) {
-					label.setText(
-							"<html>In order to define a fullname, you are allowed to enter digit numbers from 0 to 9, lower or upper case letters form aA to zZ, space and upper dash -, lower dash _ or dot . special characters</html>");
-					return;
-				}
-
-				if (type == 0) {
-					String givenUsername = usernameField.getText();
-					if (givenUsername.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
-						label.setText("<html>Please provide one username which is less than " + NumericConstraints.MAX_STR_LEN_SMALL.size()
-								+ " characters.</html>");
-						return;
-					}
-					
-					if (givenUsername.length() < NumericConstraints.MIN_USERNAME.size()) {
-						label.setText(
-								"<html>Please provide one username " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
-						return;
-					}
-					
-					pattern = Pattern.compile("^[a-z0-9-_]+$");
-					matcher = pattern.matcher(givenUsername);
-					if (!matcher.matches()) {
-						label.setText(
-								"<html>In order to define a username, you are allowed to enter digit numbers from 0 to 9, lower case letters form a to z and upper dash - or lower dash _ special characters</html>");
-						return;
-					}
-					
-					String givenPassword = new String(passwordField.getPassword());
-					if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
-						label.setText("<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
-						return;
-					}
-
-					if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
-						label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
-						return;
-					}
-					
-					try {
-						UserLogic.addNewUser(givenUsername, givenPassword, scopeComboBox.getSelectedIndex(), givenFullname);
-					} catch (SQLException ex) {
-						if (ex.getErrorCode() == 19) {
-							label.setText("<html>The given username is already used.</html>");
-						} else {
-							ex.printStackTrace();
-						}
-					}
-				} else if (chckbxSetANew.isSelected()) {
-						// we have to provide all the other fields along with a
-						// new password
-						String givenPassword = new String(passwordField.getPassword());
-						if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_LARGE.size()) {
-							label.setText(
-									"<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_LARGE.size() + " characters.</html>");
-							return;
-						}
-
-						if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
-							label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
-							return;
-						}
-
-						try {
-							UserLogic.updateUserAndPassword(username, givenPassword, scopeComboBox.getSelectedIndex(),
-									givenFullname);
-						} catch (SQLException ex) {
-							ex.printStackTrace();
-						}
-
-				} else {
-					// we have to provide all the other fields without password
-					UserLogic.updateUserScopeFullName(username, scopeComboBox.getSelectedIndex(), givenFullname);
-				}
-				
-				MainWindow.getInstance().updateDatabaseGUI();
-				frmEditUserEntry.dispose();
+				addNewUserEntry();
 			}
 		});
 		btnNewButton.setBounds(253, 380, 175, 23);
@@ -260,18 +163,111 @@ public class EditUser {
 		frmEditUserEntry.getContentPane().add(chckbxSetANew);
 	}
 
-	//should be moved to tests
-	//Launch the application.
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					EditUser window = new EditUser(0, "none");
-					window.frmEditUserEntry.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
+	private void addNewUserEntry() {
+		String givenFullname = fullnameField.getText();
+		if (givenFullname.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+			label.setText("<html>Please set a fullname not more than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
+			return;
+		}
+
+		if (givenFullname.length() < NumericConstraints.MIN_USERNAME.size()) {
+			label.setText("<html>Please set a fullname " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
+			return;
+		}
+
+		Pattern pattern = Pattern.compile("^[a-zA-Z0-9\\.\\ \\-\\_]+$");
+		Matcher matcher = pattern.matcher(givenFullname);
+		if (!matcher.matches()) {
+			label.setText(
+					"<html>In order to define a fullname, you are allowed to enter digit numbers from 0 to 9, lower or upper case letters form aA to zZ, space and upper dash -, lower dash _ or dot . special characters</html>");
+			return;
+		}
+
+		if (type == EditType.NEW_ENTRY) {
+			String givenUsername = usernameField.getText();
+			if (givenUsername.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+				label.setText("<html>Please provide one username which is less than " + NumericConstraints.MAX_STR_LEN_SMALL.size()
+						+ " characters.</html>");
+				return;
+			}
+
+			if (givenUsername.length() < NumericConstraints.MIN_USERNAME.size()) {
+				label.setText(
+						"<html>Please provide one username " + NumericConstraints.MIN_USERNAME.size() + " characters or more.</html>");
+				return;
+			}
+
+			pattern = Pattern.compile("^[a-z0-9-_]+$");
+			matcher = pattern.matcher(givenUsername);
+			if (!matcher.matches()) {
+				label.setText(
+						"<html>In order to define a username, you are allowed to enter digit numbers from 0 to 9, lower case letters form a to z and upper dash - or lower dash _ special characters</html>");
+				return;
+			}
+
+			String givenPassword = new String(passwordField.getPassword());
+			if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_SMALL.size()) {
+				label.setText("<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_SMALL.size() + " characters.</html>");
+				return;
+			}
+
+			if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
+				label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
+				return;
+			}
+
+			try {
+				UserLogic.addNewUser(givenUsername, givenPassword, scopeComboBox.getSelectedIndex(), givenFullname);
+			} catch (SQLException ex) {
+				if (ex.getErrorCode() == 19) {
+					label.setText("<html>The given username is already used.</html>");
+				} else {
+					ex.printStackTrace();
 				}
 			}
-		});
+		} else if (chckbxSetANew.isSelected()) {
+			// we have to provide all the other fields along with a
+			// new password
+			String givenPassword = new String(passwordField.getPassword());
+			if (givenPassword.length() > NumericConstraints.MAX_STR_LEN_LARGE.size()) {
+				label.setText(
+						"<html>Please set a password less than " + NumericConstraints.MAX_STR_LEN_LARGE.size() + " characters.</html>");
+				return;
+			}
+
+			if (givenPassword.length() < NumericConstraints.MIN_PASSWORD.size()) {
+				label.setText("<html>Please provide a password " + NumericConstraints.MIN_PASSWORD.size() + " characters or more.</html>");
+				return;
+			}
+
+			try {
+				UserLogic.updateUserAndPassword(username, givenPassword, scopeComboBox.getSelectedIndex(),
+						givenFullname);
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+			}
+
+		} else {
+			// we have to provide all the other fields without password
+			UserLogic.updateUserScopeFullName(username, scopeComboBox.getSelectedIndex(), givenFullname);
+		}
+
+		MainWindow.getInstance().updateDatabaseGUI();
+		frmEditUserEntry.dispose();
 	}
+
+	//should be moved to tests
+	//Launch the application.
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					EditUser window = new EditUser(0, "none");
+//					window.frmEditUserEntry.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 }

@@ -15,7 +15,6 @@ import java.awt.Font;
 public class About {
 
 	private static About ABOUT;
-
 	private JFrame frmAbout;
 
 	/**
@@ -91,17 +90,17 @@ public class About {
 		frmAbout.getContentPane().add(lblNewLabel_2);
 	}
 
-	//  launch the application
-	//  I should move this in a test
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					About window = new About();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	//  launch the application
+//	//  I should move this in a test
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					About window = new About();
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 }

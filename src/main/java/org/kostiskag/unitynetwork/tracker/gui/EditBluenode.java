@@ -18,7 +18,6 @@ import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
-import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
@@ -224,7 +223,7 @@ public class EditBluenode {
 	}
 	
 	private void resetKey() {
-		if (type== EditType.UPDATE && publicKeyStatusField.getText().equals("KEY_SET")) {
+		if (type == EditType.UPDATE && publicKeyStatusField.getText().equals("KEY_SET")) {
 			try {
 				Logic.revokePublicKey(NodeType.BLUENODE, name);
 			} catch (InterruptedException | SQLException e) {

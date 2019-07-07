@@ -17,8 +17,8 @@ import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
-
 import org.kostiskag.unitynetwork.common.entry.NodeType;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
@@ -31,28 +31,28 @@ import org.kostiskag.unitynetwork.tracker.database.data.Pair;
  */
 public class EditHostname {
 
-	private final int type;
+	private final EditType type;
 	private final String hostname;
 
 	private JFrame frmEditHostnameEntry;
+	private JLabel lblNewLabel;
+	private JLabel infoLabel;
 	private JTextField hostnameField;
 	private JTextField textField_2;
-	private JLabel infoLabel;
-	private JButton btnAddNewEntry;
 	private JTextField textField;
 	private JTextArea textArea;
+	private JButton btnAddNewEntry;
 	private JButton btnNewButton;
-	private JLabel lblNewLabel;
 
 	/**
 	 * Create the application.
 	 */
-	public EditHostname(int type, String hostname) {
+	public EditHostname(EditType type, String hostname) {
 		this.type = type;
 		this.hostname = hostname;
 		initialize();
 		
-		if (type == 0) { 
+		if (type == EditType.NEW_ENTRY) {
 			btnAddNewEntry.setText("Add new hostname entry");
 			textField.setEnabled(false);
 			textArea.setEnabled(false);
@@ -187,7 +187,7 @@ public class EditHostname {
 				}
 				
 				try {
-					if (type == 0) {
+					if (type == EditType.NEW_ENTRY) {
 						String givenHostname = hostnameField.getText();
 						Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
 					    Matcher matcher = pattern.matcher(givenHostname);
@@ -223,7 +223,7 @@ public class EditHostname {
 	}
 	
 	private void resetKey() {
-		if (type==1 && textField.getText().equals("KEY_SET")) {
+		if (type == EditType.UPDATE && textField.getText().equals("KEY_SET")) {
 			try {
 				Logic.revokePublicKey(NodeType.REDNODE, hostname);
 			} catch (InterruptedException | SQLException e) {

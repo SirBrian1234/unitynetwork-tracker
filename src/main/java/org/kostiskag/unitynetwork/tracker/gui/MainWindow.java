@@ -34,9 +34,6 @@ import javax.swing.LayoutStyle.ComponentPlacement;
  */
 public class MainWindow extends javax.swing.JFrame {
 
-	/**
-	 * Creates new form MainWindow
-	 */
 	private static MainWindow WINDOW;
 
 	private final String[] bluenodesTableHead = new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
@@ -45,6 +42,8 @@ public class MainWindow extends javax.swing.JFrame {
 	private final String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
 	private final String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
 	private final String[] blunodesDbHead = new String[] { "name", "userid" };
+
+	private final int MAX_MESSAGE_COUNT = 10000;
 
 	private DefaultTableModel bluenodes;
 	private DefaultTableModel rednodes;
@@ -55,10 +54,10 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private int messageCount = 0;
 	private boolean lockDbEdit = false;
-	public boolean autoScrollDown = true;
+	private boolean autoScrollDown = true;
 	private About about;
 
-	//enforce singleton obj
+	//enforces singleton obj
 	public static MainWindow newInstance() {
 		if (MainWindow.WINDOW == null){
 			MainWindow.WINDOW = new MainWindow();
@@ -107,12 +106,12 @@ public class MainWindow extends javax.swing.JFrame {
 	public void verboseInfo(String message) {
 		jTextArea1.append(message + "\n");
 		messageCount++;
-		if (messageCount > 10000) {
+		if (messageCount > MAX_MESSAGE_COUNT) {
 			messageCount = 0;
 			jTextArea1.setText("");
 		}
 		if (autoScrollDown) {
-			jTextArea1.select(jTextArea1.getHeight() + 10000, 0);
+			jTextArea1.select(jTextArea1.getHeight() + MAX_MESSAGE_COUNT, 0);
 		}
 	}
 
@@ -276,7 +275,7 @@ public class MainWindow extends javax.swing.JFrame {
 			}
 		});
 		Console.setLayout(null);
-		
+
 		btnAbout = new JButton("About");
 		btnAbout.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -329,11 +328,7 @@ public class MainWindow extends javax.swing.JFrame {
 		JButton btnNewButton = new JButton("Add new entry");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// add new user
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					new EditUser(0, "");
-				}
+				addNewUser();
 			}
 		});
 		btnNewButton.setBounds(10, 11, 145, 23);
@@ -342,14 +337,7 @@ public class MainWindow extends javax.swing.JFrame {
 		JButton btnNewButton_1 = new JButton("Edit selected entry");
 		btnNewButton_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				// update user
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					int row = table.getSelectedRow();
-					if (row != -1) {
-						new EditUser(1, (String) table.getValueAt(row, 1));
-					}
-				}
+				updateUser();
 			}
 		});
 		btnNewButton_1.setBounds(167, 11, 152, 23);
@@ -358,21 +346,7 @@ public class MainWindow extends javax.swing.JFrame {
 		JButton btnNewButton_2 = new JButton("Delete selected entry");
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// delete user
-				if (!lockDbEdit) {
-					int row = table.getSelectedRow();
-					if (row != -1) {
-						// lockDbEdit = true;
-						String username = (String) table.getValueAt(row, 1);
-						try {
-							UserLogic.removeUserAndAllHisItems(username);
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-						updateDatabaseGUI();
-						// lockDbEdit = false;
-					}
-				}
+				deleteUser();
 			}
 		});
 		btnNewButton_2.setBounds(331, 11, 170, 23);
@@ -412,11 +386,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button = new JButton("Add new entry");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// new hostname
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					new EditHostname(0, "");
-				}
+				addNewHostname();
 			}
 		});
 		button.setBounds(10, 11, 116, 23);
@@ -425,14 +395,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button_1 = new JButton("Edit selected entry");
 		button_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// update hostname
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					int row = table_1.getSelectedRow();
-					if (row != -1) {
-						new EditHostname(1, (String) table_1.getValueAt(row, 1));
-					}
-				}
+				updateHostname();
 			}
 		});
 		button_1.setBounds(136, 11, 158, 23);
@@ -441,20 +404,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button_2 = new JButton("Delete selected entry");
 		button_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// delete hostname
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					int row = table_1.getSelectedRow();
-					if (row != -1) {
-						try {
-							HostnameLogic.removeHostname((String) table_1.getValueAt(row, 1));
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-						updateDatabaseGUI();
-						// lockDbEdit = false;
-					}
-				}
+				deleteHostname();
 			}
 		});
 		button_2.setBounds(306, 11, 152, 23);
@@ -485,11 +435,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button_3 = new JButton("Add new entry");
 		button_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// new bluenode
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					new EditBluenode(EditType.NEW_ENTRY, "");
-				}
+				addNewBluenode();
 			}
 		});
 		button_3.setBounds(10, 11, 116, 23);
@@ -498,14 +444,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button_4 = new JButton("Edit selected entry");
 		button_4.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// edit bluenode
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					int row = table_2.getSelectedRow();
-					if (row != -1) {
-						new EditBluenode(EditType.UPDATE, (String) table_2.getValueAt(row, 0));
-					}
-				}
+				updateBluenode();
 			}
 		});
 		button_4.setBounds(136, 11, 158, 23);
@@ -514,20 +453,7 @@ public class MainWindow extends javax.swing.JFrame {
 		button_5 = new JButton("Delete selected entry");
 		button_5.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// delete bluenode
-				if (!lockDbEdit) {
-					// lockDbEdit = true;
-					int row = table_2.getSelectedRow();
-					if (row != -1) {
-						try {
-							BluenodeLogic.removeBluenode((String) table_2.getValueAt(row, 0));
-						} catch (SQLException e1) {
-							e1.printStackTrace();
-						}
-						updateDatabaseGUI();
-						// lockDbEdit = false;
-					}
-				}
+				deleteBluenode();
 			}
 		});
 		button_5.setBounds(306, 11, 152, 23);
@@ -560,6 +486,115 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jCheckBox1ActionPerformed
 		autoScrollDown = jCheckBox1.isSelected();
+	}
+
+	private void addNewUser() {
+		// add new user
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			new EditUser(EditType.NEW_ENTRY, "");
+		}
+	}
+
+	private void updateUser() {
+		// update user
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			int row = table.getSelectedRow();
+			if (row != -1) {
+				new EditUser(EditType.UPDATE, (String) table.getValueAt(row, 1));
+			}
+		}
+	}
+
+	private void deleteUser() {
+		// delete user
+		if (!lockDbEdit) {
+			int row = table.getSelectedRow();
+			if (row != -1) {
+				// lockDbEdit = true;
+				String username = (String) table.getValueAt(row, 1);
+				try {
+					UserLogic.removeUserAndAllHisItems(username);
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				updateDatabaseGUI();
+				// lockDbEdit = false;
+			}
+		}
+	}
+
+	private void addNewHostname() {
+		// new hostname
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			new EditHostname(EditType.NEW_ENTRY, "");
+		}
+	}
+
+	private void updateHostname() {
+		// update hostname
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			int row = table_1.getSelectedRow();
+			if (row != -1) {
+				new EditHostname(EditType.UPDATE, (String) table_1.getValueAt(row, 1));
+			}
+		}
+	}
+
+	private void deleteHostname() {
+		// delete hostname
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			int row = table_1.getSelectedRow();
+			if (row != -1) {
+				try {
+					HostnameLogic.removeHostname((String) table_1.getValueAt(row, 1));
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				updateDatabaseGUI();
+				// lockDbEdit = false;
+			}
+		}
+	}
+
+	private void addNewBluenode() {
+		// new bluenode
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			new EditBluenode(EditType.NEW_ENTRY, "");
+		}
+	}
+
+	private void updateBluenode() {
+		// edit bluenode
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			int row = table_2.getSelectedRow();
+			if (row != -1) {
+				new EditBluenode(EditType.UPDATE, (String) table_2.getValueAt(row, 0));
+			}
+		}
+	}
+
+	private void deleteBluenode() {
+		// delete bluenode
+		if (!lockDbEdit) {
+			// lockDbEdit = true;
+			int row = table_2.getSelectedRow();
+			if (row != -1) {
+				try {
+					BluenodeLogic.removeBluenode((String) table_2.getValueAt(row, 0));
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
+				updateDatabaseGUI();
+				// lockDbEdit = false;
+			}
+		}
 	}
 
 	public synchronized void updateDatabaseGUI() {
