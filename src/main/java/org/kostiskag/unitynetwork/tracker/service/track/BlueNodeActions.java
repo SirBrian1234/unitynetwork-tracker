@@ -6,7 +6,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
@@ -20,7 +19,6 @@ import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
-import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
@@ -49,7 +47,7 @@ final class BlueNodeActions {
     public static void BlueLease(Lock lock, String bluenodeHostname, PublicKey pub, Socket socket, String givenPort, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
         String data = null;
         try {
-            if (BluenodeLogic.findIfBluenodeExists(bluenodeHostname)) {
+            if (BluenodeLogic.lookupBluenode(bluenodeHostname)) {
                 String address = socket.getInetAddress().getHostAddress();
                 int port = Integer.parseInt(givenPort);
                 if (!BlueNodeTable.getInstance().getOptionalNodeEntry(lock, bluenodeHostname).isPresent()) {
@@ -77,21 +75,21 @@ final class BlueNodeActions {
      * @throws
      */
     public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String givenHash,
-                                DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException, SQLException {
+                                DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
         Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
         if (b.isPresent()) {
-            VirtualAddress vAddress = UserLogic.validateUserHostname(username, givenHostname, givenHash);
-            if (vAddress != null) {
+            Optional<VirtualAddress> vAddressOpt = HostnameLogic.validateHostname(username, givenHostname, givenHash);
+            if (vAddressOpt.isPresent()) {
                 if (!BlueNodeTable.getInstance().isOnlineRnByHostname(bnTableLock, givenHostname)) {
                     RedNodeTable rns = b.get().getRedNodes();
                     try {
                         Lock rl = rns.aquireLock();
                         try {
-                            rns.lease(rl, givenHostname, vAddress);
-                            data = "LEASED " + vAddress.asString();
+                            rns.lease(rl, givenHostname, vAddressOpt.get());
+                            data = "LEASED " + vAddressOpt.get().asString();
                         } catch (IllegalAccessException e) {
-                            data = "AUTH_FAILED " + vAddress.asString();
+                            data = "AUTH_FAILED " + vAddressOpt.get().asString();
                         }
                     } finally {
                         rns.releaseLock();
@@ -214,10 +212,10 @@ final class BlueNodeActions {
 
 
     public static void LookupByHostname(String hostname, DataOutputStream writer, SecretKey sessionKey) {
-        VirtualAddress vaddr = HostnameLogic.lookupVaddress(hostname);
-        if(vaddr != null) {
+        Optional<VirtualAddress> vaddrOpt = HostnameLogic.lookupVaddress(hostname);
+        if(vaddrOpt.isPresent()) {
             try {
-                SocketUtilities.sendAESEncryptedStringData(vaddr.asString(), writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData(vaddrOpt.get().asString(), writer, sessionKey);
             } catch (GeneralSecurityException | IOException e) {
                 AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
                 return;
@@ -245,10 +243,10 @@ final class BlueNodeActions {
             }
         }
 
-        String hostname = HostnameLogic.lookupHostname(v);
-        if (hostname != null) {
+        Optional<String> hostnameOpt = HostnameLogic.lookupHostname(v);
+        if (hostnameOpt.isPresent()) {
             try {
-                SocketUtilities.sendAESEncryptedStringData(hostname, writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData(hostnameOpt.get(), writer, sessionKey);
             } catch (GeneralSecurityException | IOException e) {
                 AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
                 return;

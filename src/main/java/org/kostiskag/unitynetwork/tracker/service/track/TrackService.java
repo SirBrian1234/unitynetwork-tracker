@@ -9,6 +9,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
@@ -76,7 +77,7 @@ final class TrackService extends Thread {
 				SocketUtilities.sendPlainStringData(
 						CryptoUtilities.objectToBase64StringRepresentation(trackerKeyPair.getPublic()), writer);
 			} else {
-				//client uses server's public key to send a session key
+				// client uses server's public key to send a session key
 				String decrypted = CryptoUtilities.decryptWithPrivate(received, trackerKeyPair.getPrivate());
 				SecretKey sessionKey = (SecretKey) CryptoUtilities.base64StringRepresentationToObject(decrypted);
 				args = SocketUtilities.sendReceiveAESEncryptedStringData(SomeoneToTracker.TRACKER_GREET_TO_OUTER_HANDSHAKE.value(), reader, writer, sessionKey);
@@ -101,17 +102,17 @@ final class TrackService extends Thread {
 	}
 
 	public void blueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, IOException, GeneralSecurityException, IllegalAccessException, SQLException {
-		PublicKey pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.BLUENODE, BlueNodeHostname);
-		if (pub == null) {
+		Optional<PublicKey> pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.BLUENODE, BlueNodeHostname);
+		if (pub.isEmpty()) {
 			/*
 			 * the bn is a member however he has not set a public key
 			 * it is allowed to set a public key based on a special ticket key
 			 */
-			offerPublicKey(NodeType.BLUENODE, BlueNodeHostname, pub, sessionKey,reader, writer);
-			//this session ends here
+			offerPublicKey(NodeType.BLUENODE, BlueNodeHostname, sessionKey, reader, writer);
+			// this session ends here
 		} else {
 			
-			if (!innerAuthentication(pub,sessionKey,reader,writer)) {
+			if (!innerAuthentication(pub.get(), sessionKey, reader, writer)) {
 				throw new IllegalAccessException("RSA auth for BlueNode " + BlueNodeHostname + " failed.");
 			}
 
@@ -163,7 +164,7 @@ final class TrackService extends Thread {
 				} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LEASE.value())) {
 					//you can lease only if you are NOT logged in!
 					AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LEASE.value() + " from " + socket.getInetAddress().getHostAddress());
-					BlueNodeActions.BlueLease(bnTableLock, BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
+					BlueNodeActions.BlueLease(bnTableLock, BlueNodeHostname, pub.get(), socket, args[1], writer, sessionKey);
 				} else {
 					AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH.value() + args[0] + " from " + socket.getInetAddress().getHostAddress());
 					SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH.value(), writer, sessionKey);
@@ -180,18 +181,18 @@ final class TrackService extends Thread {
 	}
 
 	private void redNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
-		PublicKey pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.REDNODE, hostname);
-		if (pub == null) {
+		Optional<PublicKey> pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.REDNODE, hostname);
+		if (pub.isEmpty()) {
 			/*
 			 * null indicates that
 			 * the rn is a member however he has not set a public key
 			 * it is allowed to set a public key based on a special ticket key
 			 */
-			offerPublicKey(NodeType.REDNODE, hostname, pub, sessionKey,reader, writer);
+			offerPublicKey(NodeType.REDNODE, hostname, sessionKey,reader, writer);
 			//this session ends here
 		} else {
 			//public key exists
-			if (!innerAuthentication(pub,sessionKey,reader,writer)){
+			if (!innerAuthentication(pub.get(),sessionKey,reader,writer)){
 				throw new IllegalAccessException("RSA auth for RedNode " + hostname + " failed.");
 			}
 
@@ -244,7 +245,7 @@ final class TrackService extends Thread {
 		}
 	}
 	
-	private void offerPublicKey(NodeType nodeType, String hostname, PublicKey pub, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws GeneralSecurityException, IOException, SQLException {
+	private void offerPublicKey(NodeType nodeType, String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws GeneralSecurityException, IOException, SQLException {
 		// this is a pub key offer from either a rn or a bn
 		String[] args = SocketUtilities.sendReceiveAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_PUBLIC_NOT_SET.value(), reader, writer,
 				sessionKey);
@@ -252,8 +253,8 @@ final class TrackService extends Thread {
 			return;
 		} else if (args.length == 3 && args[0].equals(SomeoneToTracker.OFFERPUB.value())) {
 			// client offers its pub based on a ticket
-			AppLogger.getLogger().consolePrint(pre+ NodeType.BLUENODE+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
-			CommonActions.offerPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.BLUENODE, hostname, args[1], args[2], writer, sessionKey);
+			AppLogger.getLogger().consolePrint(pre+ nodeType+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+			CommonActions.offerPublicKey(nodeType, hostname, args[1], args[2], writer, sessionKey);
 		} else {
 			SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_PUBLIC_FAILED_SUBMISSION_AUTHENTICATION.value(), writer, sessionKey);
 		}
@@ -275,9 +276,9 @@ final class TrackService extends Thread {
 		String encq = CryptoUtilities.bytesToBase64String(questionb);
 
 		// challenge the client with a question encrypted with his publickey and wait for a response
-		String args[] = SocketUtilities.sendReceiveAESEncryptedStringData(encq, reader, writer, sessionKey);
+		String[] args = SocketUtilities.sendReceiveAESEncryptedStringData(encq, reader, writer, sessionKey);
 
-		if (args[0].equals(question)) {
+		if (args[0].equals(question)) { //needs argument length control
 			// client successfully passed the test!
 			SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_PERMITS_AUTHENTICATED_OPTIONS_AFTER_HANDSHAKE.value(), writer, sessionKey);
 			return true;

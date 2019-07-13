@@ -7,7 +7,7 @@ import static org.junit.Assert.*;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.sql.Time;
+import java.util.Date;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
@@ -52,23 +52,23 @@ public class BlueNodeEntryTest {
 	
 	@Test
 	public void testConstructorA() throws IllegalAccessException, UnknownHostException {
-		Time t = new Time(System.currentTimeMillis());
+		Date t = new Date();
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		assertEquals(bn.getHostname(),hostname);
 		assertEquals(bn.getAddress().asString(),address);
 		assertEquals(bn.getPort(),port);
 		assertEquals(bn.getPub(),pub);
 		assertNotEquals(null, bn.getRedNodes());
-		assertEquals(bn.getTimestamp().toString(),t.toString());
+		assertEquals(bn.getTimestamp().asDate().toString(),t.toString());
 	}
 
 	@Test
 	public void testUpdateTimestamp() throws IllegalAccessException, InterruptedException, UnknownHostException {
-		Time t = new Time(System.currentTimeMillis());
+		Date t = new Date();
 		Thread.sleep(1000);
 		BlueNodeEntry bn = new BlueNodeEntry(hostname, pub, address, port);
 		System.out.println(bn);
-		Time oldt = bn.getTimestamp();
+		Date oldt = bn.getTimestamp().asDate();
 		Thread.sleep(1000);
 		bn.updateTimestamp();
 

@@ -65,13 +65,11 @@ public class RedNodeTableTest {
 		Lock lock = rns.aquireLock();
 
 		try {
-			rns.lease(lock, "pakis", "10.200.1.1");
-			rns.lease(lock, "makis", "10.200.1.1");
-		} catch (Exception e) {
-			assertEquals(rns.getSize(lock), 1);
-			return;
+			assertTrue(rns.lease(lock, "pakis", "10.200.1.1"));
+			assertFalse(rns.lease(lock, "makis", "10.200.1.1"));
+		} catch (IllegalAccessException e) {
+			assertTrue(true);
 		}
-		assertTrue(false);
 	}
 	
 	@Test

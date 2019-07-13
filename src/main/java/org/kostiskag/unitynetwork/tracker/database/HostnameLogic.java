@@ -1,117 +1,147 @@
 package org.kostiskag.unitynetwork.tracker.database;
 
-import java.net.UnknownHostException;
+import java.security.GeneralSecurityException;
+import java.util.Optional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.net.UnknownHostException;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.data.Pair;
+import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 public class HostnameLogic {
 
-    public static VirtualAddress lookupVaddress(String hostname) {
+    public static Optional<VirtualAddress> validateHostname(String username, String hostname, String outhash) {
+        ResultSet userResults;
+        try (Queries q = Queries.getInstance()) {
+            userResults = q.selectIdPasswordFromUsers(username);
+            if (userResults.next()) {
+
+                String internalHash = CryptoUtilities.validatePasswordAlgorithm(userResults.getString("username"),
+                        userResults.getString("password"));
+
+                if (internalHash.equals(outhash)) {
+                    int userId = userResults.getInt("id");
+                    ResultSet hostnameResults = q.selectHostnameAddressFromHostnames(userId);
+                    while(hostnameResults.next()) {
+                        String retrievedHostname = hostnameResults.getString("hostname");
+                        if (retrievedHostname.equals(hostname)) {
+                            int numAddr = hostnameResults.getInt("address");
+                            try {
+                                return Optional.of(VirtualAddress.valueOf(numAddr));
+                            } catch (UnknownHostException e) {
+                                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+                            }
+                        }
+                    }
+                }
+            }
+        }  catch (GeneralSecurityException | InterruptedException | SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<VirtualAddress> lookupVaddress(String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("null data were provided");
+        }
+
         try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAddressFromHostnames(hostname);
             if (r.next()) {
                 //found!!!
-                return VirtualAddress.valueOf(r.getInt("address"));
+                return Optional.of(VirtualAddress.valueOf(r.getInt("address")));
             }
         } catch (UnknownHostException | InterruptedException | SQLException e) {
             AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static String lookupHostname(VirtualAddress address) {
+    public static Optional<String> lookupHostname(VirtualAddress address) {
+        if (address == null) {
+            throw new IllegalArgumentException("null data were provided");
+        }
+
         try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAllFromHostnamesWhereAddress(address.asInt());
             if (r.next()) {
                 //found!!!
-                return r.getString("hostname");
+                return Optional.of(r.getString("hostname"));
             }
         } catch (InterruptedException | SQLException e) {
             AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static boolean addNewHostname(String hostname, int userid) throws Exception {
-        try (Queries q = Queries.getInstance()) {
-            ResultSet users = q.selectIdFromUsers(userid);
-            if (users.next()) {
-                if (users.getInt("id") == userid ) {
-                    String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
-                    ResultSet r = q.selectAddressFromBurned();
-                    if (r.next()) {
-                        int address = r.getInt("address");
-                        q.deleteEntryAddressFromBurned(address);
-                        q.insertEntryHostnames(address, hostname, userid, publicStr);
-                    } else {
-                        AppLogger.getLogger().consolePrint("No address on burned list!");
-                        q.insertEntryHostnames(hostname, userid, publicStr);
-                    }
-                    return true;
-                }
-            }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+    public static Optional<Tuple<String, VirtualAddress, String>> getHostnameEntry(String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("null data were provided");
         }
-        return false;
-    }
 
-    public static boolean updateHostname(String hostname, int userid) {
-        try (Queries q = Queries.getInstance()) {
-            ResultSet users = q.selectIdFromUsers(userid);
-            if (users.next()) {
-                if (users.getInt("id") == userid) {
-                    q.updateEntryHostnamesUserId(hostname, userid);
-                    return true;
-                }
-            }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
-            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-        }
-        return false;
-    }
-
-    public static Pair<Integer, String> getHostnameEntry(String hostname) {
         try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAllFromHostnames(hostname);
-             if(r.next()) {
-                return new Pair<>(r.getInt("userid"), r.getString("public"));
+            if(r.next()) {
+                ResultSet users = q.selectUsernameFromUsers(r.getInt("userid"));
+
+                return Optional.of(new Tuple<>(users.getString("username"), VirtualAddress.valueOf(r.getInt("address")), r.getString("public")));
             }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
+        } catch (UnknownHostException | InterruptedException | SQLException e) {
             AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
-        return null;
+        return Optional.empty();
     }
 
-    public static void removeHostname(String hostname) throws SQLException {
+    public static boolean addNewHostname(String hostname, String username) {
+        if (hostname == null || username == null) {
+            throw new IllegalArgumentException("null data were provided");
+        }
+
         try (Queries q = Queries.getInstance()) {
-            int addressToStore = 0;
+            ResultSet users = q.selectIdFromUsers(username);
+            if (users.next()) {
+                int userId = users.getInt("id");
+                String publicStr = Logic.newPublicKeyEntryAlgorithm();
+                ResultSet r = q.selectAddressFromBurned();
+                if (r.next()) {
+                    // First look on burned address table to see if there are any addresses available!
+                    int address = r.getInt("address");
+                    q.deleteEntryAddressFromBurned(address);
+                    q.insertEntryHostnames(address, hostname, userId, publicStr);
+                } else {
+                    // No address on burned list!
+                    q.insertEntryHostnames(hostname, userId, publicStr);
+                }
+                return true;
+            }
+        } catch (InterruptedException | SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        }
+        return false;
+    }
+
+    public static boolean removeHostname(String hostname) {
+        if (hostname == null) {
+            throw new IllegalArgumentException("null data were provided");
+        }
+
+        try (Queries q = Queries.getInstance()) {
             ResultSet r = q.selectAddressFromHostnames(hostname);
             if (r.next()) {
-                addressToStore = r.getInt("address");
                 q.deleteEntryHostname(hostname);
-                q.insertEntryBurned(addressToStore);
-            } else {
-                q.deleteEntryHostname(hostname);
+                q.insertEntryBurned(r.getInt("address"));
+                return true;
             }
-        } catch (InterruptedException e) {
-            AppLogger.getLogger().consolePrint("Could not acquire lock!");
-        } catch (SQLException e) {
+        } catch (InterruptedException | SQLException e) {
             AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
-            throw e;
         }
+        return false;
     }
-
 
 }

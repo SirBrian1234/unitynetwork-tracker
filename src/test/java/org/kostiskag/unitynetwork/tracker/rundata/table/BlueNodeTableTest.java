@@ -43,12 +43,12 @@ public class BlueNodeTableTest {
             assertFalse(true);
         };
 
-        int id = UserLogic.addNewUser("Pakis", "1234", 2, "Dr. Pakis");
+        UserLogic.addNewUser("Pakis", "1234", 2, "Dr. Pakis");
 
-        BluenodeLogic.addNewBluenode("pakis1", id);
-        BluenodeLogic.addNewBluenode("pakis2", id);
-        BluenodeLogic.addNewBluenode("pakis3", id);
-        BluenodeLogic.addNewBluenode("pakis4", id);
+        BluenodeLogic.addNewBluenode("pakis1", "Pakis");
+        BluenodeLogic.addNewBluenode("pakis2", "Pakis");
+        BluenodeLogic.addNewBluenode("pakis3", "Pakis");
+        BluenodeLogic.addNewBluenode("pakis4", "Pakis");
 
         BlueNodeTable.newInstance(2, null);
     }

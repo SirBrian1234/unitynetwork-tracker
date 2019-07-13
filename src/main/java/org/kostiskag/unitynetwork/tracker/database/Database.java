@@ -40,8 +40,7 @@ final class Database implements AutoCloseable {
 
     //get result set
 	public synchronized ResultSet getResultSet(String Query) throws SQLException {
-	    Statement st = null;
-	    st = con.createStatement();
+	    Statement st = con.createStatement();
 	    return st.executeQuery(Query);        
 	}
 	
@@ -59,8 +58,7 @@ final class Database implements AutoCloseable {
 
 	//execute prepared statement
 	public synchronized void executePreparedStatement(String Query) throws SQLException {
-		Statement st = null;
-		st = con.createStatement();
+		Statement st = con.createStatement();
 		st.execute(Query);
 	}
 

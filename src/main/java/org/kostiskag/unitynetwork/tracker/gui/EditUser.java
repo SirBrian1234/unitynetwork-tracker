@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,7 @@ import javax.swing.JTextField;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 
+import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 
@@ -64,11 +66,12 @@ public class EditUser {
 			chckbxSetANew.setSelected(false);
 			passwordField.setEditable(false);
 
-			Tuple<Integer, Integer, String> details = UserLogic.getUserDetails(username);
-			if (details != null) {
-				useridField.setText("" + details.getVal1());
-				scopeComboBox.setSelectedIndex(details.getVal2());
-				fullnameField.setText(details.getVal3());
+			Optional<Pair<Integer, String>> detailsOpt = UserLogic.getUserEntry(username);
+			if (detailsOpt.isPresent()) {
+				var details = detailsOpt.get();
+				useridField.setText("-");
+				scopeComboBox.setSelectedIndex(details.getVal1());
+				fullnameField.setText(details.getVal2());
 			}
 		}
 		frmEditUserEntry.setVisible(true);
@@ -240,16 +243,10 @@ public class EditUser {
 				return;
 			}
 
-			try {
-				UserLogic.updateUserAndPassword(username, givenPassword, scopeComboBox.getSelectedIndex(),
-						givenFullname);
-			} catch (SQLException ex) {
-				ex.printStackTrace();
-			}
-
+			UserLogic.updateUser(username, givenPassword, scopeComboBox.getSelectedIndex(), givenFullname);
 		} else {
 			// we have to provide all the other fields without password
-			UserLogic.updateUserScopeFullName(username, scopeComboBox.getSelectedIndex(), givenFullname);
+			UserLogic.updateUser(username, scopeComboBox.getSelectedIndex(), givenFullname);
 		}
 
 		MainWindow.getInstance().updateDatabaseGUI();

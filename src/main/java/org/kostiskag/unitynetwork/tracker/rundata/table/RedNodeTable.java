@@ -121,11 +121,11 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         notifyGUI();
     }
 
-    public void lease(Lock lock, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
-        lease(lock, hostname, VirtualAddress.valueOf(vAddress));
+    public boolean lease(Lock lock, String hostname, String vAddress) throws UnknownHostException, IllegalAccessException, InterruptedException {
+        return lease(lock, hostname, VirtualAddress.valueOf(vAddress));
     }
 
-    public void lease(Lock lock, String hostname, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
+    public boolean lease(Lock lock, String hostname, VirtualAddress vAddress) throws IllegalAccessException, InterruptedException {
         validateLock(lock);
     	if (hostname.length() > 0 && hostname.length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()) {
 
@@ -134,12 +134,16 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
                 throw new IllegalAccessException("Attempted to lease a non unique rednode entry. "+rn);
             }
 
-	    	nodes.add(rn);
-            AppLogger.getLogger().consolePrint(pre +" LEASED ENTRY of "+rn);
-            notifyGUI();
-    	} else {
+	    	boolean result = nodes.add(rn);
+            if (result) {
+                AppLogger.getLogger().consolePrint(pre + " LEASED ENTRY of " + rn);
+                notifyGUI();
+                return true;
+            }
+        } else {
     		throw new IllegalAccessException("Rednode lease tried to lease a rn with a malformed hostname. "+vAddress);
     	}
+    	return false;
     }
 
     /*

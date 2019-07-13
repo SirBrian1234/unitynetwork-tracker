@@ -1,12 +1,13 @@
 package org.kostiskag.unitynetwork.tracker.gui;
 
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.sql.SQLException;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -22,7 +23,7 @@ import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
-import org.kostiskag.unitynetwork.tracker.database.UserLogic;
+import org.kostiskag.unitynetwork.tracker.database.data.InternalPublicKeyState;
 import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
 
@@ -41,13 +42,13 @@ public class EditBluenode {
 	private JPanel panel;
 	private JPanel panel_1;
 	private JTextField nameField;
-	private JTextField idField;
+	private JTextField usernameField;
 	private JTextField publicKeyStatusField;
 	private JTextArea publicKeyArea;
 	private JLabel infoLabel;
 	private JLabel keyInfoLabel;
 	private JButton btnResetKey;
-	private JButton button;
+	private JButton buttonApply;
 
 	/**
 	 * Create the application.
@@ -57,32 +58,35 @@ public class EditBluenode {
 		this.name = name;
 		initialize();
 
-		// new
 		if (type == EditType.NEW_ENTRY) {
-			button.setText("Add new entry");
+			// new entry
+			buttonApply.setText("Add new entry");
 			publicKeyStatusField.setEnabled(false);
 			publicKeyArea.setEnabled(false);
 			btnResetKey.setEnabled(false);
 			
 		} else {
-			button.setText("Update entry");
-			button.setEnabled(false);
+			// update
+			buttonApply.setText("Update entry");
+			buttonApply.setEnabled(false);
 			nameField.setText(name);
 			nameField.setEditable(false);
-			idField.setEditable(false);
-			infoLabel.setText("<html>You are not allowed to update a bluenode please delete it and create a new one!</html>");
+			usernameField.setEditable(false);
+			infoLabel.setText("<html>A bluenode entry may not be changed.</html>");
 
-			Pair<Integer, String> details = BluenodeLogic.selectBluenodeDetails(name);
-			if (details != null) {
-				idField.setText("" + details.getVal1());
-				String key = details.getVal2();
-				String args[] = key.split("\\s+");
-				if (args[0].equals("NOT_SET")) {
+			Optional<Pair<String, String>> detailsOpt = BluenodeLogic.selectBluenodesUserPublicKey(name);
+			if (detailsOpt.isPresent()) {
+				var details = detailsOpt.get();
+				usernameField.setText("" + details.getVal1());
+				String[] args = details.getVal2().split("\\s+");
+				if (args[0].equals(InternalPublicKeyState.NOT_SET.toString())) {
 					keyInfoLabel.setText("<html>Copy this session ticket in the bluenode in order to upload its public key.</html>");
 					btnResetKey.setEnabled(false);
 				}
 				publicKeyStatusField.setText(args[0]);
 				publicKeyArea.setText(args[1]);
+			} else {
+				frmEditBluenodeEntry.dispose();
 			}
 		}
 		frmEditBluenodeEntry.setVisible(true);
@@ -149,14 +153,14 @@ public class EditBluenode {
 		panel_1.add(nameField);
 		nameField.setColumns(10);
 
-		JLabel lblUserId = new JLabel("User ID");
-		lblUserId.setBounds(10, 66, 56, 14);
-		panel_1.add(lblUserId);
+		JLabel lblUsername = new JLabel("username");
+		lblUsername.setBounds(10, 66, 56, 14);
+		panel_1.add(lblUsername);
 
-		idField = new JTextField();
-		idField.setBounds(78, 63, 75, 20);
-		panel_1.add(idField);
-		idField.setColumns(10);
+		usernameField = new JTextField();
+		usernameField.setBounds(78, 63, 75, 20);
+		panel_1.add(usernameField);
+		usernameField.setColumns(10);
 
 		infoLabel = new JLabel("");
 		infoLabel.setBounds(10, 91, 464, 88);
@@ -164,10 +168,10 @@ public class EditBluenode {
 		infoLabel.setForeground(new Color(204, 0, 0));
 		infoLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 
-		button = new JButton("Add new entry");
-		button.setBounds(299, 190, 175, 23);
-		panel_1.add(button);
-		button.addActionListener(new ActionListener() {
+		buttonApply = new JButton("Add new entry");
+		buttonApply.setBounds(299, 190, 175, 23);
+		panel_1.add(buttonApply);
+		buttonApply.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				updateEntry();
 			}
@@ -175,39 +179,19 @@ public class EditBluenode {
 	}
 
 	private void updateEntry() {
-		if (!nameField.getText().isEmpty() && !idField.getText().isEmpty()) {
+		if (!nameField.getText().isEmpty() && !usernameField.getText().isEmpty()) {
 			if (nameField.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()
-					&& idField.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
+					&& usernameField.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
 
-				int userid = -1;
-				try {
-					userid = Integer.parseInt(idField.getText());
-				} catch (NumberFormatException ex) {
-					infoLabel.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
-					return;
-				}
-				if (userid <= 0) {
-					infoLabel.setText("<html>Please provide a number greater than 0.</html>");
-					return;
-				}
-
-				if (UserLogic.checkExistingUserId(userid)) {
-					if (type == EditType.NEW_ENTRY) {
-						String givenBluenodeName = nameField.getText();
-						Matcher matcher = NAME_PATTERN.matcher(givenBluenodeName);
-						if (!matcher.matches()) {
-							infoLabel.setText(
-									"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
-							return;
-						}
-						BluenodeLogic.addNewBluenode(givenBluenodeName, userid);
-					} else {
-						//you can't update
+				if (type == EditType.NEW_ENTRY) {
+					String givenBluenodeName = nameField.getText();
+					Matcher matcher = NAME_PATTERN.matcher(givenBluenodeName);
+					if (!matcher.matches()) {
+						infoLabel.setText(
+								"<html>In order to define a Blue Node name, you are allowed to enter only digit numbers from 0 to 9, lower case letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
 						return;
 					}
-				} else {
-					infoLabel.setText("<html>The given userid does not exist.</html>");
-					return;
+					BluenodeLogic.addNewBluenode(givenBluenodeName, usernameField.getText());
 				}
 
 				MainWindow.getInstance().updateDatabaseGUI();
@@ -223,7 +207,7 @@ public class EditBluenode {
 	}
 	
 	private void resetKey() {
-		if (type == EditType.UPDATE && publicKeyStatusField.getText().equals("KEY_SET")) {
+		if (type == EditType.UPDATE && publicKeyStatusField.getText().equals(InternalPublicKeyState.KEY_SET.toString())) {
 			try {
 				Logic.revokePublicKey(NodeType.BLUENODE, name);
 			} catch (InterruptedException | SQLException e) {

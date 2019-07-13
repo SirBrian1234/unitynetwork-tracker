@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.junit.*;
-import org.kostiskag.unitynetwork.tracker.database.data.KeyState;
+import org.kostiskag.unitynetwork.tracker.database.data.InternalPublicKeyState;
 
 
 //@FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -45,7 +45,7 @@ public class DatabaseTest {
 
 	@Test
 	public void aaaaaaaaa() {
-		System.out.println(KeyState.KEY_SET);
+		System.out.println(InternalPublicKeyState.KEY_SET);
 	}
 
 	@Test

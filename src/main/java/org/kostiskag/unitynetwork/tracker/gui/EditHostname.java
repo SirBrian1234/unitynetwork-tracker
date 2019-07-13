@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -16,13 +17,15 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
+import org.kostiskag.unitynetwork.tracker.database.data.InternalPublicKeyState;
+import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 
 /**
@@ -38,11 +41,11 @@ public class EditHostname {
 	private JLabel lblNewLabel;
 	private JLabel infoLabel;
 	private JTextField hostnameField;
-	private JTextField textField_2;
-	private JTextField textField;
-	private JTextArea textArea;
-	private JButton btnAddNewEntry;
-	private JButton btnNewButton;
+	private JTextField usernameField;
+	private JTextField publicKeyStatusTextField;
+	private JTextArea publicKeyTextArea;
+	private JButton updateButton;
+	private JButton resetKeyButton;
 
 	/**
 	 * Create the application.
@@ -53,34 +56,34 @@ public class EditHostname {
 		initialize();
 		
 		if (type == EditType.NEW_ENTRY) {
-			btnAddNewEntry.setText("Add new hostname entry");
-			textField.setEnabled(false);
-			textArea.setEnabled(false);
-			btnNewButton.setEnabled(false);
+			updateButton.setText("Add new hostname entry");
+			publicKeyStatusTextField.setEnabled(false);
+			publicKeyTextArea.setEnabled(false);
+			resetKeyButton.setEnabled(false);
 			
 		} else {
-			btnAddNewEntry.setText("Update hostname entry");
+			updateButton.setText("Update hostname entry");
+			updateButton.setEnabled(false);
 			hostnameField.setText(hostname);
 			hostnameField.setEditable(false);
-
-			updateHostnameEntry(hostname);
-		}
-		frmEditHostnameEntry.setVisible(true);
-	}
-
-	void updateHostnameEntry(String hostname) {
-		Pair<Integer, String> pair = HostnameLogic.getHostnameEntry(hostname);
-		if (pair != null) {
-			textField_2.setText("" + pair.getVal1());
-			String key = pair.getVal2();
-			String args[] = key.split("\\s+");
-			textField.setText(args[0]);
-			textArea.setText(args[1]);
-			if (args[0].equals("NOT_SET")) {
-				lblNewLabel.setText("<html>Copy this session ticket in the rednode in order to upload its public key.</html>");
-				btnNewButton.setEnabled(false);
+			usernameField.setEditable(false);
+			infoLabel.setText("A hostname may not be changed.");
+			Optional<Tuple<String, VirtualAddress, String>> tupleOpt = HostnameLogic.getHostnameEntry(hostname);
+			if (tupleOpt.isPresent()) {
+				var tuple = tupleOpt.get();
+				usernameField.setText("" + tuple.getVal1());
+				String[] key = tuple.getVal3().split("\\s+");
+				publicKeyStatusTextField.setText(key[0]);
+				publicKeyTextArea.setText(key[1]);
+				if (key[0].equals(InternalPublicKeyState.NOT_SET.toString())) {
+					lblNewLabel.setText("<html>Copy this session ticket in the rednode in order to upload its public key.</html>");
+					resetKeyButton.setEnabled(false);
+				}
+			} else {
+				frmEditHostnameEntry.dispose();
 			}
 		}
+		frmEditHostnameEntry.setVisible(true);
 	}
 
 	/**
@@ -104,26 +107,26 @@ public class EditHostname {
 		label.setBounds(10, 17, 110, 14);
 		panel.add(label);
 		
-		textField = new JTextField();
-		textField.setEditable(false);
-		textField.setBounds(130, 11, 126, 20);
-		panel.add(textField);
-		textField.setColumns(10);
+		publicKeyStatusTextField = new JTextField();
+		publicKeyStatusTextField.setEditable(false);
+		publicKeyStatusTextField.setBounds(130, 11, 126, 20);
+		panel.add(publicKeyStatusTextField);
+		publicKeyStatusTextField.setColumns(10);
 		
-		textArea = new JTextArea();
-		textArea.setBounds(10, 42, 417, 82);
-		panel.add(textArea);
-		textArea.setLineWrap(true);
-		textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+		publicKeyTextArea = new JTextArea();
+		publicKeyTextArea.setBounds(10, 42, 417, 82);
+		panel.add(publicKeyTextArea);
+		publicKeyTextArea.setLineWrap(true);
+		publicKeyTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		
-		btnNewButton = new JButton("Reset Key");
-		btnNewButton.addActionListener(new ActionListener() {
+		resetKeyButton = new JButton("Reset Key");
+		resetKeyButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				resetKey();
 			}
 		});
-		btnNewButton.setBounds(252, 207, 175, 23);
-		panel.add(btnNewButton);
+		resetKeyButton.setBounds(252, 207, 175, 23);
+		panel.add(resetKeyButton);
 		
 		lblNewLabel = new JLabel("");
 		lblNewLabel.setBounds(10, 135, 417, 54);
@@ -144,14 +147,14 @@ public class EditHostname {
 		panel_1.add(hostnameField);
 		hostnameField.setColumns(10);
 		
-		JLabel lblUserId = new JLabel("User ID");
-		lblUserId.setBounds(10, 63, 56, 14);
-		panel_1.add(lblUserId);
+		JLabel lblUsername = new JLabel("username");
+		lblUsername.setBounds(10, 63, 56, 14);
+		panel_1.add(lblUsername);
 		
-		textField_2 = new JTextField();
-		textField_2.setBounds(76, 60, 75, 20);
-		panel_1.add(textField_2);
-		textField_2.setColumns(10);
+		usernameField = new JTextField();
+		usernameField.setBounds(76, 60, 75, 20);
+		panel_1.add(usernameField);
+		usernameField.setColumns(10);
 		
 	    infoLabel = new JLabel("");
 	    infoLabel.setBounds(10, 91, 446, 105);
@@ -159,10 +162,10 @@ public class EditHostname {
 	    infoLabel.setForeground(new Color(204, 0, 0));
 	    infoLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 	    
-	    btnAddNewEntry = new JButton("Add new entry");
-	    btnAddNewEntry.setBounds(281, 207, 175, 23);
-	    panel_1.add(btnAddNewEntry);
-	    btnAddNewEntry.addActionListener(new ActionListener() {
+	    updateButton = new JButton("Add new entry");
+	    updateButton.setBounds(281, 207, 175, 23);
+	    panel_1.add(updateButton);
+	    updateButton.addActionListener(new ActionListener() {
 	    	public void actionPerformed(ActionEvent arg0) {
 	    		updateHostname();
 	    	}			
@@ -170,47 +173,23 @@ public class EditHostname {
 	}
 	
 	private void updateHostname() {
-		if (!hostnameField.getText().isEmpty() && !textField_2.getText().isEmpty()){
-			if (hostnameField.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size() && textField_2.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
-				
-				int userid = -1;
-				try {
-					userid = Integer.parseInt(textField_2.getText());
-				} catch (NumberFormatException ex) {
-					infoLabel.setText("<html>Please provide a proper number with digits from 0 to 9</html>");
-					return;
-				}
-				
-				if (userid <= 0) {
-					infoLabel.setText("<html>Please provide a number greater than 0.</html>");
-					return;
-				}
-				
-				try {
-					if (type == EditType.NEW_ENTRY) {
-						String givenHostname = hostnameField.getText();
-						Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
-					    Matcher matcher = pattern.matcher(givenHostname);
-					    if (!matcher.matches()) {
-					    	infoLabel.setText("<html>In order to define a hostname, you are allowed to enter only digit numbers from 0 to 9, small capital letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
-					    	return;
-					    }
-					    HostnameLogic.addNewHostname(givenHostname, userid);
-					} else {
-						HostnameLogic.updateHostname(hostname, userid);
-					}
-				} catch (SQLException e) {
-					if (e.getErrorCode() == 19) { 
-						infoLabel.setText("<html>The given hostname is already used.</html>");
+		if (!hostnameField.getText().isEmpty() && !usernameField.getText().isEmpty()){
+			if (hostnameField.getText().length() <= NumericConstraints.MAX_STR_LEN_SMALL.size() && usernameField.getText().length() <= NumericConstraints.MAX_INT_STR.size()) {
+				String username = usernameField.getText();
+				if (type == EditType.NEW_ENTRY) {
+					String givenHostname = hostnameField.getText();
+					Pattern pattern = Pattern.compile("^[a-z0-9-_]+$");
+					Matcher matcher = pattern.matcher(givenHostname);
+					if (!matcher.matches()) {
+						infoLabel.setText("<html>In order to define a hostname, you are allowed to enter only digit numbers from 0 to 9, small capital letters form a to z and upper dash '-' or lower dash '_' special characters</html>");
 						return;
-				    } else { 
-				    	e.printStackTrace();
-				    }	
-				} catch (Exception e) {
-					infoLabel.setText("<html>The given userid does not exist.</html>");
-					return;
+					}
+					if (!HostnameLogic.addNewHostname(givenHostname, username)) {
+						infoLabel.setText("<html>The given hostname is was not created!</html>");
+						return;
+					}
 				}
-				
+
 				MainWindow.getInstance().updateDatabaseGUI();
 				frmEditHostnameEntry.dispose();
 			
@@ -223,7 +202,7 @@ public class EditHostname {
 	}
 	
 	private void resetKey() {
-		if (type == EditType.UPDATE && textField.getText().equals("KEY_SET")) {
+		if (type == EditType.UPDATE && publicKeyStatusTextField.getText().equals(InternalPublicKeyState.KEY_SET.toString())) {
 			try {
 				Logic.revokePublicKey(NodeType.REDNODE, hostname);
 			} catch (InterruptedException | SQLException e) {

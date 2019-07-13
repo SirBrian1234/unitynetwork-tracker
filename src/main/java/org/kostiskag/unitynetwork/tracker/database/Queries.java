@@ -113,6 +113,14 @@ final class Queries implements AutoCloseable {
 		return DATABASE.getResultSet("SELECT id FROM users WHERE username = ?", username);
 	}
 
+	public ResultSet selectUsernameFromUsers(int id) throws SQLException {
+		return DATABASE.getResultSet("SELECT username FROM users WHERE id = ?", id);
+	}
+
+	public ResultSet selectIdPasswordFromUsers(String username) throws SQLException {
+		return DATABASE.getResultSet("SELECT id, password FROM users WHERE username = ?", username);
+	}
+
 	public ResultSet selectIdUsernamePasswordFromUsers() throws SQLException {
 		return DATABASE.getResultSet("SELECT id, username, password FROM users");
 	}
@@ -179,6 +187,10 @@ final class Queries implements AutoCloseable {
 
 	public ResultSet selectAddressFromHostnames(int userid) throws SQLException {
 		return DATABASE.getResultSet("SELECT address FROM hostnames WHERE userid = ?", userid);
+	}
+
+	public ResultSet selectHostnameAddressFromHostnames(int userid) throws SQLException {
+		return DATABASE.getResultSet("SELECT hostname, address FROM hostnames WHERE userid = ?", userid);
 	}
 
 	//select hostname publickey
@@ -335,7 +347,7 @@ final class Queries implements AutoCloseable {
         
 	    DATABASE.executePreparedStatement(query);
     
-	   query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
+	    query = "CREATE TABLE IF NOT EXISTS bluenodes (\n"
                 + "	name CHAR(128) PRIMARY KEY, \n"
                 + " userid INTEGER, \n"
                 + "	public TEXT \n"

@@ -5,7 +5,6 @@ import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 public class AppLogger {
 

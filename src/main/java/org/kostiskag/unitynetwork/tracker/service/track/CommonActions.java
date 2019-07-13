@@ -11,10 +11,10 @@ import java.util.concurrent.locks.Lock;
 import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.common.entry.NodeType;
+import org.kostiskag.unitynetwork.common.state.PublicKeyState;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.database.data.KeyState;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
@@ -42,9 +42,9 @@ final class CommonActions {
 
 	public static void getRedNodesPublic(String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IllegalAccessException, SQLException, IOException {
 		try {
-			PublicKey pub = Logic.fetchPublicKey(NodeType.REDNODE, hostname);
-			if (pub != null) {
-				SocketUtilities.sendAESEncryptedStringData(CryptoUtilities.objectToBase64StringRepresentation(pub), writer, sessionKey);
+			Optional<PublicKey> pubOpt = Logic.fetchPublicKey(NodeType.REDNODE, hostname);
+			if (pubOpt.isPresent()) {
+				SocketUtilities.sendAESEncryptedStringData(CryptoUtilities.objectToBase64StringRepresentation(pubOpt.get()), writer, sessionKey);
 			} else {
 				SocketUtilities.sendAESEncryptedStringData("NONE", writer, sessionKey);
 			}
@@ -59,23 +59,23 @@ final class CommonActions {
 	}
 
 	public static void offerPublicKey(NodeType type, String hostname, String ticket, String publicKey, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
-		KeyState k = KeyState.NOT_SET;
+		PublicKeyState k = PublicKeyState.NOT_SET;
 		try {
 			k = Logic.offerPublicKey(type, hostname, ticket, publicKey);
 		} catch (SQLException | InterruptedException e) {
-			k = KeyState.NOT_SET;
+			k = PublicKeyState.NOT_SET;
 		} finally {
 			SocketUtilities.sendAESEncryptedStringData(k.toString(), writer, sessionKey);
 		}
 	}
 
 	public static void revokePublicKey(NodeType type, String hostname, DataOutputStream writer, SecretKey sessionKey) throws GeneralSecurityException, IOException {
-		KeyState answer = KeyState.SYSTEM_ERROR;
+		PublicKeyState answer = PublicKeyState.SYSTEM_ERROR;
 		try {
 			Logic.revokePublicKey(type, hostname);
-			answer = KeyState.KEY_REVOKED;
+			answer = PublicKeyState.KEY_REVOKED;
 		} catch (InterruptedException | SQLException e) {
-			answer = KeyState.SYSTEM_ERROR;
+			answer = PublicKeyState.SYSTEM_ERROR;
 		} finally {
 			SocketUtilities.sendAESEncryptedStringData(answer.toString(), writer, sessionKey);
 		}

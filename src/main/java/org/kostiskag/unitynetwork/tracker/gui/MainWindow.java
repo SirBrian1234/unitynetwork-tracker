@@ -5,7 +5,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
-import java.util.LinkedList;
 import java.util.concurrent.locks.Lock;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -36,12 +35,12 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private static MainWindow WINDOW;
 
-	private final String[] bluenodesTableHead = new String[] { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
-	private final String[] rednodesTableHead = new String[] { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" };
+	private final String[] bluenodesTableHead = { "Hostname", "Physical Address", "Auth Port", "RedNode Load", "Timestamp" };
+	private final String[] rednodesTableHead = { "Hostname", "Virtual Address", "BlueNode Hostname", "Timestamp" };
 
-	private final String[] usersDbHead = new String[] { "id", "username", "password", "type", "fullname" };
-	private final String[] hostnamesDbHead = new String[] { "address", "hostname", "userid" };
-	private final String[] blunodesDbHead = new String[] { "name", "userid" };
+	private final String[] usersDbHead = { "id", "username", "password", "type", "fullname" };
+	private final String[] hostnamesDbHead = { "address", "hostname", "userid" };
+	private final String[] blunodesDbHead = { "name", "userid" };
 
 	private final int MAX_MESSAGE_COUNT = 10000;
 
@@ -53,7 +52,6 @@ public class MainWindow extends javax.swing.JFrame {
 	private DefaultTableModel modelHostnamesDb;
 
 	private int messageCount = 0;
-	private boolean lockDbEdit = false;
 	private boolean autoScrollDown = true;
 	private About about;
 
@@ -88,13 +86,13 @@ public class MainWindow extends javax.swing.JFrame {
 
 		initComponents();
 
-		table.setModel(modelUsersDb);
-		table_1.setModel(modelHostnamesDb);
-		table_2.setModel(modelBluenodesDb);
+		userTable.setModel(modelUsersDb);
+		hostnameTable.setModel(modelHostnamesDb);
+		bluenodeTable.setModel(modelBluenodesDb);
 
-		table.setDefaultEditor(Object.class, null);
-		table_1.setDefaultEditor(Object.class, null);
-		table_2.setDefaultEditor(Object.class, null);
+		userTable.setDefaultEditor(Object.class, null);
+		hostnameTable.setDefaultEditor(Object.class, null);
+		bluenodeTable.setDefaultEditor(Object.class, null);
 
 		updateDatabaseGUI();
 	}
@@ -152,8 +150,8 @@ public class MainWindow extends javax.swing.JFrame {
 		jPanel1.setBounds(0, 0, 599, 686);
 		jScrollPane2 = new javax.swing.JScrollPane();
 		jScrollPane2.setBounds(6, 27, 583, 648);
-		jTable2 = new javax.swing.JTable();
-		jTable2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		bluenodeActiveTable = new javax.swing.JTable();
+		bluenodeActiveTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jPanel4 = new javax.swing.JPanel();
 		jPanel4.setBounds(10, 697, 589, 31);
 		jButton1 = new javax.swing.JButton();
@@ -161,8 +159,8 @@ public class MainWindow extends javax.swing.JFrame {
 
 		jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("BlueNodes"));
 
-		jTable2.setModel(bluenodes);
-		jScrollPane2.setViewportView(jTable2);
+		bluenodeActiveTable.setModel(bluenodes);
+		jScrollPane2.setViewportView(bluenodeActiveTable);
 
 		jButton1.setText("Table Refresh");
 		jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -196,8 +194,8 @@ public class MainWindow extends javax.swing.JFrame {
 		jPanel2 = new javax.swing.JPanel();
 		jPanel2.setBounds(0, 0, 556, 686);
 		jScrollPane1 = new javax.swing.JScrollPane();
-		jTable1 = new javax.swing.JTable();
-		jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		rednodeActiveTable = new javax.swing.JTable();
+		rednodeActiveTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jPanel5 = new javax.swing.JPanel();
 		jPanel5.setBounds(10, 697, 546, 31);
 		jButton2 = new javax.swing.JButton();
@@ -205,8 +203,8 @@ public class MainWindow extends javax.swing.JFrame {
 
 		jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("RedNodes"));
 
-		jTable1.setModel(rednodes);
-		jScrollPane1.setViewportView(jTable1);
+		rednodeActiveTable.setModel(rednodes);
+		jScrollPane1.setViewportView(rednodeActiveTable);
 
 		javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
 		jPanel2Layout.setHorizontalGroup(jPanel2Layout.createParallelGroup(Alignment.LEADING).addComponent(jScrollPane1,
@@ -356,10 +354,10 @@ public class MainWindow extends javax.swing.JFrame {
 		scrollPane.setBounds(10, 11, 650, 633);
 		panel_2.add(scrollPane);
 
-		table = new JTable();
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		userTable = new JTable();
+		userTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		scrollPane.setViewportView(table);
+		scrollPane.setViewportView(userTable);
 
 		btnNewButton_3 = new JButton("Refresh DB");
 		btnNewButton_3.setToolTipText("Refresh makes the GUI database tables to catch up with the internal data");
@@ -414,11 +412,11 @@ public class MainWindow extends javax.swing.JFrame {
 		scrollPane_1.setBounds(10, 11, 470, 633);
 		panel_4.add(scrollPane_1);
 
-		table_1 = new JTable();
-		table_1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table_1.setModel(
+		hostnameTable = new JTable();
+		hostnameTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		hostnameTable.setModel(
 				new DefaultTableModel(new Object[][] { { null, null, null }, }, new String[] { "hostname", "userid" }));
-		scrollPane_1.setViewportView(table_1);
+		scrollPane_1.setViewportView(hostnameTable);
 
 		panel_6 = new JPanel();
 		panel_6.setLayout(null);
@@ -463,10 +461,10 @@ public class MainWindow extends javax.swing.JFrame {
 		scrollPane_2.setBounds(10, 11, 470, 633);
 		panel_6.add(scrollPane_2);
 
-		table_2 = new JTable();
-		table_2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		bluenodeTable = new JTable();
+		bluenodeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-		scrollPane_2.setViewportView(table_2);
+		scrollPane_2.setViewportView(bluenodeTable);
 		getContentPane().setLayout(layout);
 
 		pack();
@@ -490,121 +488,83 @@ public class MainWindow extends javax.swing.JFrame {
 
 	private void addNewUser() {
 		// add new user
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			new EditUser(EditType.NEW_ENTRY, "");
-		}
+		new EditUser(EditType.NEW_ENTRY, "");
 	}
 
 	private void updateUser() {
 		// update user
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			int row = table.getSelectedRow();
-			if (row != -1) {
-				new EditUser(EditType.UPDATE, (String) table.getValueAt(row, 1));
-			}
+		int row = userTable.getSelectedRow();
+		if (row != -1) {
+			new EditUser(EditType.UPDATE, (String) userTable.getValueAt(row, 1));
 		}
 	}
 
 	private void deleteUser() {
 		// delete user
-		if (!lockDbEdit) {
-			int row = table.getSelectedRow();
-			if (row != -1) {
-				// lockDbEdit = true;
-				String username = (String) table.getValueAt(row, 1);
-				try {
-					UserLogic.removeUserAndAllHisItems(username);
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				updateDatabaseGUI();
-				// lockDbEdit = false;
-			}
+		int row = userTable.getSelectedRow();
+		if (row != -1) {
+			String username = (String) userTable.getValueAt(row, 1);
+			UserLogic.removeUserAndAllHisItems(username);
+			updateDatabaseGUI();
 		}
 	}
 
 	private void addNewHostname() {
 		// new hostname
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			new EditHostname(EditType.NEW_ENTRY, "");
-		}
+		new EditHostname(EditType.NEW_ENTRY, "");
 	}
 
 	private void updateHostname() {
-		// update hostname
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			int row = table_1.getSelectedRow();
-			if (row != -1) {
-				new EditHostname(EditType.UPDATE, (String) table_1.getValueAt(row, 1));
-			}
+		int row = hostnameTable.getSelectedRow();
+		if (row != -1) {
+			new EditHostname(EditType.UPDATE, (String) hostnameTable.getValueAt(row, 1));
 		}
 	}
 
 	private void deleteHostname() {
 		// delete hostname
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			int row = table_1.getSelectedRow();
-			if (row != -1) {
-				try {
-					HostnameLogic.removeHostname((String) table_1.getValueAt(row, 1));
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				updateDatabaseGUI();
-				// lockDbEdit = false;
-			}
+		int row = hostnameTable.getSelectedRow();
+		if (row != -1) {
+			HostnameLogic.removeHostname((String) hostnameTable.getValueAt(row, 1));
+			updateDatabaseGUI();
 		}
 	}
 
 	private void addNewBluenode() {
 		// new bluenode
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			new EditBluenode(EditType.NEW_ENTRY, "");
-		}
+		new EditBluenode(EditType.NEW_ENTRY, "");
 	}
 
 	private void updateBluenode() {
 		// edit bluenode
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			int row = table_2.getSelectedRow();
-			if (row != -1) {
-				new EditBluenode(EditType.UPDATE, (String) table_2.getValueAt(row, 0));
-			}
+		int row = bluenodeTable.getSelectedRow();
+		if (row != -1) {
+			new EditBluenode(EditType.UPDATE, (String) bluenodeTable.getValueAt(row, 0));
 		}
 	}
 
 	private void deleteBluenode() {
 		// delete bluenode
-		if (!lockDbEdit) {
-			// lockDbEdit = true;
-			int row = table_2.getSelectedRow();
-			if (row != -1) {
-				try {
-					BluenodeLogic.removeBluenode((String) table_2.getValueAt(row, 0));
-				} catch (SQLException e1) {
-					e1.printStackTrace();
-				}
-				updateDatabaseGUI();
-				// lockDbEdit = false;
+		int row = bluenodeTable.getSelectedRow();
+		if (row != -1) {
+			try {
+				BluenodeLogic.removeBluenode((String) bluenodeTable.getValueAt(row, 0));
+			} catch (SQLException e1) {
+				e1.printStackTrace();
 			}
+			updateDatabaseGUI();
+			// lockDbEdit = false;
 		}
 	}
 
 	public synchronized void updateDatabaseGUI() {
-		LinkedList<String[][]> data = Logic.buildGUIObject();
-		modelUsersDb = new DefaultTableModel(data.poll(), usersDbHead);
-		modelHostnamesDb = new DefaultTableModel(data.poll(), hostnamesDbHead);
-		modelBluenodesDb = new DefaultTableModel(data.poll(), blunodesDbHead);
-		table.setModel(modelUsersDb);
-		table_1.setModel(modelHostnamesDb);
-		table_2.setModel(modelBluenodesDb);
+		String[][][] data = Logic.buildGUIObject();
+		modelUsersDb = new DefaultTableModel(data[0], usersDbHead);
+		modelHostnamesDb = new DefaultTableModel(data[1], hostnamesDbHead);
+		modelBluenodesDb = new DefaultTableModel(data[2], blunodesDbHead);
+		userTable.setModel(modelUsersDb);
+		hostnameTable.setModel(modelHostnamesDb);
+		bluenodeTable.setModel(modelBluenodesDb);
 		repaint();
 	}
 	
@@ -613,7 +573,7 @@ public class MainWindow extends javax.swing.JFrame {
 			Lock lock = BlueNodeTable.getInstance().aquireLock();
 			String[][] data = BlueNodeTable.getInstance().buildStringInstanceObject(lock);
 			bluenodes = new DefaultTableModel(data, bluenodesTableHead);
-			jTable2.setModel(bluenodes);
+			bluenodeActiveTable.setModel(bluenodes);
 			repaint();
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint(e.getMessage());
@@ -627,7 +587,7 @@ public class MainWindow extends javax.swing.JFrame {
 			Lock lock = BlueNodeTable.getInstance().aquireLock();
 			String[][] data = BlueNodeTable.getInstance().buildRednodeStringInstanceObject(lock);
 			rednodes = new DefaultTableModel(data, rednodesTableHead);
-			jTable1.setModel(rednodes);
+			rednodeActiveTable.setModel(rednodes);
 			repaint();
 		} catch (InterruptedException e) {
 			AppLogger.getLogger().consolePrint(e.getMessage());
@@ -652,8 +612,8 @@ public class MainWindow extends javax.swing.JFrame {
 	private javax.swing.JScrollPane jScrollPane1;
 	private javax.swing.JScrollPane jScrollPane2;
 	private javax.swing.JScrollPane jScrollPane3;
-	private javax.swing.JTable jTable1;
-	private javax.swing.JTable jTable2;
+	private javax.swing.JTable rednodeActiveTable;
+	private javax.swing.JTable bluenodeActiveTable;
 	private javax.swing.JTextArea jTextArea1;
 	private JTabbedPane tabbedPane;
 	private JPanel panel;
@@ -673,8 +633,8 @@ public class MainWindow extends javax.swing.JFrame {
 	private JScrollPane scrollPane;
 	private JScrollPane scrollPane_1;
 	private JScrollPane scrollPane_2;
-	private JTable table;
-	private JTable table_1;
-	private JTable table_2;
+	private JTable userTable;
+	private JTable hostnameTable;
+	private JTable bluenodeTable;
 	private JButton btnAbout;
 }
