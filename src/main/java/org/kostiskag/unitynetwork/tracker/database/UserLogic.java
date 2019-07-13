@@ -5,9 +5,10 @@ import java.security.GeneralSecurityException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.*;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
@@ -90,12 +91,11 @@ public final class UserLogic {
         //to do in the hash branch
         //pass = hash(salt+pass)
         try {
-            password = HashUtilities.SHA256(App.SALT + password);
+            password = CryptoUtilities.storagePasswordAlgorithm(password);
         } catch (GeneralSecurityException e) {
-            AppLogger.getLogger().consolePrint(Queries.class.getSimpleName() +": " + e.getLocalizedMessage());
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             return -1;
         }
-        //repetitive code
 
         try (Queries q = Queries.getInstance()) {
             q.insertEntryUsers(username, password, scope, fullname);
@@ -116,12 +116,11 @@ public final class UserLogic {
         //to do in the hash branch
         //pass = hash(salt+pass)
         try {
-            password = HashUtilities.SHA256(App.SALT + password);
-        } catch (GeneralSecurityException e2) {
-            e2.printStackTrace();
+            password = CryptoUtilities.storagePasswordAlgorithm(password);
+        } catch (GeneralSecurityException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             return;
         }
-        //repetitive code
 
         try (Queries q = Queries.getInstance();) {
             q.updateEntryUsers(username, password, scope, fullname);
@@ -144,25 +143,21 @@ public final class UserLogic {
 
     public static void removeUserAndAllHisItems(String username) throws SQLException {
         try (Queries q = Queries.getInstance()) {
-            int id = 0;
-            LinkedList li = new LinkedList<>();
-            ResultSet r = q.selectIdFromUsers(username);
-            if (r.next()) {
-                id = r.getInt("id");
-                r = q.selectAllFromHostnames(id);
-                if (r.next()) {
-                    int address = r.getInt("address");
-                    li.add(address);
+            Deque<Integer> stack = new ArrayDeque<>();
+            ResultSet results = q.selectIdFromUsers(username);
+            if (results.next()) {
+                int id = results.getInt("id");
+                results = q.selectAllFromHostnames(id);
+                if (results.next()) {
+                    stack.add(results.getInt("address"));
                 }
                 q.deleteEntryHostname(id);
-                while(!li.isEmpty()) {
-                    int address = (int) li.pop();
-                    q.insertEntryBurned(address);
+                while(!stack.isEmpty()) {
+                    q.insertEntryBurned(stack.pop());
                 }
                 q.deleteEntryBluenodes(id);
                 q.deleteEntryUsers(username);
             }
-
         } catch (InterruptedException e) {
             AppLogger.getLogger().consolePrint("Could not acquire lock!");
         } catch (SQLException e) {

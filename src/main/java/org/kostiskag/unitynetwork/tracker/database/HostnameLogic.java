@@ -38,38 +38,44 @@ public class HostnameLogic {
     }
 
     public static boolean addNewHostname(String hostname, int userid) throws Exception {
-        if (UserLogic.checkExistingUserId(userid)) {
-            try (Queries q = Queries.getInstance()) {
-                String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
-                ResultSet r = q.selectAddressFromBurned();
-                if (r.next()) {
-                    int address = r.getInt("address");
-                    q.deleteEntryAddressFromBurned(address);
-                    q.insertEntryHostnames(address, hostname, userid, publicStr);
-                } else {
-                    AppLogger.getLogger().consolePrint("No address on burned list!");
-                    q.insertEntryHostnames(hostname, userid, publicStr);
+        try (Queries q = Queries.getInstance()) {
+            ResultSet users = q.selectIdFromUsers(userid);
+            if (users.next()) {
+                if (users.getInt("id") == userid ) {
+                    String publicStr = "NOT_SET "+ CryptoUtilities.generateQuestion();
+                    ResultSet r = q.selectAddressFromBurned();
+                    if (r.next()) {
+                        int address = r.getInt("address");
+                        q.deleteEntryAddressFromBurned(address);
+                        q.insertEntryHostnames(address, hostname, userid, publicStr);
+                    } else {
+                        AppLogger.getLogger().consolePrint("No address on burned list!");
+                        q.insertEntryHostnames(hostname, userid, publicStr);
+                    }
+                    return true;
                 }
-                return true;
-            } catch (InterruptedException e) {
-                AppLogger.getLogger().consolePrint("Could not acquire lock!");
-            } catch (SQLException e) {
-                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
             }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
         return false;
     }
 
     public static boolean updateHostname(String hostname, int userid) {
-        if (UserLogic.checkExistingUserId(userid)) {
-            try (Queries q = Queries.getInstance()) {
-                q.updateEntryHostnamesUserId(hostname, userid);
-                return true;
-            } catch (InterruptedException e) {
-                AppLogger.getLogger().consolePrint("Could not acquire lock!");
-            } catch (SQLException e) {
-                AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
+        try (Queries q = Queries.getInstance()) {
+            ResultSet users = q.selectIdFromUsers(userid);
+            if (users.next()) {
+                if (users.getInt("id") == userid) {
+                    q.updateEntryHostnamesUserId(hostname, userid);
+                    return true;
+                }
             }
+        } catch (InterruptedException e) {
+            AppLogger.getLogger().consolePrint("Could not acquire lock!");
+        } catch (SQLException e) {
+            AppLogger.getLogger().consolePrint(e.getLocalizedMessage());
         }
         return false;
     }

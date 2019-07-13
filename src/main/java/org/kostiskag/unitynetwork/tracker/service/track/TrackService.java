@@ -21,7 +21,6 @@ import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
@@ -54,11 +53,6 @@ final class TrackService extends Thread {
 	private final String pre = "^TrackService ";
 	private final Socket socket;
 	private final KeyPair trackerKeyPair;
-	
-	private enum Type {
-		BLUENODE,
-		REDNODE
-	}
 
 	TrackService(Socket socket, KeyPair trackerKeyPair) {
 		this.socket = socket;
@@ -88,9 +82,9 @@ final class TrackService extends Thread {
 				args = SocketUtilities.sendReceiveAESEncryptedStringData(SomeoneToTracker.TRACKER_GREET_TO_OUTER_HANDSHAKE.value(), reader, writer, sessionKey);
 
 				if (args.length == 2 && args[0].equals(BlueNodeToTracker.GREET)) {
-					BlueNodeService(args[1], sessionKey, reader, writer);
+					blueNodeService(args[1], sessionKey, reader, writer);
 				} else if (args.length == 2 && args[0].equals(RedNodeToTracker.GREET)) {
-					RedNodeService(args[1], sessionKey, reader, writer);
+					redNodeService(args[1], sessionKey, reader, writer);
 				} else {
 					SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_IMPROPER_GREETING.value(), writer, sessionKey);
 				}
@@ -106,14 +100,14 @@ final class TrackService extends Thread {
 		}
 	}
 
-	public void BlueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, IOException, GeneralSecurityException, IllegalAccessException, SQLException {
-		PublicKey pub = Logic.fetchPublicKey(NodeType.BLUENODE, BlueNodeHostname);
+	public void blueNodeService(String BlueNodeHostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, IOException, GeneralSecurityException, IllegalAccessException, SQLException {
+		PublicKey pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.BLUENODE, BlueNodeHostname);
 		if (pub == null) {
 			/*
 			 * the bn is a member however he has not set a public key
 			 * it is allowed to set a public key based on a special ticket key
 			 */
-			offerPublicKey(Type.BLUENODE, BlueNodeHostname, pub, sessionKey,reader, writer);
+			offerPublicKey(NodeType.BLUENODE, BlueNodeHostname, pub, sessionKey,reader, writer);
 			//this session ends here
 		} else {
 			
@@ -129,49 +123,49 @@ final class TrackService extends Thread {
 				if (BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, BlueNodeHostname).isPresent()) {
 					//in other words in order to execute extensive queries you have to be logged in
 					if (args.length == 4 && args[0].equals(BlueNodeToTracker.LEASE_RN.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LEASE_RN.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LEASE_RN.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.RedLease(bnTableLock, BlueNodeHostname, args[1], args[2], args[3], writer, sessionKey);
 					} else if (args.length == 1 && args[0].equals(BlueNodeToTracker.RELEASE.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.RELEASE.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.RELEASE.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.BlueRel(bnTableLock, BlueNodeHostname, writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.RELEASE_RN.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.RELEASE_RN.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.RELEASE_RN.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.RedRel(bnTableLock, BlueNodeHostname, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.GETPH.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.GETPH.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.GETPH.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.GetPh(bnTableLock, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.CHECK_RN.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.CHECK_RN.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.CHECK_RN.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.CheckRn(bnTableLock, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.CHECK_RNA.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.CHECK_RNA.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.CHECK_RNA.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.CheckRnAddr(bnTableLock, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LOOKUP_H.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LOOKUP_H.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LOOKUP_H.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.LookupByHostname(args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LOOKUP_V.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LOOKUP_V.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LOOKUP_V.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.LookupByAddr(args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.GETBNPUB.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.GETBNPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.GETBNPUB.value() + " from " + socket.getInetAddress().getHostAddress());
 						CommonActions.getBlueNodesPublic(bnTableLock, args[1], writer, sessionKey);
 					} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.GETRNPUB.value())) {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.GETRNPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.GETRNPUB.value() + " from " + socket.getInetAddress().getHostAddress());
 						CommonActions.getRedNodesPublic(args[1], writer, sessionKey);
 					} else if (args.length == 1 && args[0].equals(BlueNodeToTracker.REVOKEPUB.value())) {
 						// bluenode may be compromised and decides to revoke its public
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.REVOKEPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.REVOKEPUB.value() + " from " + socket.getInetAddress().getHostAddress());
 						BlueNodeActions.revokePublicKey(bnTableLock, BlueNodeHostname, writer, sessionKey);
 					} else {
-						AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value() + args[0] + " for leased bn " + BlueNodeHostname + " from " + socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value() + args[0] + " for leased bn " + BlueNodeHostname + " from " + socket.getInetAddress().getHostAddress());
 						SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value(), writer, sessionKey);
 					}
 				} else if (args.length == 2 && args[0].equals(BlueNodeToTracker.LEASE.value())) {
 					//you can lease only if you are NOT logged in!
-					AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.LEASE.value() + " from " + socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LEASE.value() + " from " + socket.getInetAddress().getHostAddress());
 					BlueNodeActions.BlueLease(bnTableLock, BlueNodeHostname, pub, socket, args[1], writer, sessionKey);
 				} else {
-					AppLogger.getLogger().consolePrint(pre + Type.BLUENODE + BlueNodeToTracker.TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH.value() + args[0] + " from " + socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH.value() + args[0] + " from " + socket.getInetAddress().getHostAddress());
 					SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.TRACKER_RESPONCE_TO_ALREADY_AUTHENTICATED_TRYING_TO_REAUTH.value(), writer, sessionKey);
 				}
 			} catch (InterruptedException e) {
@@ -185,15 +179,15 @@ final class TrackService extends Thread {
 		}
 	}
 
-	private void RedNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
-		PublicKey pub = Logic.fetchPublicKey(NodeType.REDNODE, hostname);
+	private void redNodeService(String hostname, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws InterruptedException, GeneralSecurityException, IOException, IllegalAccessException, SQLException {
+		PublicKey pub = Logic.fetchPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.REDNODE, hostname);
 		if (pub == null) {
 			/*
 			 * null indicates that
 			 * the rn is a member however he has not set a public key
 			 * it is allowed to set a public key based on a special ticket key
 			 */
-			offerPublicKey(Type.REDNODE, hostname, pub, sessionKey,reader, writer);
+			offerPublicKey(NodeType.REDNODE, hostname, pub, sessionKey,reader, writer);
 			//this session ends here
 		} else {
 			//public key exists
@@ -208,32 +202,32 @@ final class TrackService extends Thread {
 				Lock bnTableLock = BlueNodeTable.getInstance().aquireLock();
 				if (args.length == 1 && args[0].equals(RedNodeToTracker.GET_RECOMENDED_BLUENODE.value())) {
 					//rn collects a recommended bn based on the lowest load
-					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_RECOMENDED_BLUENODE.value()+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.GET_RECOMENDED_BLUENODE.value()+" from "+socket.getInetAddress().getHostAddress());
 					RedNodeActions.getARecomendedBlueNode(bnTableLock, writer, sessionKey);
 				} else if (args.length == 1 && args[0].equals(RedNodeToTracker.GET_ALL_BLUENODES.value())) {
 					//rn collects a list of all the available bns
-					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_ALL_BLUENODES.value()+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.GET_ALL_BLUENODES.value()+" from "+socket.getInetAddress().getHostAddress());
 					RedNodeActions.getAllConnectedBlueNodes(bnTableLock, writer, sessionKey);
 				} else if (args.length == 2 && args[0].equals(RedNodeToTracker.GET_BLUENODE_PUBLIC_KEY.value())) {
 					//collects a network bns public
-					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_BLUENODE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.GET_BLUENODE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
 					CommonActions.getBlueNodesPublic(bnTableLock, args[1], writer, sessionKey);
 				} else if (args.length == 1 && args[0].equals(RedNodeToTracker.REVOKE_PUBLIC_KEY.value())) {
 					//rn may be compromised and decides to revoke its public
-					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.REVOKE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
-					CommonActions.revokePublicKey(NodeType.REDNODE, hostname, writer, sessionKey);
+					AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.REVOKE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
+					CommonActions.revokePublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.REDNODE, hostname, writer, sessionKey);
 				} else if (BlueNodeTable.getInstance().isOnlineRnByHostname(bnTableLock, hostname)) {
 					//Only if a RN is leased inside the network it may colect another's public key
 					if (args.length == 2 && args[0].equals(RedNodeToTracker.GET_REDNODE_PUBLIC_KEY.value())) {
 						//collects a network rns public
-						AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.GET_REDNODE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.GET_REDNODE_PUBLIC_KEY.value()+" from "+socket.getInetAddress().getHostAddress());
 						CommonActions.getRedNodesPublic(args[1], writer, sessionKey);
 					} else {
-						AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.TRACKER_RESPONCE_TO_FAILED_GET_ANOTHER_RNS_PUB_KEY.value()+args[0]+" for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
+						AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.TRACKER_RESPONCE_TO_FAILED_GET_ANOTHER_RNS_PUB_KEY.value()+args[0]+" for leased rn "+hostname+" from "+socket.getInetAddress().getHostAddress());
 						SocketUtilities.sendAESEncryptedStringData(RedNodeToTracker.TRACKER_RESPONCE_TO_FAILED_GET_ANOTHER_RNS_PUB_KEY.value(), writer, sessionKey);
 					}
 				} else {
-					AppLogger.getLogger().consolePrint(pre+Type.REDNODE+RedNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value()+args[0]+" from "+socket.getInetAddress().getHostAddress());
+					AppLogger.getLogger().consolePrint(pre+ NodeType.REDNODE+RedNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value()+args[0]+" from "+socket.getInetAddress().getHostAddress());
 					SocketUtilities.sendAESEncryptedStringData(RedNodeToTracker.TRACKER_RESPONCE_TO_AUTHENTICATED_WRONG_OPTION.value(), writer, sessionKey);
 				}
 			} catch (InterruptedException e) {
@@ -250,7 +244,7 @@ final class TrackService extends Thread {
 		}
 	}
 	
-	private void offerPublicKey(Type type, String hostname, PublicKey pub, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws GeneralSecurityException, IOException, SQLException {
+	private void offerPublicKey(NodeType nodeType, String hostname, PublicKey pub, SecretKey sessionKey, DataInputStream reader, DataOutputStream writer) throws GeneralSecurityException, IOException, SQLException {
 		// this is a pub key offer from either a rn or a bn
 		String[] args = SocketUtilities.sendReceiveAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_PUBLIC_NOT_SET.value(), reader, writer,
 				sessionKey);
@@ -258,8 +252,8 @@ final class TrackService extends Thread {
 			return;
 		} else if (args.length == 3 && args[0].equals(SomeoneToTracker.OFFERPUB.value())) {
 			// client offers its pub based on a ticket
-			AppLogger.getLogger().consolePrint(pre+Type.BLUENODE+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
-			CommonActions.offerPublicKey(NodeType.BLUENODE, hostname, args[1], args[2], writer, sessionKey);
+			AppLogger.getLogger().consolePrint(pre+ NodeType.BLUENODE+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+			CommonActions.offerPublicKey(org.kostiskag.unitynetwork.common.entry.NodeType.BLUENODE, hostname, args[1], args[2], writer, sessionKey);
 		} else {
 			SocketUtilities.sendAESEncryptedStringData(SomeoneToTracker.TRACKER_RESPONCE_TO_PUBLIC_FAILED_SUBMISSION_AUTHENTICATION.value(), writer, sessionKey);
 		}

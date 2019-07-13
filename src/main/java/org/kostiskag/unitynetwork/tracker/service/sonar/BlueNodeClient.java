@@ -41,12 +41,12 @@ public final class BlueNodeClient {
     public static final String PRE = "^BlueNodeClient ";
     public static final int TIMEOUT = 3000;
 
-    private final KeyPair trackerKeyPair;
     private final BlueNodeEntry bn;
-    private final Socket socket;
-    private final DataInputStream socketReader;
-    private final DataOutputStream socketWriter;
-    private final SecretKey sessionKey;
+	private final Socket socket;
+	private final DataInputStream socketReader;
+	private final DataOutputStream socketWriter;
+	private final KeyPair trackerKeyPair;
+	private final SecretKey sessionKey;
 
 	/**
 	 * The drill is simple if a caller creates a new BN Client instance and does not
@@ -120,7 +120,7 @@ public final class BlueNodeClient {
 		}
 	}
     
-    public void sendkillsig() {
+    public void sendKillSig() {
     	try {
 			AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.KILLING_SIGNAL.value() + " towards " + bn.getHostname() + " at " + socket.getInetAddress().getHostAddress());
 			SocketUtilities.sendAESEncryptedStringData(TrackerToBlueNode.KILLING_SIGNAL.value(), socketWriter, sessionKey);
