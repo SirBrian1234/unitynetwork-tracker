@@ -38,10 +38,6 @@ public final class App {
         }
     }
 
-    //SALT
-    //this has to be generated
-    public static final String SALT = "=UrBN&RLJ=dBshBX3HFn!S^Au?yjqV8MBx7fMyg5p6U8T^%2kp^X-sk9EQeENgVEj%DP$jNnz&JeF?rU-*meW5yFkmAvYW_=mA+E$F$xwKmw=uSxTdznSTbunBKT*-&!";
-
     //this is a singleton although not enforced
     public static App TRACKER_APP;
 

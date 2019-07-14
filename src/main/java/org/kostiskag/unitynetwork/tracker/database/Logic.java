@@ -57,23 +57,26 @@ public final class Logic {
 		try (Queries q = Queries.getInstance()) {
 			ResultSet r = null;
 			if (type == NodeType.REDNODE) {
-				r = q.selectHostnamePublicKeyFromHostnames(hostname);
+				r = q.selectPublicKeyFromHostnames(hostname);
 			} else {
-				r = q.selectNamePublicKeyFromBluenodes(hostname);
+				r = q.selectPublicKeyFromBluenodes(hostname);
 			}
 			if (r.next()) {
-				if (r.getString("hostname").equals(hostname)) {
-					String key = r.getString("public");
-					String[] parts = key.split("\\s+");
-					if (!parts[0].equals(InternalPublicKeyState.NOT_SET.toString())) {
-						return Optional.of(CryptoUtilities.base64StringRepresentationToObject(parts[1]));
-					}
+				String key = r.getString("public");
+				String[] parts = key.split("\\s+");
+				if (!parts[0].equals(InternalPublicKeyState.NOT_SET.toString())) {
+					return Optional.of(CryptoUtilities.base64StringRepresentationToObject(parts[1]));
 				}
 			}
 		} catch (InterruptedException | GeneralSecurityException | IOException | SQLException e) {
 			throw e;
 		}
 		return Optional.empty();
+	}
+
+	public static PublicKeyState offerPublicKey(NodeType type, String hostname, String ticket, PublicKey publicKey) throws IOException, SQLException, InterruptedException {
+		String publicStr = CryptoUtilities.objectToBase64StringRepresentation(publicKey);
+		return offerPublicKey(type, hostname, ticket, publicStr);
 	}
 
 	public static PublicKeyState offerPublicKey(NodeType type, String hostname, String ticket, String publicKey) throws SQLException, InterruptedException {

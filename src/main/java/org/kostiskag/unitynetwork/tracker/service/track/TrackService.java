@@ -188,11 +188,11 @@ final class TrackService extends Thread {
 			 * the rn is a member however he has not set a public key
 			 * it is allowed to set a public key based on a special ticket key
 			 */
-			offerPublicKey(NodeType.REDNODE, hostname, sessionKey,reader, writer);
+			offerPublicKey(NodeType.REDNODE, hostname, sessionKey, reader, writer);
 			//this session ends here
 		} else {
 			//public key exists
-			if (!innerAuthentication(pub.get(),sessionKey,reader,writer)){
+			if (!innerAuthentication(pub.get(), sessionKey, reader ,writer)){
 				throw new IllegalAccessException("RSA auth for RedNode " + hostname + " failed.");
 			}
 

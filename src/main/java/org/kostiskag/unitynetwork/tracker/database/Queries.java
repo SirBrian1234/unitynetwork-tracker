@@ -193,6 +193,11 @@ final class Queries implements AutoCloseable {
 		return DATABASE.getResultSet("SELECT hostname, address FROM hostnames WHERE userid = ?", userid);
 	}
 
+	//select public key
+	public ResultSet selectPublicKeyFromHostnames(String hostname) throws SQLException {
+		return DATABASE.getResultSet("SELECT public FROM hostnames WHERE hostname = ?", hostname);
+	}
+
 	//select hostname publickey
 	public ResultSet selectHostnamePublicKeyFromHostnames(String hostname) throws SQLException {
 		return DATABASE.getResultSet("SELECT hostname, public FROM hostnames WHERE hostname = ?", hostname);
@@ -287,6 +292,11 @@ final class Queries implements AutoCloseable {
 
 	public ResultSet selectUseridFromBluenodes(String name) throws SQLException {
 		return DATABASE.getResultSet("SELECT userid FROM bluenodes WHERE name = ?", name);
+	}
+
+	//select publicKey
+	public ResultSet selectPublicKeyFromBluenodes(String name) throws SQLException {
+		return DATABASE.getResultSet("SELECT public FROM bluenodes WHERE name = ?", name);
 	}
 
 	//select name, publicKey
