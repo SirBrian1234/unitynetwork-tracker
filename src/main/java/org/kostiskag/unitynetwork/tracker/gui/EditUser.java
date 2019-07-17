@@ -21,9 +21,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.pairs.Pair;
 
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
-import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 import org.kostiskag.unitynetwork.tracker.database.UserLogic;
 
 /**

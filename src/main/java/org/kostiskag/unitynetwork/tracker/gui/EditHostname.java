@@ -20,12 +20,12 @@ import javax.swing.border.LineBorder;
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
+import org.kostiskag.unitynetwork.common.pairs.Tuple;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.data.InternalPublicKeyState;
-import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 
 /**

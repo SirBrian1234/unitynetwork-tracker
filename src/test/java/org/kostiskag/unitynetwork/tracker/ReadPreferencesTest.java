@@ -12,9 +12,9 @@ public class ReadPreferencesTest {
   public void evaluatesExpression() throws IOException {
     var name = "testfile";
     var file = new File(name);
-    ReadPreferencesFile.GenerateFile(file);
+    ReadTrackerPreferencesFile.GenerateFile(file);
 
-    var r  = ReadPreferencesFile.ParseFile(file);
+    var r  = ReadTrackerPreferencesFile.ParseFile(file);
 
     assertEquals("UnityNetwork", r.netName);
     assertEquals(8000, r.auth);

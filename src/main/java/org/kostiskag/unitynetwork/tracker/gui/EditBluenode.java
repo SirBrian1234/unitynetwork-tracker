@@ -19,13 +19,12 @@ import javax.swing.border.LineBorder;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
+import org.kostiskag.unitynetwork.common.pairs.Pair;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.data.InternalPublicKeyState;
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
-
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 /**
  * 

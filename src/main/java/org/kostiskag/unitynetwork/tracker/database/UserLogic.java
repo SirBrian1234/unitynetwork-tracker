@@ -6,10 +6,9 @@ import java.sql.SQLException;
 import java.security.GeneralSecurityException;
 
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.pairs.Pair;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
-import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 
 public final class UserLogic {

@@ -8,10 +8,9 @@ import java.net.UnknownHostException;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.pairs.Tuple;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
-import org.kostiskag.unitynetwork.tracker.database.data.Tuple;
 
 public class HostnameLogic {
 

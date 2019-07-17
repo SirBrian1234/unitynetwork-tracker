@@ -60,7 +60,7 @@ public final class App {
     //BlueNodeClient, TrackService that use it
     private final KeyPair trackerKeys;
 
-    private App(ReadPreferencesFile pref) {
+    private App(ReadTrackerPreferencesFile pref) {
         this.netName = pref.netName;
         this.auth = pref.auth;
         this.databaseUrl = pref.databaseUrl;
@@ -235,10 +235,10 @@ public final class App {
         //Reading configuration settings from file
         System.out.println("Opening configuration file " + FileNames.CONFIG_FILE.getFile() + "...");
         File file = FileNames.CONFIG_FILE.getFile();
-        ReadPreferencesFile prefFile = null;
+        ReadTrackerPreferencesFile prefFile = null;
         if (file.exists()) {
             try {
-                prefFile = ReadPreferencesFile.ParseFile(file);
+                prefFile = ReadTrackerPreferencesFile.ParseFile(file);
             } catch (IOException e) {
                 System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " although existing, could not be loaded");
                 die();
@@ -247,14 +247,14 @@ public final class App {
             System.out.println("The " + FileNames.CONFIG_FILE.getFile()
                     + " file was not found in the dir. Generating new file with the default settings");
             try {
-                ReadPreferencesFile.GenerateFile(file);
+                ReadTrackerPreferencesFile.GenerateFile(file);
             } catch (IOException e) {
                 System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be created.");
                 die();
             }
 
             try {
-                prefFile = ReadPreferencesFile.ParseFile(file);
+                prefFile = ReadTrackerPreferencesFile.ParseFile(file);
             } catch (IOException e) {
                 System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be loaded.");
                 die();

@@ -4,8 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
 
+import org.kostiskag.unitynetwork.common.pairs.Pair;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.database.data.Pair;
 
 
 public class BluenodeLogic {
