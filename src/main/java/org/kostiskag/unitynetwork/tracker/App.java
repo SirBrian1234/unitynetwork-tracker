@@ -172,7 +172,7 @@ public final class App {
 
         // 8. sonar service
         try {
-            SonarService.newInstance(pingTime).start();
+            SonarService.newInstance(pingTime);
         } catch (IllegalAccessException e) {
             AppLogger.getLogger().consolePrint("Non valid ping time detected. Please correct the "
                     + FileNames.CONFIG_FILE.getFile() + " file");

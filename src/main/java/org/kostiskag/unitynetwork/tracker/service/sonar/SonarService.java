@@ -26,6 +26,7 @@ public final class SonarService extends SimpleCyclicService {
     public static SonarService newInstance(int givenTime) throws IllegalAccessException {
         if (SONAR_SERVICE == null) {
             SONAR_SERVICE = new SonarService(givenTime);
+            SONAR_SERVICE.start();
         }
         return SONAR_SERVICE;
     }
