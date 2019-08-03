@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
+import org.kostiskag.unitynetwork.common.table.NodeTable;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
@@ -61,7 +62,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
 	public Optional<BlueNodeEntry> getOptionalBlueNodeEntryByPhAddrPort(Lock lock, String phAddress, int port) throws InterruptedException {
 		validateLock(lock);
-		return list.stream()
+		return nodes.stream()
 				.filter(bn -> bn.getAddress().asString().equals(phAddress))
 				.filter(bn -> bn.getPort() == port)
 				.findFirst();
@@ -75,7 +76,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     
     public BlueNodeEntry getBlueNodeEntryByLowestLoad(Lock lock) throws InterruptedException {
 		validateLock(lock);
-    	return list.stream()
+    	return nodes.stream()
 				.min(Comparator.comparingInt(bn -> bn.getLoad()))
 				.get();
 
@@ -83,7 +84,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
     public BlueNodeEntry reverseLookupBnBasedOnRn(Lock lock, String hostname) throws InterruptedException {
 		validateLock(lock);
-        Optional<RedNodeEntry> orn = list.stream()
+        Optional<RedNodeEntry> orn = nodes.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getHostname().equals(hostname))
 				.findFirst();
@@ -92,7 +93,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     
     public BlueNodeEntry reverseLookupBnBasedOnRnVaddr(Lock lock, String vAddress) throws InterruptedException {
 		validateLock(lock);
-		Optional<RedNodeEntry> orn = list.stream()
+		Optional<RedNodeEntry> orn = nodes.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.filter(rn -> rn.getAddress().asString().equals(vAddress))
 				.findFirst();
@@ -101,7 +102,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     
     public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
 		validateLock(lock);
-    	return list.stream()
+    	return nodes.stream()
 				.flatMap(bn -> bn.getRedNodes().stream())
 				.map(rn -> rn.getHostname())
 				.collect(Collectors.toList());
@@ -113,7 +114,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
 	public Stream<RedNodeEntry> getAllRedNodesStream(Lock lock) throws InterruptedException {
 		validateLock(lock);
-		return list.stream().flatMap(bn -> bn.getRedNodes().stream());
+		return nodes.stream().flatMap(bn -> bn.getRedNodes().stream());
 	}
 
 	public Optional<RedNodeEntry> isOptionalOnlineRnByHn(Lock lock, String hostname) throws InterruptedException {
@@ -146,7 +147,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 	 */
     public List<BlueNodeEntry> getBlueNodeEntriesByPhAddr(Lock lock, String Phaddress) throws InterruptedException {
     	validateLock(lock);
-    	return list.stream()
+    	return nodes.stream()
 				.filter(bn -> bn.getAddress().equals(Phaddress))
 				.collect(Collectors.toList());
 
@@ -155,10 +156,10 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     public void lease(Lock lock, String name, PublicKey pub, String phAddress, int port) throws IllegalAccessException, InterruptedException, UnknownHostException {
     	//this validation has to be moved inside the BlueNodeEntry constructor
 		validateLock(lock);
-		if (this.bncap == 0 || this.bncap > list.size()) {
+		if (this.bncap == 0 || this.bncap > nodes.size()) {
 			if (!getOptionalNodeEntry(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
 				BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
-				list.add(bn);
+				nodes.add(bn);
 				AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
 				notifyGUI();
 			} else {
@@ -193,7 +194,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
 	public void release(Lock lock, BlueNodeEntry tobereleased) throws InterruptedException, IllegalAccessException {
         validateLock(lock);
-    	boolean valid = list.remove(tobereleased);
+    	boolean valid = nodes.remove(tobereleased);
     	if (!valid) {
 			throw new IllegalAccessException("NO BLUENODE ENTRY FOR " + tobereleased + " IN TABLE");
 		}
@@ -207,7 +208,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 			throw new IllegalAccessException("NO BLUENODE ENTRY FOR " + name + " IN TABLE");
 		}
 
-        list.remove(obn.get());
+        nodes.remove(obn.get());
 		AppLogger.getLogger().consolePrint(pre +name+" RELEASED ENTRY");
 		notifyGUI();
     }
@@ -230,7 +231,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     
     public void rebuildTableViaAuthClient(Lock lock) throws InterruptedException {
     	validateLock(lock);
-    	list.stream().forEach(bn -> {
+    	nodes.stream().forEach(bn -> {
 			boolean validConn = false;
 
 			//is bn online?
@@ -282,7 +283,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     
     public void sendKillSigsAndClearTable(Lock lock) throws InterruptedException {
     	validateLock(lock);
-    	list.stream().forEach(bn -> {
+    	nodes.stream().forEach(bn -> {
 			boolean validConn = false;
 
 			if (bn.getClient().testBnOnline()) {
@@ -304,7 +305,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 			}
 		});
 
-    	list.clear();
+    	nodes.clear();
     	System.out.println(pre+" BN Table cleared");
     	notifyGUI(); 
     }
@@ -312,8 +313,8 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     //these will build the objects required for gui appearance
     public String[][] buildStringInstanceObject(Lock lock) throws InterruptedException {
     	validateLock(lock);
-    	String obj[][] = new String[list.size()][];
-    	return list.stream()
+    	String obj[][] = new String[nodes.size()][];
+    	return nodes.stream()
 				.map(element -> new String[] {element.getHostname(), element.getAddress().asString(), ""+element.getPort(), ""+element.getLoad(), element.getTimestamp().toString()})
     		.collect(Collectors.toList()).toArray(obj);
 

@@ -6,10 +6,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.utilities.HashUtilities;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.HashUtilities;
 
 /**
  * The database upper logic which calls methods from Queries

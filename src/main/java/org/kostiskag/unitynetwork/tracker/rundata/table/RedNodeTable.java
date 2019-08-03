@@ -1,18 +1,20 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.net.UnknownHostException;
 
-import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
-import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.table.NodeTable;
+
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * Each BlueNodeEntry owns an object of a RedNodeTable.
@@ -51,7 +53,7 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
     public Optional<RedNodeEntry> getOptionalRedNodeEntryByVAddr(Lock lock, VirtualAddress vaddress) throws InterruptedException {
         validateLock(lock);
-        return list.stream()
+        return nodes.stream()
                 .filter(element -> element.getAddress().equals(vaddress))
                 .findFirst();
     }
@@ -84,20 +86,20 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
     //this is not safe!
     @Deprecated
-    public List<RedNodeEntry> getList(Lock lock) throws InterruptedException {
+    public Set<RedNodeEntry> getList(Lock lock) throws InterruptedException {
         validateLock(lock);
-        return list;
+        return nodes;
     }
 
     //this is safe!
     public Stream<RedNodeEntry> stream() {
-        return list.stream();
+        return nodes.stream();
     }
 
     //this is an immutable list!
     public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
         validateLock(lock);
-        return list.stream()
+        return nodes.stream()
                 .map(rnentry -> rnentry.getHostname())
                 .collect(Collectors.toUnmodifiableList());
     }
@@ -110,11 +112,11 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         if (!rn.getParentBlueNode().equals(this.bluenode)) {
             throw new IllegalAccessException("This instance does not belong to the table's BlueNode!");
         }
-        if(list.contains(rn)) {
+        if(nodes.contains(rn)) {
             throw new IllegalAccessException("Attempted to lease a non unique rednode entry. "+rn);
         }
 
-        list.add(rn);
+        nodes.add(rn);
         AppLogger.getLogger().consolePrint(pre +" LEASED ENTRY of "+rn);
         notifyGUI();
     }
@@ -128,11 +130,11 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
     	if (hostname.length() > 0 && hostname.length() <= NumericConstraints.MAX_STR_LEN_SMALL.size()) {
 
             RedNodeEntry rn = new RedNodeEntry(bluenode, hostname, vAddress);
-            if(list.contains(rn)) {
+            if(nodes.contains(rn)) {
                 throw new IllegalAccessException("Attempted to lease a non unique rednode entry. "+rn);
             }
 
-	    	list.add(rn);
+	    	nodes.add(rn);
             AppLogger.getLogger().consolePrint(pre +" LEASED ENTRY of "+rn);
             notifyGUI();
     	} else {
@@ -184,7 +186,7 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
      * @param entryToBeReleased
      */
     private void releaseInner(RedNodeEntry entryToBeReleased) {
-        list.remove(entryToBeReleased);
+        nodes.remove(entryToBeReleased);
         AppLogger.getLogger().consolePrint(pre +" RELEASED ENTRY of "+entryToBeReleased);
         notifyGUI();
     }
@@ -192,8 +194,8 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
 
     //cleaners
     public void clearAndRebuildList(List redNodeList) {
-        list.clear();
-        list.addAll(redNodeList);
+        nodes.clear();
+        nodes.addAll(redNodeList);
         //there is no duplicate control
         AppLogger.getLogger().consolePrint(pre +" List was rebuild for "+bluenode);
         notifyGUI();

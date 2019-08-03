@@ -21,11 +21,10 @@ import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.database.Queries;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 /**
  * 

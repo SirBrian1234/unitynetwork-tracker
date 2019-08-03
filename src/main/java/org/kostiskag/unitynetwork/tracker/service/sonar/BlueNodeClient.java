@@ -13,13 +13,12 @@ import java.util.List;
 
 import javax.crypto.SecretKey;
 
-import org.kostiskag.unitynetwork.tracker.App;
+import org.kostiskag.unitynetwork.common.serviceoperations.TrackerToBlueNode;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
-import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.TrackerToBlueNode;
 
 
 /**
@@ -100,7 +99,7 @@ public final class BlueNodeClient {
 
     public boolean testBnOnline()  {
     	try {
-    		AppLogger.getLogger().consolePrint(PRE +TrackerToBlueNode.CHECK_IF_ALIVE.value()+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
+    		AppLogger.getLogger().consolePrint(PRE + TrackerToBlueNode.CHECK_IF_ALIVE.value()+" towards "+bn.getHostname()+" at "+socket.getInetAddress().getHostAddress());
 	    	String[] args = SocketUtilities.sendReceiveAESEncryptedStringData(TrackerToBlueNode.CHECK_IF_ALIVE.value(),  socketReader, socketWriter, sessionKey);
 	        SocketUtilities.connectionClose(socket);
 	        if (args[0].equals("OK")) {

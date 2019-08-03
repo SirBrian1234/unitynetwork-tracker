@@ -1,8 +1,8 @@
 package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
-import org.kostiskag.unitynetwork.tracker.App;
-import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
+import org.kostiskag.unitynetwork.common.entry.NodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
 

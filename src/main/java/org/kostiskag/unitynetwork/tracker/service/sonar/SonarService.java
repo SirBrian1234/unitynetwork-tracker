@@ -1,11 +1,12 @@
 package org.kostiskag.unitynetwork.tracker.service.sonar;
 
+import java.util.concurrent.locks.Lock;
+
+import org.kostiskag.unitynetwork.common.service.SimpleCyclicService;
+
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.service.SimpleCyclicService;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 
 /**
  * Works like the java garbage collector but for killed bluenodes and redonodes. The sonar
@@ -52,12 +53,12 @@ public final class SonarService extends SimpleCyclicService {
     }
 
     @Override
-    protected void greetingMessage() {
+    protected void preActions() {
         AppLogger.getLogger().consolePrint(pre+"Started at thread "+Thread.currentThread()+" with refresh time " + getTime() + " sec");
     }
 
     @Override
-    protected void stopMessage() {
+    protected void postActions() {
         AppLogger.getLogger().consolePrint(pre + "stopped");
     }
 

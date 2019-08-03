@@ -6,9 +6,9 @@ import java.net.BindException;
 import java.io.IOException;
 import java.security.KeyPair;
 
+import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.calculated.NumericConstraints;
 
 /**
  * The auth server listens for bluenode and rednode clients

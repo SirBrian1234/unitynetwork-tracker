@@ -13,12 +13,12 @@ import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
+import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
+import org.kostiskag.unitynetwork.common.serviceoperations.RedNodeToTracker;
+import org.kostiskag.unitynetwork.common.serviceoperations.SomeoneToTracker;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
+import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.BlueNodeToTracker;
-import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.RedNodeToTracker;
-import org.kostiskag.unitynetwork.tracker.rundata.serviceoperations.SomeoneToTracker;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 
 /**
@@ -254,7 +254,7 @@ final class TrackService extends Thread {
 			return;
 		} else if (args.length == 3 && args[0].equals(SomeoneToTracker.OFFERPUB.value())) {
 			// client offers its pub based on a ticket
-			AppLogger.getLogger().consolePrint(pre+Type.BLUENODE+SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
+			AppLogger.getLogger().consolePrint(pre+Type.BLUENODE+ SomeoneToTracker.OFFERPUB.value() + " from " + socket.getInetAddress().getHostAddress());
 			if (type == Type.BLUENODE) {
 				BlueNodeActions.offerPublicKey(hostname, args[1], args[2], writer, sessionKey);
 			} else {

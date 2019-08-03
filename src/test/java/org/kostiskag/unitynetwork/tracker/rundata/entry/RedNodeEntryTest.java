@@ -6,9 +6,9 @@ import java.security.PublicKey;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
+import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.rundata.address.PhysicalAddress;
-import org.kostiskag.unitynetwork.tracker.rundata.utilities.CryptoUtilities;
 
 import static org.junit.Assert.*;
 

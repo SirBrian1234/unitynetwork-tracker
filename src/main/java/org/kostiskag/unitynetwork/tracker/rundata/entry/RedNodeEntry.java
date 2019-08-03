@@ -1,9 +1,10 @@
 package org.kostiskag.unitynetwork.tracker.rundata.entry;
 
+import org.kostiskag.unitynetwork.common.address.VirtualAddress;
+import org.kostiskag.unitynetwork.common.entry.NodeEntry;
+
 import java.net.UnknownHostException;
 import java.util.Objects;
-
-import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
 
 /**
  * Objects of a RedNodeEntry represent the connected
@@ -13,7 +14,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.address.VirtualAddress;
  *
  * @author Konstantinos Kagiampakis
  */
-public class RedNodeEntry extends NodeEntry<VirtualAddress>{
+public class RedNodeEntry extends NodeEntry<VirtualAddress> {
 
     private final BlueNodeEntry bn;
 
