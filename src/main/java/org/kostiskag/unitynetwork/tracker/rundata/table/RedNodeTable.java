@@ -27,7 +27,7 @@ import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
  * 
  * @author Konstantinos Kagiampakis
  */
-public class RedNodeTable extends NodeTable<RedNodeEntry> {
+public class RedNodeTable extends NodeTable<VirtualAddress, RedNodeEntry> {
 
     private static final String pre = "^RNTABLE ";
     private final BlueNodeEntry bluenode;
@@ -96,6 +96,12 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         return nodes.stream();
     }
 
+    @Locking(LockingScope.EXTERNAL)
+    public int getSize(Lock lock) throws InterruptedException {
+        validateLock(lock);
+        return super.getSize();
+    }
+
     //this is an immutable list!
     public List<String> getLeasedRedNodeHostnameList(Lock lock) throws InterruptedException {
         validateLock(lock);
@@ -150,7 +156,7 @@ public class RedNodeTable extends NodeTable<RedNodeEntry> {
         These are all release related mehtods
      */
     public void release(Lock lock, RedNodeEntry toBeChecked) throws IllegalAccessException, InterruptedException {
-        Optional<RedNodeEntry> r = getOptionalNodeEntry(lock, toBeChecked);
+        Optional<RedNodeEntry> r = getOptionalEntry(lock, toBeChecked);
         if (!r.isPresent())
             throw new IllegalAccessException("rn was not found on table "+r.get());
         else {

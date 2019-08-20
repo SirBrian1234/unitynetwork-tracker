@@ -10,6 +10,7 @@ import java.security.PublicKey;
 import java.net.UnknownHostException;
 import java.io.IOException;
 
+import org.kostiskag.unitynetwork.common.address.PhysicalAddress;
 import org.kostiskag.unitynetwork.common.table.NodeTable;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
@@ -29,7 +30,7 @@ import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
  *
  * @author Konstantinos Kagiampakis
  */
-public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
+public class BlueNodeTable extends NodeTable<PhysicalAddress, BlueNodeEntry> {
 	private static final String pre = "^BNTABLE ";
 	private static BlueNodeTable BN_TABLE_INSTANCE;
 	private final int bncap;
@@ -307,7 +308,7 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
 
     	nodes.clear();
     	System.out.println(pre+" BN Table cleared");
-    	notifyGUI(); 
+    	notifyGUI();
     }
 
     //these will build the objects required for gui appearance
@@ -319,17 +320,22 @@ public class BlueNodeTable extends NodeTable<BlueNodeEntry> {
     		.collect(Collectors.toList()).toArray(obj);
 
     }
-    
+
     public String[][] buildRednodeStringInstanceObject(Lock lock) throws InterruptedException {
     	String obj[][] = new String[(int) getAllRedNodesStream(lock).count()][];
     	return getAllRedNodesStream(lock)
 				.map(e -> new String[]{e.getHostname(), e.getAddress().asString(), e.getParentBlueNode().getHostname(), e.getTimestamp().toString()} )
     			.collect(Collectors.toList()).toArray(obj);
     }
-    
+
     private void notifyGUI () {
     	if (MainWindow.isInstance()) {
     		MainWindow.getInstance().updateBlueNodeTable();
 		}
     }
+
+	public int getSize(Lock lock) throws InterruptedException {
+    	validateLock(lock);
+		return super.getSize();
+	}
 }
