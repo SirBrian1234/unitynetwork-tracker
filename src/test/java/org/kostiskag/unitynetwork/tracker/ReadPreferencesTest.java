@@ -4,6 +4,8 @@ import org.junit.Test;
 import org.junit.After;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,10 +13,11 @@ public class ReadPreferencesTest {
   @Test
   public void evaluatesExpression() throws IOException {
     var name = "testfile";
-    var file = new File(name);
-    ReadTrackerPreferencesFile.GenerateFile(file);
+    var p = Path.of(name);
+    Files.createFile(p);
+    ReadTrackerPreferencesFile.GenerateFile(p);
 
-    var r  = ReadTrackerPreferencesFile.ParseFile(file);
+    var r  = ReadTrackerPreferencesFile.ParseFile(p);
 
     assertEquals("UnityNetwork", r.netName);
     assertEquals(8000, r.auth);
@@ -29,8 +32,7 @@ public class ReadPreferencesTest {
   }
 
   @After
-  public void deleteFile() {
-    var f = new File("testfile");
-    f.delete();
+  public void deleteFile() throws IOException {
+    Files.delete(Path.of("testfile"));
   }
 }

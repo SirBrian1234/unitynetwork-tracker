@@ -1,6 +1,7 @@
 package org.kostiskag.unitynetwork.tracker;
 
 import java.io.*;
+import java.nio.file.Path;
 
 import org.kostiskag.unitynetwork.common.utilities.ReadPreferencesFile;
 
@@ -9,7 +10,7 @@ import org.kostiskag.unitynetwork.common.utilities.ReadPreferencesFile;
  *
  * @author Konstantinos Kagiampakis
  */
-final class ReadTrackerPreferencesFile extends ReadPreferencesFile {
+final class ReadTrackerPreferencesFile {
 
 	//These are the imported settings from file
 	public final String netName;
@@ -24,25 +25,26 @@ final class ReadTrackerPreferencesFile extends ReadPreferencesFile {
 	public final boolean gui;
 	public final boolean log;
 
-	private ReadTrackerPreferencesFile(File file) throws IOException {
-		super(file);
-		this.netName = cfg.getProperty("NetworkName").strip();
-		this.auth = Integer.parseInt(cfg.getProperty("AuthPort").strip());
-		this.databaseUrl = cfg.getProperty("DatabaseUrl").strip();
-		this.user = cfg.getProperty("DatabaseUser").strip();
-		this.password = cfg.getProperty("DatabsePassword").strip();
-		this.bncap = Integer.parseInt(cfg.getProperty("BlueNodeCapacity").strip());
-		this.pingTime = Integer.parseInt(cfg.getProperty("Ping").strip());
-		this.gui = Boolean.parseBoolean(cfg.getProperty("UseGUI").strip());
-		this.log = Boolean.parseBoolean(cfg.getProperty("Log").strip());
+	public ReadTrackerPreferencesFile(Path filePath) throws IOException {
+		var prefs = ReadPreferencesFile.readPreferencesFile(filePath);
+
+		this.netName = prefs.getProperty("NetworkName").strip();
+		this.auth = Integer.parseInt(prefs.getProperty("AuthPort").strip());
+		this.databaseUrl = prefs.getProperty("DatabaseUrl").strip();
+		this.user = prefs.getProperty("DatabaseUser").strip();
+		this.password = prefs.getProperty("DatabsePassword").strip();
+		this.bncap = Integer.parseInt(prefs.getProperty("BlueNodeCapacity").strip());
+		this.pingTime = Integer.parseInt(prefs.getProperty("Ping").strip());
+		this.gui = Boolean.parseBoolean(prefs.getProperty("UseGUI").strip());
+		this.log = Boolean.parseBoolean(prefs.getProperty("Log").strip());
 	}
 
-	public static ReadTrackerPreferencesFile ParseFile(File file) throws IOException {
-		return new ReadTrackerPreferencesFile(file);
+	public static ReadTrackerPreferencesFile ParseFile(Path filePath) throws IOException {
+		return new ReadTrackerPreferencesFile(filePath);
     }
 
-	public static void GenerateFile(File file) throws IOException {
-		ReadPreferencesFile.generateFile(file, () -> String.join("\n",
+	public static void GenerateFile(Path filePath) throws IOException {
+		ReadPreferencesFile.generateFile(filePath, () -> String.join("\n",
 		"#############################################",
 		"#         Unity Tracker Config File         #",
 		"#############################################",

@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 import java.io.*;
 import java.security.GeneralSecurityException;
@@ -29,14 +31,16 @@ public final class App {
         LOG_FILE("tracker.log"),
         KEY_PAIR_FILE("public_private.keypair");
 
-        private File f;
+        private Path path;
 
         FileNames(String name) {
-            this.f = new File(name);
+            this.path = Path.of(name);
         }
 
+        public Path getPath() { return path; }
+
         public File getFile() {
-            return f;
+            return path.toFile();
         }
     }
 
@@ -236,29 +240,29 @@ public final class App {
         System.out.println("@Started main at " + Thread.currentThread().getName());
         //Reading configuration settings from file
         System.out.println("Opening configuration file " + FileNames.CONFIG_FILE.getFile() + "...");
-        File file = FileNames.CONFIG_FILE.getFile();
         ReadTrackerPreferencesFile prefFile = null;
-        if (file.exists()) {
+
+        if (Files.exists(FileNames.CONFIG_FILE.getPath())) {
             try {
-                prefFile = ReadTrackerPreferencesFile.ParseFile(file);
+                prefFile = ReadTrackerPreferencesFile.ParseFile(FileNames.CONFIG_FILE.getPath());
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " although existing, could not be loaded");
+                System.err.println("File " + FileNames.CONFIG_FILE.getPath() + " although existing, could not be loaded");
                 die();
             }
         } else {
-            System.out.println("The " + FileNames.CONFIG_FILE.getFile()
+            System.out.println("The " + FileNames.CONFIG_FILE.getPath()
                     + " file was not found in the dir. Generating new file with the default settings");
             try {
-                ReadTrackerPreferencesFile.GenerateFile(file);
+                ReadTrackerPreferencesFile.GenerateFile(FileNames.CONFIG_FILE.getPath());
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be created.");
+                System.err.println("File " + FileNames.CONFIG_FILE.getPath() + " could not be created.");
                 die();
             }
 
             try {
-                prefFile = ReadTrackerPreferencesFile.ParseFile(file);
+                prefFile = ReadTrackerPreferencesFile.ParseFile(FileNames.CONFIG_FILE.getPath());
             } catch (IOException e) {
-                System.err.println("File " + FileNames.CONFIG_FILE.getFile() + " could not be loaded.");
+                System.err.println("File " + FileNames.CONFIG_FILE.getPath() + " could not be loaded.");
                 die();
             }
         }
