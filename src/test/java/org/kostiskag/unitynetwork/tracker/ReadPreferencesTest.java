@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.After;
 
@@ -10,11 +12,18 @@ import java.nio.file.Path;
 import static org.junit.Assert.assertEquals;
 
 public class ReadPreferencesTest {
+
+  @Before
+  public void createfile() throws IOException {
+    var name = "testfile";
+    var p = Path.of(name);
+    Files.createFile(p);
+  }
+
   @Test
   public void evaluatesExpression() throws IOException {
     var name = "testfile";
     var p = Path.of(name);
-    Files.createFile(p);
     ReadTrackerPreferencesFile.GenerateFile(p);
 
     var r  = ReadTrackerPreferencesFile.ParseFile(p);
