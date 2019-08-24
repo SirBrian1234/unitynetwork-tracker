@@ -88,11 +88,11 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getHostname(),"pakis3");
-		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress().asString(),"10.200.1.3");
-		assertEquals(rns.getOptionalNodeEntry(lock, "pakis3").get().getAddress(), VirtualAddress.valueOf("10.200.1.3"));
+		assertEquals(rns.getOptionalEntry(lock, "pakis3").get().getHostname(),"pakis3");
+		assertEquals(rns.getOptionalEntry(lock, "pakis3").get().getAddress().asString(),"10.200.1.3");
+		assertEquals(rns.getOptionalEntry(lock, "pakis3").get().getAddress(), VirtualAddress.valueOf("10.200.1.3"));
 
-		assertFalse(rns.getOptionalNodeEntry(lock, "pakis15").isPresent());
+		assertFalse(rns.getOptionalEntry(lock, "pakis15").isPresent());
 	}
 	
 	@Test
@@ -157,12 +157,12 @@ public class RedNodeTableTest {
 			e.printStackTrace();
 			assertTrue(false);
 		}
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis3").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis4").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis2").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis5").isPresent());
-		assertTrue(!rns.getOptionalNodeEntry(lock, "bob").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis3").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis4").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis2").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis5").isPresent());
+		assertTrue(!rns.getOptionalEntry(lock, "bob").isPresent());
 	}
 	
 	@Test
@@ -242,13 +242,13 @@ public class RedNodeTableTest {
 		rns.releaseByVAddress(lock, "10.200.1.4");
 
 		//they should not be found
-		assertTrue(!rns.getOptionalNodeEntry(lock, "pakis2").isPresent());
-		assertTrue(!rns.getOptionalNodeEntry(lock, "pakis4").isPresent());
+		assertTrue(!rns.getOptionalEntry(lock, "pakis2").isPresent());
+		assertTrue(!rns.getOptionalEntry(lock, "pakis4").isPresent());
 
 		//these should be there
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis3").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis").isPresent());
-		assertTrue(rns.getOptionalNodeEntry(lock, "pakis5").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis3").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis").isPresent());
+		assertTrue(rns.getOptionalEntry(lock, "pakis5").isPresent());
 		assertEquals(rns.getSize(lock), 3);
 	}
 
