@@ -158,7 +158,7 @@ public class BlueNodeTable extends NodeTable<PhysicalAddress, BlueNodeEntry> {
     	//this validation has to be moved inside the BlueNodeEntry constructor
 		validateLock(lock);
 		if (this.bncap == 0 || this.bncap > nodes.size()) {
-			if (!getOptionalNodeEntry(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
+			if (!getOptionalEntry(lock, name).isPresent() && !getOptionalBlueNodeEntryByPhAddrPort(lock, phAddress, port).isPresent()) {
 				BlueNodeEntry bn = new BlueNodeEntry(name, pub, phAddress, port);
 				nodes.add(bn);
 				AppLogger.getLogger().consolePrint(pre + " LEASED " + bn);
@@ -172,7 +172,7 @@ public class BlueNodeTable extends NodeTable<PhysicalAddress, BlueNodeEntry> {
 	}
     
     public void leaseRednode(Lock lock, String bluenodeName, String hostname, String vAddress) throws InterruptedException, IllegalAccessException, UnknownHostException {
-    	Optional<BlueNodeEntry> obn = getOptionalNodeEntry(lock, bluenodeName);
+    	Optional<BlueNodeEntry> obn = getOptionalEntry(lock, bluenodeName);
     	if (!obn.isPresent()) {
     		throw new IllegalAccessException("Attempted to lease over a non existing bluenode.");
     	}
@@ -204,7 +204,7 @@ public class BlueNodeTable extends NodeTable<PhysicalAddress, BlueNodeEntry> {
 	}
 
     public void release(Lock lock, String name) throws InterruptedException, IllegalAccessException  {
-        Optional<BlueNodeEntry> obn = getOptionalNodeEntry(lock, name);
+        Optional<BlueNodeEntry> obn = getOptionalEntry(lock, name);
         if (!obn.isPresent()) {
 			throw new IllegalAccessException("NO BLUENODE ENTRY FOR " + name + " IN TABLE");
 		}

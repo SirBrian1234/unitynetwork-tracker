@@ -165,7 +165,7 @@ public class RedNodeTable extends NodeTable<VirtualAddress, RedNodeEntry> {
     }
 
     public void release(Lock lock, String hostname) throws IllegalAccessException, InterruptedException {
-        Optional<RedNodeEntry> r = getOptionalNodeEntry(lock, hostname);
+        Optional<RedNodeEntry> r = getOptionalEntry(lock, hostname);
         if (!r.isPresent())
             throw new IllegalAccessException("element with given hostname "+hostname+" was not found on table");
         else {
