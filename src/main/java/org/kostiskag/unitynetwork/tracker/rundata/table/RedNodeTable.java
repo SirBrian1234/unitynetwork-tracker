@@ -1,20 +1,20 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
-import java.net.UnknownHostException;
-import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.*;
+import java.net.UnknownHostException;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.table.NodeTable;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
-import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
-
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * Each BlueNodeEntry owns an object of a RedNodeTable.

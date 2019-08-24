@@ -12,7 +12,7 @@ import org.kostiskag.unitynetwork.common.pairs.Tuple;
 
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 
-public class HostnameLogic {
+public final class HostnameLogic {
 
     public static Optional<VirtualAddress> validateHostname(String username, String hostname, String outhash) {
         ResultSet userResults;

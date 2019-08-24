@@ -4,8 +4,9 @@ import java.util.concurrent.locks.Lock;
 
 import org.kostiskag.unitynetwork.common.service.SimpleCyclicService;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * Works like the java garbage collector but for killed bluenodes and redonodes. The sonar

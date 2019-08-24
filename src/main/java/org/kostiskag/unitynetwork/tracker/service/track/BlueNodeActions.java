@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.service.track;
 
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -7,8 +9,6 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
@@ -16,13 +16,14 @@ import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
 import org.kostiskag.unitynetwork.tracker.database.HostnameLogic;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.rundata.table.RedNodeTable;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * Bluenode queries:

@@ -1,10 +1,10 @@
 package org.kostiskag.unitynetwork.tracker.gui;
 
-import java.awt.EventQueue;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import java.awt.Font;
+
 
 /**
  * This class builds a gui window to show the about page

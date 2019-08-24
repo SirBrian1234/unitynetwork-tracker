@@ -1,29 +1,30 @@
 package org.kostiskag.unitynetwork.tracker.service.track;
 
+import java.util.Optional;
+import java.util.concurrent.locks.Lock;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.net.Socket;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.sql.SQLException;
-import java.util.Optional;
-import java.util.concurrent.locks.Lock;
 
 import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.common.entry.NodeType;
 import org.kostiskag.unitynetwork.common.serviceoperations.RedNodeToTracker;
 import org.kostiskag.unitynetwork.common.serviceoperations.SomeoneToTracker;
+import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
-import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.database.Logic;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
+
 
 /**
  * CENTRAL TRACK SERVICE

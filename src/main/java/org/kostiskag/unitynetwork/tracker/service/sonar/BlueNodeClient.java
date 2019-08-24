@@ -1,5 +1,7 @@
 package org.kostiskag.unitynetwork.tracker.service.sonar;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -8,8 +10,6 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -17,9 +17,9 @@ import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 import org.kostiskag.unitynetwork.common.serviceoperations.TrackerToBlueNode;
 
-import org.kostiskag.unitynetwork.tracker.AppLogger;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
+import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 
 /**

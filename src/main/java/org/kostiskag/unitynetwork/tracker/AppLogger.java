@@ -1,12 +1,13 @@
 package org.kostiskag.unitynetwork.tracker;
 
-import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class AppLogger {
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+
+
+public final class AppLogger {
 
     private static AppLogger APP_LOGGER;
 

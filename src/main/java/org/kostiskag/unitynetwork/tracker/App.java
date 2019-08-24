@@ -1,20 +1,22 @@
 package org.kostiskag.unitynetwork.tracker;
 
+import java.util.concurrent.locks.Lock;
 import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.sql.SQLException;
-import java.util.concurrent.locks.Lock;
+
 import javax.swing.*;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 import org.kostiskag.unitynetwork.common.utilities.CryptoUtilities;
 
 import org.kostiskag.unitynetwork.tracker.database.Logic;
-import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.rundata.table.BlueNodeTable;
 import org.kostiskag.unitynetwork.tracker.service.sonar.SonarService;
 import org.kostiskag.unitynetwork.tracker.service.track.TrackServer;
+import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
+
 
 /**
  * @author Konstantinos Kagiampakis

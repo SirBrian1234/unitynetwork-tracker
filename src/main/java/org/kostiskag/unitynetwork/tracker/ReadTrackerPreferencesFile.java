@@ -1,9 +1,9 @@
 package org.kostiskag.unitynetwork.tracker;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 
 import org.kostiskag.unitynetwork.common.utilities.ReadPreferencesFile;
+
 
 /**
  *

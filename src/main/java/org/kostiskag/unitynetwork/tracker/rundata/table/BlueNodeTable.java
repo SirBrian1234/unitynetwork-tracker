@@ -1,11 +1,11 @@
 package org.kostiskag.unitynetwork.tracker.rundata.table;
 
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import java.util.concurrent.locks.Lock;
+import java.util.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
 import java.security.PublicKey;
 import java.net.UnknownHostException;
 import java.io.IOException;
@@ -18,6 +18,7 @@ import org.kostiskag.unitynetwork.tracker.gui.MainWindow;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.BlueNodeEntry;
 import org.kostiskag.unitynetwork.tracker.rundata.entry.RedNodeEntry;
 import org.kostiskag.unitynetwork.tracker.service.sonar.BlueNodeClient;
+
 
 /**
  * A bluenode table holds the entries representing all the connected bluenodes on the network.

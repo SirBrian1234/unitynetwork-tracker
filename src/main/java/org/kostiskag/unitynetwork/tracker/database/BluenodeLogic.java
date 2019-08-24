@@ -9,7 +9,7 @@ import org.kostiskag.unitynetwork.common.pairs.Pair;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
 
 
-public class BluenodeLogic {
+public final class BluenodeLogic {
 
     public static boolean lookupBluenode(String name) throws SQLException, InterruptedException {
         try (Queries q = Queries.getInstance()) {

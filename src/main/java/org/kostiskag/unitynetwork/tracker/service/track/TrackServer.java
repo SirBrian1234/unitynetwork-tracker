@@ -8,8 +8,8 @@ import java.security.KeyPair;
 
 import org.kostiskag.unitynetwork.common.calculated.NumericConstraints;
 
-import org.kostiskag.unitynetwork.tracker.App;
 import org.kostiskag.unitynetwork.tracker.AppLogger;
+import org.kostiskag.unitynetwork.tracker.App;
 
 
 /**
