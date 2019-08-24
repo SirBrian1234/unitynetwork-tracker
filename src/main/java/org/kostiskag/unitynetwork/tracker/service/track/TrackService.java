@@ -121,7 +121,7 @@ final class TrackService extends Thread {
 			// Now is the proper time to ask for the BNtable Lock!!!
 			try {
 				Lock bnTableLock = BlueNodeTable.getInstance().aquireLock();
-				if (BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, BlueNodeHostname).isPresent()) {
+				if (BlueNodeTable.getInstance().getOptionalEntry(bnTableLock, BlueNodeHostname).isPresent()) {
 					//in other words in order to execute extensive queries you have to be logged in
 					if (args.length == 4 && args[0].equals(BlueNodeToTracker.LEASE_RN.value())) {
 						AppLogger.getLogger().consolePrint(pre + NodeType.BLUENODE + BlueNodeToTracker.LEASE_RN.value() + " from " + socket.getInetAddress().getHostAddress());

@@ -50,7 +50,7 @@ final class BlueNodeActions {
             if (BluenodeLogic.lookupBluenode(bluenodeHostname)) {
                 String address = socket.getInetAddress().getHostAddress();
                 int port = Integer.parseInt(givenPort);
-                if (!BlueNodeTable.getInstance().getOptionalNodeEntry(lock, bluenodeHostname).isPresent()) {
+                if (!BlueNodeTable.getInstance().getOptionalEntry(lock, bluenodeHostname).isPresent()) {
                     // normal connect for a non associated BN
                     try {
                         BlueNodeTable.getInstance().lease(lock, bluenodeHostname, pub, address, port);
@@ -77,7 +77,7 @@ final class BlueNodeActions {
     public static void RedLease(Lock bnTableLock, String bluenodeName, String givenHostname, String username, String givenHash,
                                 DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
-        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(bnTableLock, bluenodeName);
         if (b.isPresent()) {
             Optional<VirtualAddress> vAddressOpt = HostnameLogic.validateHostname(username, givenHostname, givenHash);
             if (vAddressOpt.isPresent()) {
@@ -113,7 +113,7 @@ final class BlueNodeActions {
      */
     public static void BlueRel(Lock bnTableLock, String hostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data = null;
-        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, hostname);
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(bnTableLock, hostname);
         if (b.isPresent()) {
             try {
                 BlueNodeTable.getInstance().release(bnTableLock, b.get());
@@ -134,12 +134,12 @@ final class BlueNodeActions {
      */
     public static void RedRel(Lock bnTableLock, String bluenodeName, String hostname, DataOutputStream writer, SecretKey sessionKey) throws IOException, GeneralSecurityException, IllegalAccessException, InterruptedException {
         String data = null;
-        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(bnTableLock, bluenodeName);
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(bnTableLock, bluenodeName);
         if (b.isPresent()) {
             RedNodeTable rnt = b.get().getRedNodes();
             try {
                 Lock rlock = rnt.aquireLock();
-                Optional<RedNodeEntry> r = rnt.getOptionalNodeEntry(rlock, hostname);
+                Optional<RedNodeEntry> r = rnt.getOptionalEntry(rlock, hostname);
                 if (r.isPresent()) {
                     rnt.release(rlock, r.get());
                     data = "RELEASED";
@@ -164,7 +164,7 @@ final class BlueNodeActions {
      */
     public static void GetPh(Lock lock, String BNTargetHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
         String data;
-        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, BNTargetHostname);
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(lock, BNTargetHostname);
         if (b.isPresent()) {
             BlueNodeEntry bn = b.get();
             data = bn.getAddress().asString() + " " + bn.getPort();
@@ -263,7 +263,7 @@ final class BlueNodeActions {
 
     public static void revokePublicKey(Lock lock, String blueNodeHostname, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, IllegalAccessException, GeneralSecurityException, IOException {
         //first check whether the bn is a member and release from the network
-        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, blueNodeHostname);
+        Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(lock, blueNodeHostname);
         if (b.isPresent()) {
             BlueNodeTable.getInstance().release(lock, b.get());
         }

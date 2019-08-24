@@ -31,7 +31,7 @@ final class CommonActions {
 	 * @param sessionKey
 	 */
 	public static void getBlueNodesPublic(Lock lock, String BlueNodeName, DataOutputStream writer, SecretKey sessionKey) throws InterruptedException, GeneralSecurityException, IOException {
-		Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalNodeEntry(lock, BlueNodeName);
+		Optional<BlueNodeEntry> b = BlueNodeTable.getInstance().getOptionalEntry(lock, BlueNodeName);
 		if (b.isPresent()) {
 			PublicKey pub = b.get().getPub();
 			SocketUtilities.sendAESEncryptedStringData(CryptoUtilities.objectToBase64StringRepresentation(pub), writer, sessionKey);
