@@ -14,6 +14,7 @@ import javax.crypto.SecretKey;
 
 import org.kostiskag.unitynetwork.common.address.VirtualAddress;
 import org.kostiskag.unitynetwork.common.entry.NodeType;
+import org.kostiskag.unitynetwork.common.serviceoperations.BlueNodeToTracker;
 import org.kostiskag.unitynetwork.common.utilities.SocketUtilities;
 
 import org.kostiskag.unitynetwork.tracker.database.BluenodeLogic;
@@ -55,16 +56,16 @@ final class BlueNodeActions {
                     // normal connect for a non associated BN
                     try {
                         BlueNodeTable.getInstance().lease(lock, bluenodeHostname, pub, address, port);
-                        data = "LEASED " + address;
+                        data = BlueNodeToTracker.LEASE_SUCCESS_RESPONSE.value()+" " + address;
                     } catch (Exception e) {
-                        data = "LEASE_FAILED";
+                        data = BlueNodeToTracker.LEASE_FAIL_RESPONSE.value();
                     }
                 }
             } else {
-                data = "LEASE_FAILED";
+                data = BlueNodeToTracker.LEASE_FAIL_RESPONSE.value();
             }
         } catch (InterruptedException | SQLException ex) {
-            data = "SYSTEM_ERROR";
+            data = BlueNodeToTracker.LEASE_ERROR_RESPONSE.value();;
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -88,21 +89,21 @@ final class BlueNodeActions {
                         Lock rl = rns.aquireLock();
                         try {
                             rns.lease(rl, givenHostname, vAddressOpt.get());
-                            data = "LEASED " + vAddressOpt.get().asString();
+                            data = BlueNodeToTracker.LEASE_RN_SUCCESS_RESPONSE.value()+" " + vAddressOpt.get().asString();
                         } catch (IllegalAccessException e) {
-                            data = "AUTH_FAILED " + vAddressOpt.get().asString();
+                            data = BlueNodeToTracker.LEASE_RN_FAIL_RESPONSE.value()+" "+ vAddressOpt.get().asString();
                         }
                     } finally {
                         rns.releaseLock();
                     }
                 } else {
-                    data = "ALLREADY_LEASED";
+                    data = BlueNodeToTracker.LEASE_RN_FAIL_RESPONSE_ALREADY_LEASED.value();
                 }
             } else {
-                data = "AUTH_FAILED";
+                data = BlueNodeToTracker.LEASE_RN_FAIL_RESPONSE.value();
             }
         } else {
-            data = "AUTH_FAILED";
+            data = BlueNodeToTracker.LEASE_RN_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -118,12 +119,12 @@ final class BlueNodeActions {
         if (b.isPresent()) {
             try {
                 BlueNodeTable.getInstance().release(bnTableLock, b.get());
-                data = "RELEASED";
+                data = BlueNodeToTracker.RELEASE_SUCCESS_RESPONSE.value();
             } catch (IllegalAccessException e) {
-                data = "RELEASE_FAILED";
+                data = BlueNodeToTracker.RELEASE_FAIL_RESPONSE.value();
             }
         } else {
-            data = "RELEASE_FAILED";
+            data = BlueNodeToTracker.RELEASE_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -143,17 +144,17 @@ final class BlueNodeActions {
                 Optional<RedNodeEntry> r = rnt.getOptionalEntry(rlock, hostname);
                 if (r.isPresent()) {
                     rnt.release(rlock, r.get());
-                    data = "RELEASED";
+                    data = BlueNodeToTracker.RELEASE_RN_SUCCESS_RESPONSE.value();
                 } else {
-                    data = "NOT_AUTHORIZED";
+                    data = BlueNodeToTracker.RELEASE_RN_FAIL_RESPONSE.value();
                 }
             } catch (InterruptedException e) {
-                data = "SYSTEM_ERROR";
+                data = BlueNodeToTracker.RELEASE_RN_ERROR_RESPONSE.value();
             } finally {
                 rnt.releaseLock();
             }
         } else {
-            data = "NOT_AUTHORIZED";
+            data = BlueNodeToTracker.RELEASE_RN_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -170,7 +171,7 @@ final class BlueNodeActions {
             BlueNodeEntry bn = b.get();
             data = bn.getAddress().asString() + " " + bn.getPort();
         } else {
-            data = "OFFLINE";
+            data = BlueNodeToTracker.GETPH_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -184,9 +185,9 @@ final class BlueNodeActions {
         String data;
         BlueNodeEntry bn = BlueNodeTable.getInstance().reverseLookupBnBasedOnRn(lock, hostname);
         if (bn != null) {
-            data = "ONLINE " + bn.getHostname() + " " + bn.getAddress().asString() + " " + bn.getPort();
+            data = bn.getHostname() + " " + bn.getAddress().asString() + " " + bn.getPort();
         } else {
-            data = "OFFLINE";
+            data = BlueNodeToTracker.CHECK_RN_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
@@ -202,15 +203,12 @@ final class BlueNodeActions {
 
         BlueNodeEntry bn = BlueNodeTable.getInstance().reverseLookupBnBasedOnRnVaddr(lock, vaddress);
         if (bn != null) {
-            data = "ONLINE " + bn.getHostname() + " " + bn.getAddress().asString() + " " + bn.getPort();
+            data = bn.getHostname() + " " + bn.getAddress().asString() + " " + bn.getPort();
         } else {
-            data = "OFFLINE";
+            data = BlueNodeToTracker.CHECK_RNA_FAIL_RESPONSE.value();
         }
         SocketUtilities.sendAESEncryptedStringData(data, writer, sessionKey);
     }
-
-
-
 
     public static void LookupByHostname(String hostname, DataOutputStream writer, SecretKey sessionKey) {
         Optional<VirtualAddress> vaddrOpt = HostnameLogic.lookupVaddress(hostname);
@@ -223,7 +221,7 @@ final class BlueNodeActions {
             }
         } else {
             try {
-                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.LOOKUP_H_FAIL_RESPONSE.value(), writer, sessionKey);
             } catch (GeneralSecurityException | IOException ex) {
                 AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
             }
@@ -237,7 +235,7 @@ final class BlueNodeActions {
              v = VirtualAddress.valueOf(vaddress);
         } catch (UnknownHostException e) {
             try {
-                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.LOOKUP_V_FAIL_RESPONSE.value(), writer, sessionKey);
             }  catch (GeneralSecurityException | IOException ex) {
                 AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
                 return;
@@ -254,7 +252,7 @@ final class BlueNodeActions {
             }
         } else {
             try {
-                SocketUtilities.sendAESEncryptedStringData("NOT_FOUND", writer, sessionKey);
+                SocketUtilities.sendAESEncryptedStringData(BlueNodeToTracker.LOOKUP_V_FAIL_RESPONSE.value(), writer, sessionKey);
             }  catch (GeneralSecurityException | IOException ex) {
                 AppLogger.getLogger().consolePrint(ex.getLocalizedMessage());
                 return;
