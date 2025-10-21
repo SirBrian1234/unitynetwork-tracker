@@ -15,9 +15,6 @@ The network is based in three key-principles:
 ## Reasoning
 This software was build as part of my BSc Thesis in order to demonstare a live and tangible example of a better version of today's Internet. Inside the network, users may experience a much more vivid communication, the ability to share any kind of data or services between them and the ability to know each other. 
 
-In order to learn more about the Thesis please visit the following url:
-https://kostiskag.wordpress.com/2017/05/25/unity-network/
-
 ### Some feasible examples of the network's behaviour are:
 In general, a host-client may perform any kind of task that is currently being done in an IP network as the Internet
 **plus** that IP to IP communication is enhanced and the connected host clients may have a direct communication between them in the form of:
@@ -32,8 +29,8 @@ In general, a host-client may perform any kind of task that is currently being d
 ## Applications
 UnityNetwork is composed by three software applications which may be found on their respective repositories:
 * unitynetwork-tracker  [you are here] : The tracker is responsible to keep the network authentication and identification data but does not forward any network traffic.
-* unitynetwork-bluenode [https://github.com/kostiskag/unitynetwork-bluenode] : Bluenode hosts are responsible to forward the network traffic from rednode to bluenode and from bluenode to bluenode. All the bluenodes use a tracker to authenticate.
-* unitynetwork-rednode  [https://github.com/kostiskag/unitynetwork-rednode] : The rednode is the host-client application which is able to transfer a host to the network and exchange traffic towards the closest bluenode.
+* unitynetwork-bluenode [https://github.com/SirBrian1234/unitynetwork-bluenode] : Bluenode hosts are responsible to forward the network traffic from rednode to bluenode and from bluenode to bluenode. All the bluenodes use a tracker to authenticate.
+* unitynetwork-rednode  [https://github.com/SirBrian1234/unitynetwork-rednode] : The rednode is the host-client application which is able to transfer a host to the network and exchange traffic towards the closest bluenode.
 
 # unitynetwork-tracker
 The tracker is responsible to keep the network authentication and identification data but does not forward any network traffic.
