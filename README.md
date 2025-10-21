@@ -71,9 +71,6 @@ java -jar UnityNetwork_Tracker-1.0.jar
 Unity Network Tracker may be used with an external database such as mysql if needed.
 In which case the database may be linked towards a web interface to let the users create and edit their accounts via web.
 
-## Authorship
-The source code was created by Konstantinos Kagiampakis
-
 ## License
 The project's article and source code are licensed under Creative Commons Atribution 4.0 International: https://creativecommons.org/licenses/by/4.0/
 
